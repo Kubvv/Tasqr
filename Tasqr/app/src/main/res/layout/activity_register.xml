@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/backgroundlogin"
+    tools:context=".RegisterActivity">
+
+    <EditText
+        android:id="@+id/name_textfield"
+        android:layout_width="244dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/text_color"
+        android:ems="10"
+        android:fontFamily="sans-serif-medium"
+        android:hint="@string/name"
+        android:inputType="textPersonName"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/text_color"
+        app:layout_constraintBottom_toTopOf="@+id/surname_textfield"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/Tasqr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/app_name"
+        android:textColor="@color/text_color"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/account_creation_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.95" />
+
+    <TextView
+        android:id="@+id/other_option"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/already_have"
+        android:textColor="@color/text_color"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/register_button" />
+
+    <Button
+        android:id="@+id/login_activity_button"
+        android:layout_width="147dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="3dp"
+        android:background="@android:color/transparent"
+        android:text="@string/login_in"
+        android:textAllCaps="false"
+        android:textColor="@color/text_color"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/other_option" />
+
+    <EditText
+        android:id="@+id/email_textfield"
+        android:layout_width="244dp"
+        android:layout_height="50dp"
+        android:backgroundTint="@color/text_color"
+        android:ems="10"
+        android:fontFamily="sans-serif-medium"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/text_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.53" />
+
+    <EditText
+        android:id="@+id/password_textfield"
+        android:layout_width="244dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/text_color"
+        android:ems="10"
+        android:fontFamily="sans-serif-medium"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/text_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/email_textfield" />
+
+    <TextView
+        android:id="@+id/account_creation_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif-medium"
+        android:text="@string/creation"
+        android:textColor="@color/text_color"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/name_textfield"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.9" />
+
+    <EditText
+        android:id="@+id/surname_textfield"
+        android:layout_width="244dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/text_color"
+        android:ems="10"
+        android:fontFamily="sans-serif-medium"
+        android:hint="@string/surname"
+        android:inputType="textPersonName"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/text_color"
+        app:layout_constraintBottom_toTopOf="@+id/email_textfield"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/register_button"
+        android:layout_width="244dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/transparent"
+        android:text="@string/register"
+        android:textColor="@color/text_color"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/password_textfield" />
+</androidx.constraintlayout.widget.ConstraintLayout>
