@@ -15,6 +15,7 @@ CREATE TABLE Account (
     name VARCHAR2(30),
     surname VARCHAR2(30),
 	mail VARCHAR2(50),
+	password VARCHAR2(50)
 );
 
 CREATE TABLE Company (

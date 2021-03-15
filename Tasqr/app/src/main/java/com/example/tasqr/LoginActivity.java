@@ -16,6 +16,9 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etPass;
     Bundle bundle = new Bundle();
 
+    /* lifecycle functions */
+
+    /* Initialize view objects */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,20 +30,25 @@ public class LoginActivity extends AppCompatActivity {
         etPass = (EditText) findViewById(R.id.password_textfield);
     }
 
-    public void openRegisterActivity() {
-        Intent intent = new Intent(this, RegisterActivity.class);
-        startActivity(intent);
-    }
-
+    /* Resume previous inputs in textfields */
     protected void onResume() {
         etMail.setText(bundle.getString("etMail"));
         etPass.setText(bundle.getString("etPass"));
         super.onResume();
     }
 
+    /* Saves inputs from textfields */
     protected void onPause() {
         bundle.putString("etMail", etMail.getText().toString());
         bundle.putString("etPass", etPass.getText().toString());
         super.onPause();
+    }
+
+    /* Button listener function */
+
+    /* Opens register activity */
+    public void openRegisterActivity() {
+        Intent intent = new Intent(this, RegisterActivity.class);
+        startActivity(intent);
     }
 }
