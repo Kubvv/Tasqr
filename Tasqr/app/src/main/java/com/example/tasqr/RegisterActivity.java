@@ -2,6 +2,7 @@ package com.example.tasqr;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.*;
 
 import androidx.annotation.NonNull;
@@ -32,7 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
     private final EditText[] ets = new EditText[4];
     private final Bundle bundle = new Bundle();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private boolean mailUniqueness = true;
+    private boolean mailUniqueness = false;
 
     /* Lifecycle functions */
 
@@ -88,14 +89,14 @@ public class RegisterActivity extends AppCompatActivity {
         if (validateInput(data)) {
             User user = new User(data[0], data[1], data[2], data[3]);
             db.collection("Users").document(data[2])
-                    .set(user)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            toastMessage("Successfully registered");
-                            openLoginActivity();
-                        }
-                    });
+                .set(user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        toastMessage("Successfully registered");
+                        openLoginActivity();
+                    }
+                });
         }
     }
 
@@ -148,14 +149,14 @@ public class RegisterActivity extends AppCompatActivity {
                     DocumentSnapshot doc = task.getResult();
                     if (doc.exists()) {
                         mailUniqueness = false;
+                        toastMessage("User already exists");
                     }
                     else {
                         mailUniqueness = true;
                     }
-
                 }
             }
-        }); */
+        });*/
 
         return true;
     }

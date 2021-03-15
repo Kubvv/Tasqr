@@ -8,10 +8,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private Button registerButton;
+    private Button goToRegisterButton;
+    private Button loginUserButton;
     private EditText etMail;
     private EditText etPass;
     Bundle bundle = new Bundle();
@@ -24,8 +26,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        registerButton = (Button) findViewById(R.id.register_activity_button);
-        registerButton.setOnClickListener(v -> openRegisterActivity());
+        goToRegisterButton = (Button) findViewById(R.id.register_activity_button);
+        goToRegisterButton.setOnClickListener(v -> openRegisterActivity());
+        loginUserButton = (Button) findViewById(R.id.login_button);
+        loginUserButton.setOnClickListener(v -> loginUser());
         etMail = (EditText) findViewById(R.id.email_textfield);
         etPass = (EditText) findViewById(R.id.password_textfield);
     }
@@ -50,5 +54,29 @@ public class LoginActivity extends AppCompatActivity {
     public void openRegisterActivity() {
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
+    }
+
+    public void loginUser() {
+        String mail = etMail.getText().toString();
+        String pass = etPass.getText().toString();
+
+        if (validateInput(mail, pass)) {
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    /* Messages user with long toast message */
+    private void toastMessage(String message) {
+        Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
+    }
+
+    /* Checks if there is a registered user with given mail and corresponding password
+     * If yes return true, otherwise return false
+     */
+    private boolean validateInput(String mail, String pass) {
+        return true;
     }
 }
