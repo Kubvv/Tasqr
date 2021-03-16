@@ -33,7 +33,6 @@ public class RegisterActivity extends AppCompatActivity {
     private final EditText[] ets = new EditText[4];
     private final Bundle bundle = new Bundle();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private boolean mailUniqueness = false;
 
     /* Lifecycle functions */
 
@@ -86,22 +85,11 @@ public class RegisterActivity extends AppCompatActivity {
         data[2] = ets[2].getText().toString();
         data[3] = ets[3].getText().toString();
 
-        if (validateInput(data)) {
-            User user = new User(data[0], data[1], data[2], data[3]);
-            db.collection("Users").document(data[2])
-                .set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        toastMessage("Successfully registered");
-                        openLoginActivity();
-                    }
-                });
-        }
+        validateInput(data);
     }
 
     /* Validates if given account is unique and correct */
-    private boolean validateInput(String[] data) {
+    private void validateInput(String[] data) {
         String item;
         HashMap<Integer, String> dic = new HashMap<>();
         dic.put(0, "Name");
@@ -113,12 +101,12 @@ public class RegisterActivity extends AppCompatActivity {
             if (data[i].isEmpty()) {
                 item = dic.get(i);
                 toastMessage(item + " cannot be empty");
-                return false;
+                return;
             }
             if (data[i].length() > 40 && i != 2) {
                 item = dic.get(i);
                 toastMessage(item + "must be at most 40 letters long");
-                return false;
+                return;
             }
         }
 
@@ -126,39 +114,48 @@ public class RegisterActivity extends AppCompatActivity {
         Matcher m = p.matcher(data[0]);
         if (!m.matches()) {
             toastMessage("Name can only contain characters between A-Z and a-z");
-            return false;
+            return;
         }
         m = p.matcher(data[1]);
         if (!m.matches()) {
             toastMessage("Surname can only contain characters between A-z and a-z");
-            return false;
+            return;
         }
         p = Pattern.compile("@");
         m = p.matcher(data[2]);
         if (!m.find()) {
             toastMessage("Not a valid mail");
-            return false;
+            return;
         }
 
-        /* TO DO clean this shit */
-        /*DocumentReference checkMail = db.collection("Users").document(data[2]);
+        DocumentReference checkMail = db.collection("Users").document(data[2]);
         checkMail.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot doc = task.getResult();
                     if (doc.exists()) {
-                        mailUniqueness = false;
                         toastMessage("User already exists");
                     }
                     else {
-                        mailUniqueness = true;
+                        addUser(data);
                     }
                 }
             }
-        });*/
+        });
+    }
 
-        return true;
+    private void addUser(String[] data) {
+        User user = new User(data[0], data[1], data[2], data[3]);
+        db.collection("Users").document(data[2])
+            .set(user)
+            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    toastMessage("Successfully registered");
+                    openLoginActivity();
+                }
+            });
     }
 
     /* Messages user with long toast message */
