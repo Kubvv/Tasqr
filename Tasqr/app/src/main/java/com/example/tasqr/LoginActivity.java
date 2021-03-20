@@ -13,18 +13,28 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.api.LogDescriptor;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String TAG = "LoginActivity";
+    
     private Button goToRegisterButton;
     private Button loginUserButton;
     private EditText etMail;
     private EditText etPass;
     Bundle bundle = new Bundle();
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseDatabase database;
+    private DatabaseReference userdb;
 
     /* lifecycle functions */
 
@@ -40,6 +50,9 @@ public class LoginActivity extends AppCompatActivity {
         loginUserButton.setOnClickListener(v -> validateInput());
         etMail = (EditText) findViewById(R.id.email_textfield);
         etPass = (EditText) findViewById(R.id.password_textfield);
+
+        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+        userdb = database.getReference("Users");
     }
 
     /* Resume previous inputs in textfields */
@@ -72,8 +85,35 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        DocumentReference checkMail = db.collection("Users").document(mail);
-        checkMail.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        Query q = database.getReference().child("Users").orderByChild("mail").equalTo(mail);
+        q.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d(TAG, "onDataChange: " + snapshot.getChildrenCount());
+                if (snapshot.getChildrenCount() == 1) {
+                    for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                        User u = childSnapshot.getValue(User.class);
+                        if (u.getPassword().equals(pass)) {
+                            Log.d(TAG, "onDataChange: " + u.getPassword() + " " + u.getMail() + " " + pass);
+                            loginUser(u.getName(), u.getSurname());
+                        }
+                        else {
+                            toastMessage("Wrong password");
+                        }
+                    }
+                }
+                else {
+                    toastMessage("Wrong mail or password");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                toastMessage("error" + error.toString());
+            }
+        });
+
+        /*{
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -86,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
             }
-        });
+        }); */
     }
 
     /* Performs basic setup before moving on to mainActivity */
