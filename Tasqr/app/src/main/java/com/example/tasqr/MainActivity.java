@@ -50,9 +50,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     //Sample project list data
-    private String[] projectNames = {"CuberPunkt 2069", "Tasqr 2.0", "Kill me pls"};
-    private String[] ownerNames = {"DVDprj blue", "3D studio", "pls help"};
-    private Integer[] projectImages = {R.drawable.templateproject, R.drawable.templateproject, R.drawable.templateproject};
+    private String[] projectNames =
+            {"CuberPunkt 2069",
+                    "Tasqr 2.0",
+                    "Kill me pls",
+                    "nasm_printf",
+                    "yo mama fat",
+                    "Bitcho",
+                    "projekt 3",
+                    "mamma mia",
+                    "wiedźmiak 4",
+                    "Tasqr 3.0",
+                    "gamma the game"};
+
+    private String[] ownerNames =
+            {"DVDprj blue",
+                    "3D studio",
+                    "pls help",
+                    "XDDD",
+                    ":0000",
+                    ":ccccc",
+                    ">:D",
+                    ":{:{:{",
+                    "3D studio",
+                    "3D studio",
+                    "3D studio"};
+
+    private Integer[] projectImages =
+            {R.drawable.templateproject,
+                    R.drawable.templateproject,
+                    R.drawable.templateproject,
+                    R.drawable.templateproject,
+                    R.drawable.templateproject,
+                    R.drawable.templateproject,
+                    R.drawable.templateproject,
+                    R.drawable.templateproject,
+                    R.drawable.templateproject,
+                    R.drawable.templateproject,
+                    R.drawable.templateproject};
 
     private ListView projectList;
 
