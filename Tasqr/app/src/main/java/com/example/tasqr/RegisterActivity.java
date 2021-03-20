@@ -19,6 +19,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.api.LogDescriptor;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -28,11 +31,16 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    private static final String TAG = "RegisterActivity";
+
     private Button goToLoginButton;
     private Button registerUserButton;
     private final EditText[] ets = new EditText[4];
     private final Bundle bundle = new Bundle();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    FirebaseDatabase database;
+    DatabaseReference myRef;
 
     /* Lifecycle functions */
 
@@ -41,6 +49,9 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("Users");
 
         goToLoginButton = (Button) findViewById(R.id.login_activity_button);
         goToLoginButton.setOnClickListener(v -> openLoginActivity());
@@ -147,15 +158,18 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void addUser(String[] data) {
         User user = new User(data[0], data[1], data[2], data[3]);
-        db.collection("Users").document(data[2])
-            .set(user)
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    toastMessage("Successfully registered");
-                    openLoginActivity();
-                }
-            });
+        toastMessage(";DDDDDDDDDDDDDDD");
+        myRef.child(data[2]).setValue(user);
+
+//        db.collection("Users").document(data[2])
+//            .set(user)
+//            .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                @Override
+//                public void onSuccess(Void aVoid) {
+//                    toastMessage("Successfully registered");
+//                    openLoginActivity();
+//                }
+//            });
     }
 
     /* Messages user with long toast message */
