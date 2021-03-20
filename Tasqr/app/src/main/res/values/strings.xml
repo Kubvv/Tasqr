@@ -11,4 +11,5 @@
     <string name="login_in_account">Log in to your account</string>
     <string name="login_in">Log in</string>
     <string name="register">Register</string>
+    <string name="profile">Profile</string>
 </resources>

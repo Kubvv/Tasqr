@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot doc = task.getResult();
                     if (doc.exists() && doc.get("password").toString().equals(pass)) {
-                        loginUser();
+                        loginUser(doc.get("name").toString(), doc.get("surname").toString());
                     }
                     else {
                         toastMessage("Wrong mail or password");
@@ -90,9 +90,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /* Performs basic setup before moving on to mainActivity */
-    private void loginUser() {
+    private void loginUser(String name, String surname) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("name", name);
+        intent.putExtra("surname", surname);
         startActivity(intent);
         finish();
     }
