@@ -134,7 +134,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             case R.id.addProjectButton:
                 Intent addProjectIntent = new Intent(this, AddProjectActivity.class);
-                addProjectIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(addProjectIntent);
                 break;
             case R.id.profileButton:
@@ -146,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 Log.d(TAG, "onClick: about to start profile activity");
 
-                profileIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(profileIntent);
                 break;
         }

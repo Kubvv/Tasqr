@@ -36,9 +36,7 @@
         app:layout_constraintStart_toStartOf="@+id/addedProjectName"
         app:layout_constraintTop_toBottomOf="@+id/addedProjectName"
         android:hint="@string/company"
-        android:textColorHint="@color/alt_text_color"
-        android:t
-        android:autofillHints="" />
+        android:textColorHint="@color/alt_text_color" />
 
     <TextView
         android:id="@+id/textView4"
@@ -53,7 +51,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextTextMultiLine"
+        android:id="@+id/desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
@@ -70,6 +68,7 @@
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addPeopleButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
