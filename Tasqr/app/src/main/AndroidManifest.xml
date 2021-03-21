@@ -9,10 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Tasqr">
-        <activity android:name=".RegisterActivity"
-            android:theme="@style/Theme.Tasqr_NoToolBar">
-        </activity>
-        <activity android:name=".LoginActivity"
+        <activity android:name=".UserListActivity"></activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
+        <activity
+            android:name=".LoginActivity"
             android:theme="@style/Theme.Tasqr_NoToolBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,16 +22,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity"
-            android:theme="@style/Theme.Tasqr_NoToolBar">
-        </activity>
-        <activity android:name=".ProfileActivity"
-            android:theme="@style/Theme.Tasqr_NoToolBar">
-        </activity>
-        <activity android:name=".AddProjectActivity"
-            android:theme="@style/Theme.Tasqr_NoToolBar">
-        </activity>
-
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
+        <activity
+            android:name=".ProfileActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
+        <activity
+            android:name=".AddProjectActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
     </application>
 
 </manifest>
