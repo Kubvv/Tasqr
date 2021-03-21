@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etPass;
     Bundle bundle = new Bundle();
     private FirebaseDatabase database;
-    private DatabaseReference userdb;
+//    private DatabaseReference userdb;
 
     /* lifecycle functions */
 
@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
         etPass = (EditText) findViewById(R.id.password_textfield);
 
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-        userdb = database.getReference("Users");
+//        userdb = database.getReference("Users");
     }
 
     /* Resume previous inputs in textfields */
@@ -95,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                         User u = childSnapshot.getValue(User.class);
                         if (u.getPassword().equals(pass)) {
                             Log.d(TAG, "onDataChange: " + u.getPassword() + " " + u.getMail() + " " + pass);
-                            loginUser(u.getName(), u.getSurname());
+                            loginUser(u.getName(), u.getSurname(), u.getMail());
                         }
                         else {
                             toastMessage("Wrong password");
@@ -130,11 +130,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /* Performs basic setup before moving on to mainActivity */
-    private void loginUser(String name, String surname) {
+    private void loginUser(String name, String surname, String mail) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("name", name);
         intent.putExtra("surname", surname);
+        intent.putExtra("mail", mail);
         startActivity(intent);
         finish();
     }

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +16,16 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final String TAG = "MainActivity";
+
+    private String logged_name;
+    private String logged_surname;
+    private String logged_mail;
 
     private class ProjectList extends ArrayAdapter {
+
         private String[] projectNames;
         private String[] ownerNames;
         private Integer[] projectImages;
@@ -29,7 +37,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             this.projectNames = projectNames;
             this.ownerNames = ownerNames;
             this.projectImages = projectImages;
-
         }
 
         @Override
@@ -109,8 +116,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         addProjectButton.setOnClickListener(this);
         profileButton.setOnClickListener(this);
-        name.setText(getIntent().getStringExtra("name"));
-        surname.setText(getIntent().getStringExtra("surname"));
+
+        logged_name = getIntent().getStringExtra("name");
+        logged_surname = getIntent().getStringExtra("surname");
+        logged_mail = getIntent().getStringExtra("mail");
+
+        name.setText(logged_name);
+        surname.setText(logged_surname);
 
         projectList = findViewById(R.id.projectList);
         projectList.setAdapter(new ProjectList(this, projectNames, ownerNames, projectImages));
@@ -127,6 +139,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.profileButton:
                 Intent profileIntent = new Intent(this, ProfileActivity.class);
+
+//                profileIntent.putExtra("name", logged_name);
+//                profileIntent.putExtra("surname", logged_surname);
+                profileIntent.putExtra("logged_mail", logged_mail);
+
+                Log.d(TAG, "onClick: about to start profile activity");
+
                 profileIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(profileIntent);
                 break;
