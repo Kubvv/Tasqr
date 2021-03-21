@@ -1,5 +1,6 @@
 package com.example.tasqr;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
@@ -15,6 +16,17 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.api.LogDescriptor;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -24,14 +36,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String logged_surname;
     private String logged_mail;
 
+    private FirebaseDatabase database;
+
     private class ProjectList extends ArrayAdapter {
 
-        private String[] projectNames;
-        private String[] ownerNames;
-        private Integer[] projectImages;
+        private ArrayList<String> projectNames;
+        private ArrayList<String> ownerNames;
+        private ArrayList<Integer> projectImages;
         private Activity context;
 
-        public ProjectList(Activity context, String[] projectNames, String[] ownerNames, Integer[] projectImages) {
+        public ProjectList(Activity context, ArrayList<String> projectNames, ArrayList<String> ownerNames, ArrayList<Integer> projectImages) {
             super(context, R.layout.project_list_item, projectNames);
             this.context = context;
             this.projectNames = projectNames;
@@ -49,52 +63,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             TextView ownerName = (TextView) row.findViewById(R.id.projectOwner);
             ImageView projectImage = (ImageView) row.findViewById(R.id.projectImage);
 
-            projectName.setText(projectNames[position]);
-            ownerName.setText(ownerNames[position]);
-            projectImage.setImageResource(projectImages[position]);
+            projectName.setText(projectNames.get(position));
+            ownerName.setText(ownerNames.get(position));
+            projectImage.setImageResource(projectImages.get(position));
             return row;
         }
     }
 
     //Sample project list data
-    private String[] projectNames =
-            {"CuberPunkt 2069",
-                    "Tasqr 2.0",
-                    "Kill me pls",
-                    "nasm_printf",
-                    "yo mama fat",
-                    "Bitcho",
-                    "projekt 3",
-                    "mamma mia",
-                    "wiedźmiak 4",
-                    "Tasqr 3.0",
-                    "gamma the game"};
-
-    private String[] ownerNames =
-            {"DVDprj blue",
-                    "3D studio",
-                    "pls help",
-                    "XDDD",
-                    ":0000",
-                    ":ccccc",
-                    ">:D",
-                    ":{:{:{",
-                    "3D studio",
-                    "3D studio",
-                    "3D studio"};
-
-    private Integer[] projectImages =
-            {R.drawable.templateproject,
-                    R.drawable.templateproject,
-                    R.drawable.templateproject,
-                    R.drawable.templateproject,
-                    R.drawable.templateproject,
-                    R.drawable.templateproject,
-                    R.drawable.templateproject,
-                    R.drawable.templateproject,
-                    R.drawable.templateproject,
-                    R.drawable.templateproject,
-                    R.drawable.templateproject};
+    private ArrayList<String> projectNames = new ArrayList<>();
+    private ArrayList<String> companyNames = new ArrayList<>();
+    private ArrayList<Integer> projectImages = new ArrayList<>();
 
     private ListView projectList;
 
@@ -104,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView name;
     private TextView surname;
 
+    /* Methods */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,15 +97,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         addProjectButton.setOnClickListener(this);
         profileButton.setOnClickListener(this);
 
-        logged_name = getIntent().getStringExtra("name");
-        logged_surname = getIntent().getStringExtra("surname");
-        logged_mail = getIntent().getStringExtra("mail");
+        logged_name = getIntent().getStringExtra("logged_name");
+        logged_surname = getIntent().getStringExtra("logged_surname");
+        logged_mail = getIntent().getStringExtra("logged_mail");
 
         name.setText(logged_name);
         surname.setText(logged_surname);
 
-        projectList = findViewById(R.id.projectList);
-        projectList.setAdapter(new ProjectList(this, projectNames, ownerNames, projectImages));
+        fetchProjectData();
     }
 
     @Override
@@ -134,6 +113,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         {
             case R.id.addProjectButton:
                 Intent addProjectIntent = new Intent(this, AddProjectActivity.class);
+                addProjectIntent.putExtra("logged_name", logged_name);
+                addProjectIntent.putExtra("logged_surname", logged_surname);
+                addProjectIntent.putExtra("logged_mail", logged_mail);
                 startActivity(addProjectIntent);
                 break;
             case R.id.profileButton:
@@ -148,5 +130,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(profileIntent);
                 break;
         }
+    }
+
+    private void fetchProjectData() {
+        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+        DatabaseReference usersRef = database.getReference("Users");
+        DatabaseReference projectsRef = database.getReference("Projects");
+
+        Query qu = usersRef.orderByChild("mail").equalTo(logged_mail);
+        qu.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User u = new User();
+                for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                    u = childSnapshot.getValue(User.class);
+                    Log.d(TAG, "onDataChange: " + u.getName());
+                }
+
+                ArrayList<String> tmp = u.getProjects();
+                for (int i = 1; i < tmp.size(); i++) {
+                    Log.d(TAG, "onDataChange: " + tmp.get(i));
+                    Query qp = projectsRef.orderByKey().equalTo(tmp.get(i));
+                    qp.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            Project p = new Project();
+                            for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                                p = childSnapshot.getValue(Project.class);
+                                Log.d(TAG, "onDataChange: " + p.getName());
+
+                                projectNames.add(p.getName());
+                                companyNames.add(p.getCompany());
+                                projectImages.add(R.drawable.templateproject);
+                            }
+
+                            projectList = findViewById(R.id.projectList);
+                            projectList.setAdapter(new ProjectList(MainActivity.this, projectNames, companyNames, projectImages));
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            toastMessage("error" + error.toString());
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                toastMessage("error" + error.toString());
+            }
+        });
+    }
+
+    /* Messages user with long toast message */
+    private void toastMessage(String message) {
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
     }
 }

@@ -133,9 +133,9 @@ public class LoginActivity extends AppCompatActivity {
     private void loginUser(String name, String surname, String mail) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("name", name);
-        intent.putExtra("surname", surname);
-        intent.putExtra("mail", mail);
+        intent.putExtra("logged_name", name);
+        intent.putExtra("logged_surname", surname);
+        intent.putExtra("logged_mail", mail);
         startActivity(intent);
         finish();
     }

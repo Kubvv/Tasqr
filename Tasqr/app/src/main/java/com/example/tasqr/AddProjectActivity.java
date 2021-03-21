@@ -5,12 +5,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class AddProjectActivity extends AppCompatActivity {
+
+    private String logged_name;
+    private String logged_surname;
+    private String logged_mail;
 
     private Bundle bundle = new Bundle();
     private FloatingActionButton addPeopleButton;
@@ -23,18 +28,39 @@ public class AddProjectActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addproject);
 
+        bundle = getIntent().getExtras();
+        logged_name = bundle.getString("logged_name");
+        logged_surname = bundle.getString("logged_surname");
+        logged_mail = bundle.getString("logged_mail");
+
         addPeopleButton = findViewById(R.id.addPeopleButton);
         projectName = findViewById(R.id.addedProjectName);
         companyName = findViewById(R.id.addedProjectOwner);
         desc = findViewById(R.id.desc);
 
-        addPeopleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent addPeopleIntent = new Intent(AddProjectActivity.this, AddUsersActivity.class);
-                startActivity(addPeopleIntent);
-            }
+        addPeopleButton.setOnClickListener(v -> {
+            goToAddUser();
         });
+    }
+
+    private void goToAddUser() {
+
+        String project_name = projectName.getText().toString();
+        String company_name = companyName.getText().toString();
+        String description = desc.getText().toString();
+
+        if (project_name.length() == 0 || company_name.length() == 0) {
+            toastMessage("Project name and company name cannot be empty");
+        }
+
+        Intent addPeopleIntent = new Intent(AddProjectActivity.this, AddUsersActivity.class);
+        addPeopleIntent.putExtra("logged_name", logged_name);
+        addPeopleIntent.putExtra("logged_surname", logged_surname);
+        addPeopleIntent.putExtra("logged_mail", logged_mail);
+        addPeopleIntent.putExtra("project_name", project_name);
+        addPeopleIntent.putExtra("company_name", company_name);
+        addPeopleIntent.putExtra("description", description);
+        startActivity(addPeopleIntent);
     }
 
     /* Resume previous inputs in textfields */
@@ -53,5 +79,9 @@ public class AddProjectActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    /* Messages user with long toast message */
+    private void toastMessage(String message) {
+        Toast.makeText(AddProjectActivity.this, message, Toast.LENGTH_LONG).show();
+    }
 
 }

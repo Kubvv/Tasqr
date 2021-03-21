@@ -2,12 +2,15 @@ package com.example.tasqr;
 
 import com.google.firebase.firestore.ServerTimestamp;
 
+import java.util.ArrayList;
+
 public class User {
 
     private String name;
     private String surname;
     private String mail;
     private String password;
+    private ArrayList<String> projects; /* TO DO change way of identifying projects */
 
     public User() {}
 
@@ -16,7 +19,11 @@ public class User {
         this.surname = surname;
         this.mail = mail;
         this.password = password;
+        projects = new ArrayList<>();
+        projects.add("root");
     }
+
+    /* getters */
 
     public String getName() {
         return name;
@@ -36,6 +43,13 @@ public class User {
 
     public String getNameSurname() { return name + " " + surname; }
 
+    public ArrayList<String> getProjects() { return projects; }
+
+    /* setters */
+
+    public void setProjects(ArrayList<String> projects) {
+        this.projects = projects;
+    }
 
     public void setName(String name) {
         this.name = name;

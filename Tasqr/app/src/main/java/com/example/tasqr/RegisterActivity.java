@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,14 +20,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.LogDescriptor;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -37,10 +40,8 @@ public class RegisterActivity extends AppCompatActivity {
     private Button registerUserButton;
     private final EditText[] ets = new EditText[4];
     private final Bundle bundle = new Bundle();
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    FirebaseDatabase database;
-    DatabaseReference myRef;
+    private FirebaseDatabase database;
+    private DatabaseReference usersRef;
 
     /* Lifecycle functions */
 
@@ -50,9 +51,6 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("Users");
-
         goToLoginButton = (Button) findViewById(R.id.login_activity_button);
         goToLoginButton.setOnClickListener(v -> openLoginActivity());
         registerUserButton = (Button) findViewById(R.id.register_button);
@@ -61,6 +59,10 @@ public class RegisterActivity extends AppCompatActivity {
         ets[1] = findViewById(R.id.surname_textfield);
         ets[2] = findViewById(R.id.email_textfield);
         ets[3] = findViewById(R.id.password_textfield);
+
+        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+        usersRef = database.getReference("Users");
+
     }
 
     /* Resume previous inputs in textfields */
@@ -139,7 +141,26 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        DocumentReference checkMail = db.collection("Users").document(data[2]);
+        Query q = database.getReference().child("Users").orderByChild("mail").equalTo(data[2]);
+        q.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d(TAG, "onDataChange: " + snapshot.getChildrenCount());
+                if (snapshot.getChildrenCount() > 0) {
+                    toastMessage("User already exists");
+                }
+                else {
+                    addUser(data);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                toastMessage("error");
+            }
+        });
+
+        /*DocumentReference checkMail = db.collection("Users").document(data[2]);
         checkMail.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -153,23 +174,31 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 }
             }
-        });
+        });*/
     }
 
+    /* data is basic user info data[2] references user mail mail  */
     private void addUser(String[] data) {
-        User user = new User(data[0], data[1], data[2], data[3]);
-        toastMessage(";DDDDDDDDDDDDDDD");
-        myRef.child(data[2]).setValue(user);
 
-//        db.collection("Users").document(data[2])
-//            .set(user)
-//            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                @Override
-//                public void onSuccess(Void aVoid) {
-//                    toastMessage("Successfully registered");
-//                    openLoginActivity();
-//                }
-//            });
+        User user = new User(data[0], data[1], data[2], data[3]);
+        usersRef.child(data[2]).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                toastMessage("Successfully registered");
+                openLoginActivity();
+            }
+        });
+
+        /* Old firestore method */
+        /*db.collection("Users").document(data[2])
+            .set(user)
+            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    toastMessage("Successfully registered");
+                    openLoginActivity();
+                }
+            }); */
     }
 
     /* Messages user with long toast message */
