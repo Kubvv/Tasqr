@@ -2,8 +2,10 @@ package com.example.tasqr;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,22 +20,28 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+/* Profile activity has two functionalities, depending if you are inspecting your own profile or someone else's */
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "ProfileActivity";
 
-    private ImageView avatarImageView;
-    private TextView emailTextView, passwordTextView, nameTextView, surnameTextView;
-    private String logged_mail;
-    private String clicked_mail;
     private User user;
-    private Button buttonOptions, buttonLogout, buttonUserList, buttonCreateCompany;
+    /* Stores logged user mail */
+    private String logged_mail;
+    /* Stores clicked user mail, in order to fetch his data from db */
+    private String clicked_mail;
 
     private Bundle bndl = new Bundle();
 
+    /* Firebase database */
     private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
     private DatabaseReference rootRef = database.getReference();
     private DatabaseReference usersRef = rootRef.child("Users");
+
+    /* View items */
+    private ImageView avatarImageView;
+    private TextView emailTextView, passwordTextView, nameTextView, surnameTextView;
+    private Button buttonOptions, buttonLogout, buttonUserList, buttonCreateCompany;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +73,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }
 
         /* get user of clicked mail from database */
-
         Query query = usersRef.orderByChild("mail").equalTo(clicked_mail);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d(TAG, "onDataChange: children count " + snapshot.getChildrenCount());
                 for (DataSnapshot childSnapshot: snapshot.getChildren()) {
                     user = childSnapshot.getValue(User.class);
                 }
@@ -93,9 +99,15 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             buttonLogout.setVisibility(View.VISIBLE);
             buttonUserList.setVisibility(View.VISIBLE);
             buttonCreateCompany.setVisibility(View.VISIBLE);
+            /* TO DO kminilem jak zmienic kolor tych buttonow ale dupa */
+            buttonOptions.setBackgroundColor(Color.parseColor("#FFD900"));
+            buttonLogout.setBackgroundColor(Color.parseColor("#FFD900"));
+            buttonUserList.setBackgroundColor(Color.parseColor("#FFD900"));
+            buttonCreateCompany.setBackgroundColor(Color.parseColor("#FFD900"));
         }
     }
 
+    /* Basic method for determining clicked button */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -108,9 +120,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.button_user_list:
                 Intent userListIntent = new Intent(this, UserListActivity.class);
-
                 userListIntent.putExtra("logged_mail", logged_mail);
-
                 startActivity(userListIntent);
                 break;
             case R.id.button_create_company:
@@ -118,6 +128,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    /* Sets textviews accordingly to found user usr*/
     private void setTextViews(User usr) {
         nameTextView.setText(usr.getName());
         surnameTextView.setText(usr.getSurname());

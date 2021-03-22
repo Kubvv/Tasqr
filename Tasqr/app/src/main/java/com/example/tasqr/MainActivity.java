@@ -32,12 +32,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private static final String TAG = "MainActivity";
 
+    /* Logged user basic info */
     private String logged_name;
     private String logged_surname;
     private String logged_mail;
 
+    /* Firebase database */
     private FirebaseDatabase database;
 
+    /* Nested class that helps us in creating listView */
     private class ProjectList extends ArrayAdapter {
 
         private ArrayList<String> projectNames;
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             this.projectImages = projectImages;
         }
 
+        /* Creates one row of ListView, consisting of project name, company name and image */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View row = convertView;
@@ -70,16 +74,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    //Sample project list data
+    /* Sample project list data */
     private ArrayList<String> projectNames = new ArrayList<>();
     private ArrayList<String> companyNames = new ArrayList<>();
     private ArrayList<Integer> projectImages = new ArrayList<>();
-
     private ListView projectList;
 
+    /* View items */
     private ImageButton addProjectButton;
     private Button profileButton;
-
     private TextView name;
     private TextView surname;
 
@@ -107,36 +110,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fetchProjectData();
     }
 
+    /* Basic method for determining clicked button */
     @Override
     public void onClick(View v) {
         switch (v.getId())
         {
             case R.id.addProjectButton:
-                Intent addProjectIntent = new Intent(this, AddProjectActivity.class);
-                addProjectIntent.putExtra("logged_name", logged_name);
-                addProjectIntent.putExtra("logged_surname", logged_surname);
-                addProjectIntent.putExtra("logged_mail", logged_mail);
-                startActivity(addProjectIntent);
+                startAddProjectActivity();
                 break;
             case R.id.profileButton:
-                Intent profileIntent = new Intent(this, ProfileActivity.class);
-
-//                profileIntent.putExtra("name", logged_name);
-//                profileIntent.putExtra("surname", logged_surname);
-                profileIntent.putExtra("logged_mail", logged_mail);
-
-                Log.d(TAG, "onClick: about to start profile activity");
-
-                startActivity(profileIntent);
+                startProfileActivity();
                 break;
         }
     }
 
+    /* Starts addProject activity */
+    private void startAddProjectActivity() {
+        Intent addProjectIntent = new Intent(this, AddProjectActivity.class);
+        addProjectIntent.putExtra("logged_name", logged_name);
+        addProjectIntent.putExtra("logged_surname", logged_surname);
+        addProjectIntent.putExtra("logged_mail", logged_mail);
+        startActivity(addProjectIntent);
+    }
+
+    /* Starts profile activity */
+    private void startProfileActivity() {
+        Intent profileIntent = new Intent(this, ProfileActivity.class);
+//      profileIntent.putExtra("name", logged_name);
+//      profileIntent.putExtra("surname", logged_surname); TO DO clear?
+        profileIntent.putExtra("logged_mail", logged_mail);
+        startActivity(profileIntent);
+    }
+
+    /* Fetches all projects that logged user takes part in.
+     * It firsts searches for user in database, in order to get all project identifiers
+     * Then, using those identifiers it finds all the projects in projects table, and gets all necessary data
+     * for setting up the listView adapter
+     */
     private void fetchProjectData() {
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         DatabaseReference usersRef = database.getReference("Users");
         DatabaseReference projectsRef = database.getReference("Projects");
 
+        /* Querying user */
         Query qu = usersRef.orderByChild("mail").equalTo(logged_mail);
         qu.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -150,11 +166,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ArrayList<String> tmp = u.getProjects();
                 for (int i = 1; i < tmp.size(); i++) {
                     Log.d(TAG, "onDataChange: " + tmp.get(i));
+
+                    /* Querying all user projects */
                     Query qp = projectsRef.orderByKey().equalTo(tmp.get(i));
                     qp.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            Project p = new Project();
+                            Project p;
                             for (DataSnapshot childSnapshot: snapshot.getChildren()) {
                                 p = childSnapshot.getValue(Project.class);
                                 Log.d(TAG, "onDataChange: " + p.getName());
@@ -164,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 projectImages.add(R.drawable.templateproject);
                             }
 
+                            /* Setting Adapter */
                             projectList = findViewById(R.id.projectList);
                             projectList.setAdapter(new ProjectList(MainActivity.this, projectNames, companyNames, projectImages));
 

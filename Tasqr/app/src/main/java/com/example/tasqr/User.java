@@ -12,6 +12,9 @@ public class User {
     private String password;
     private ArrayList<String> projects; /* TO DO change way of identifying projects */
 
+
+     /*constructors */
+
     public User() {}
 
     public User(String name, String surname, String mail, String password) {

@@ -1,36 +1,24 @@
 package com.example.tasqr;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.*;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -83,7 +71,7 @@ public class RegisterActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    /* Button listener function */
+    /* Button listener functions */
 
     /* Closes register activity */
     public void openLoginActivity() {
@@ -110,12 +98,14 @@ public class RegisterActivity extends AppCompatActivity {
         dic.put(2, "Mail");
         dic.put(3, "Password");
 
+        /* Checking the lengths of inputs, do not empty and lengthy inputs. */
         for (int i = 0; i < data.length; i++) {
             if (data[i].isEmpty()) {
                 item = dic.get(i);
                 toastMessage(item + " cannot be empty");
                 return;
             }
+            /* mail is the only excption and does not have upper limit */
             if (data[i].length() > 40 && i != 2) {
                 item = dic.get(i);
                 toastMessage(item + "must be at most 40 letters long");
@@ -145,7 +135,6 @@ public class RegisterActivity extends AppCompatActivity {
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d(TAG, "onDataChange: " + snapshot.getChildrenCount());
                 if (snapshot.getChildrenCount() > 0) {
                     toastMessage("User already exists");
                 }

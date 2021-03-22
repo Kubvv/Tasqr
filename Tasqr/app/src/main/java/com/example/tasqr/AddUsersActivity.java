@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -35,17 +33,20 @@ public class AddUsersActivity extends AppCompatActivity {
     /* Owner of currently creating project [not in userArray!]*/
     private User owner;
 
+    /* Arraylists used for creating user listView */
     private ArrayList<User> userArray = new ArrayList<>();
     private ArrayList<String> displayArray = new ArrayList<>();
 
     private Bundle bndl;
     private ListView listView;
+
+    /* Firebase database */
     private FirebaseDatabase database;
     private DatabaseReference rootRef;
     private DatabaseReference usersRef;
     private DatabaseReference projectsRef;
 
-
+    /* button image TO DO zmienic przed prezentacja */
     private ImageButton nigga;
     private Integer[] avatars = {R.drawable.avatarcircle, R.drawable.white, R.drawable.asian};
     private int currentPhoto = 0;
@@ -69,16 +70,15 @@ public class AddUsersActivity extends AppCompatActivity {
 
         bndl = getIntent().getExtras();
 
-
         listView = (ListView)findViewById(R.id.userlist);
 
         /* establish connection to database and some references */
-
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         rootRef = database.getReference();
         usersRef = rootRef.child("Users");
         projectsRef = rootRef.child("Projects");
 
+        /* fetching all users in order to show them in a listviwe */
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -111,7 +111,9 @@ public class AddUsersActivity extends AppCompatActivity {
 
     }
 
-    /* Adds project and all it's workers to database */
+    /* Adds project and all it's workers to database.
+    * Also updates all added user's projects arrays.
+    * If succesful, goes to MainActivity and closes all previous activities.*/
     private void finishAddingProject () {
         currentPhoto = (currentPhoto + 1) % 3;
         nigga.setImageResource(avatars[currentPhoto]);
@@ -141,6 +143,7 @@ public class AddUsersActivity extends AppCompatActivity {
             }
         });
 
+        /* add project to owner's projects array, then leave the activity */
         ArrayList<String> tmp = owner.getProjects();
         tmp.add(project.getName());
         usersRef.child(owner.getMail()).child("projects").setValue(tmp).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -150,6 +153,7 @@ public class AddUsersActivity extends AppCompatActivity {
             }
         });
 
+        /* meanwhile add project to all other invited users arrays */
         for (int i = 1; i < projectUsers.size(); i++) {
             tmp = projectUsers.get(i).getProjects();
             tmp.add(project.getName());

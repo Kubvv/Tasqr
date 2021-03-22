@@ -2,8 +2,6 @@ package com.example.tasqr;
 //
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -39,18 +37,20 @@ public class AddProjectActivity extends AppCompatActivity {
         desc = findViewById(R.id.desc);
 
         addPeopleButton.setOnClickListener(v -> {
-            goToAddUser();
+            startAddUsersActivity();
         });
     }
 
-    private void goToAddUser() {
+    private void startAddUsersActivity() {
 
         String project_name = projectName.getText().toString();
         String company_name = companyName.getText().toString();
         String description = desc.getText().toString();
 
+        /* Do not allow creating project if these fields are empty */ /* TO DO changing id of projects in db because sie pruje o $ . # [ ] */
         if (project_name.length() == 0 || company_name.length() == 0) {
             toastMessage("Project name and company name cannot be empty");
+            return;
         }
 
         Intent addPeopleIntent = new Intent(AddProjectActivity.this, AddUsersActivity.class);
