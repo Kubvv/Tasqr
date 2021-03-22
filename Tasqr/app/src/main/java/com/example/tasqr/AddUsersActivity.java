@@ -7,7 +7,6 @@ import android.util.SparseBooleanArray;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -78,7 +77,7 @@ public class AddUsersActivity extends AppCompatActivity {
         usersRef = rootRef.child("Users");
         projectsRef = rootRef.child("Projects");
 
-        /* fetching all users in order to show them in a listviwe */
+        /* fetching all users in order to show them in a listview */
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -113,7 +112,7 @@ public class AddUsersActivity extends AppCompatActivity {
 
     /* Adds project and all it's workers to database.
     * Also updates all added user's projects arrays.
-    * If succesful, goes to MainActivity and closes all previous activities.*/
+    * If successful, goes to MainActivity and closes all previous activities.*/
     private void finishAddingProject () {
         currentPhoto = (currentPhoto + 1) % 3;
         nigga.setImageResource(avatars[currentPhoto]);
@@ -127,16 +126,18 @@ public class AddUsersActivity extends AppCompatActivity {
             }
         }
 
+        DatabaseReference pushedProjectsRef = projectsRef.push();
+        String id = pushedProjectsRef.getKey();
+
         /* Create new project to be added */
         Project project = new Project(
+                id,
                 bndl.getString("project_name"),
                 bndl.getString("company_name"),
                 bndl.getString("description"),
                 owner,
                 projectUsers);
 
-        DatabaseReference pushedProjectsRef = projectsRef.push();
-        String id = pushedProjectsRef.getKey();
         projectsRef.child(id).setValue(project).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new project", AddUsersActivity.this);

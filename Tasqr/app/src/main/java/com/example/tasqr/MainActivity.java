@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<String> projectNames = new ArrayList<>();
     private ArrayList<String> companyNames = new ArrayList<>();
     private ArrayList<Integer> projectImages = new ArrayList<>();
+    private ArrayList<String> projectIds = new ArrayList<>();
     private ListView projectList;
 
     /* View items */
@@ -175,19 +177,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             Project p;
+
                             for (DataSnapshot childSnapshot: snapshot.getChildren()) {
                                 p = childSnapshot.getValue(Project.class);
 
                                 projectNames.add(p.getName());
                                 companyNames.add(p.getCompany());
                                 projectImages.add(R.drawable.templateproject);
+                                projectIds.add(p.getId());
+
                                 projectsFetched.getAndAdd(1);
                             }
 
-                            /* Setting Adapter */
+                            /* Setting list attributes */
                             if (projectsFetched.get() == tmp.size() - 1) {
                                 projectList = findViewById(R.id.projectList);
                                 projectList.setAdapter(new ProjectList(MainActivity.this, projectNames, companyNames, projectImages));
+
+                                /* Proceeds to tasks activity within a given project*/
+                                projectList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                        Intent tasksIntent = new Intent(MainActivity.this, TasksActivity.class);
+                                        tasksIntent.putExtra("projectId", projectIds.get(position));
+                                        tasksIntent.putExtra("logged_mail", logged_mail);
+                                        startActivity(tasksIntent);
+                                    }
+                                });
                             }
 
                         }
