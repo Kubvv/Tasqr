@@ -135,17 +135,17 @@ public class AddUsersActivity extends AppCompatActivity {
                 owner,
                 projectUsers);
 
-        /*String id = projectsRef.push().toString(); *//* TO DO Doesn't work for some reason */
-        projectsRef.child(project.getName()).setValue(project).addOnSuccessListener(new OnSuccessListener<Void>() {
+        DatabaseReference pushedProjectsRef = projectsRef.push();
+        String id = pushedProjectsRef.getKey();
+        projectsRef.child(id).setValue(project).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                toastMessage("Successfully added new project");
+            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new project", AddUsersActivity.this);
             }
         });
 
         /* add project to owner's projects array, then leave the activity */
         ArrayList<String> tmp = owner.getProjects();
-        tmp.add(project.getName());
+        tmp.add(id);
         usersRef.child(owner.getMail()).child("projects").setValue(tmp).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -156,7 +156,7 @@ public class AddUsersActivity extends AppCompatActivity {
         /* meanwhile add project to all other invited users arrays */
         for (int i = 1; i < projectUsers.size(); i++) {
             tmp = projectUsers.get(i).getProjects();
-            tmp.add(project.getName());
+            tmp.add(id);
             usersRef.child(projectUsers.get(i).getMail()).child("projects").setValue(tmp);
         }
     }
@@ -169,10 +169,5 @@ public class AddUsersActivity extends AppCompatActivity {
         intent.putExtra("logged_surname", logged_surname);
         intent.putExtra("logged_mail", logged_mail);
         startActivity(intent);
-    }
-
-    /* Messages user with long toast message */
-    private void toastMessage(String message) {
-        Toast.makeText(AddUsersActivity.this, message, Toast.LENGTH_LONG).show();
     }
 }

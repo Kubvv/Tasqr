@@ -78,31 +78,31 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        /* Query the database for user with given mail */
         Query q = database.getReference().child("Users").orderByChild("mail").equalTo(mail);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d(TAG, "onDataChange: " + snapshot.getChildrenCount());
+                /* If found, check password */
                 if (snapshot.getChildrenCount() == 1) {
                     for (DataSnapshot childSnapshot: snapshot.getChildren()) {
                         User u = childSnapshot.getValue(User.class);
                         if (u.getPassword().equals(pass)) {
-                            Log.d(TAG, "onDataChange: " + u.getPassword() + " " + u.getMail() + " " + pass);
                             loginUser(u.getName(), u.getSurname(), u.getMail());
                         }
                         else {
-                            toastMessage("Wrong password");
+                            Utilities.toastMessage("Wrong password", LoginActivity.this);
                         }
                     }
                 }
                 else {
-                    toastMessage("Wrong mail or password");
+                    Utilities.toastMessage("Wrong mail or password", LoginActivity.this);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                toastMessage("error" + error.toString());
+                Utilities.toastMessage("error" + error.toString(), LoginActivity.this);
             }
         });
 
@@ -115,7 +115,7 @@ public class LoginActivity extends AppCompatActivity {
                         loginUser(doc.get("name").toString(), doc.get("surname").toString());
                     }
                     else {
-                        toastMessage("Wrong mail or password");
+                        Utilities.toastMessage("Wrong mail or password");
                     }
                 }
             }
@@ -131,10 +131,5 @@ public class LoginActivity extends AppCompatActivity {
         intent.putExtra("logged_mail", mail);
         startActivity(intent);
         finish();
-    }
-
-    /* Messages user with long toast message */
-    private void toastMessage(String message) {
-        Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
     }
 }

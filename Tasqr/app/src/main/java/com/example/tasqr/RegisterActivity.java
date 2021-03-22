@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -102,13 +101,13 @@ public class RegisterActivity extends AppCompatActivity {
         for (int i = 0; i < data.length; i++) {
             if (data[i].isEmpty()) {
                 item = dic.get(i);
-                toastMessage(item + " cannot be empty");
+                Utilities.toastMessage(item + " cannot be empty", RegisterActivity.this);
                 return;
             }
             /* mail is the only excption and does not have upper limit */
             if (data[i].length() > 40 && i != 2) {
                 item = dic.get(i);
-                toastMessage(item + "must be at most 40 letters long");
+                Utilities.toastMessage(item + "must be at most 40 letters long", RegisterActivity.this);
                 return;
             }
         }
@@ -116,36 +115,38 @@ public class RegisterActivity extends AppCompatActivity {
         Pattern p = Pattern.compile("[A-Za-z]{1,40}");
         Matcher m = p.matcher(data[0]);
         if (!m.matches()) {
-            toastMessage("Name can only contain characters between A-Z and a-z");
+            Utilities.toastMessage("Name can only contain characters between A-Z and a-z", RegisterActivity.this);
             return;
         }
         m = p.matcher(data[1]);
         if (!m.matches()) {
-            toastMessage("Surname can only contain characters between A-z and a-z");
+            Utilities.toastMessage("Surname can only contain characters between A-z and a-z", RegisterActivity.this);
             return;
         }
         p = Pattern.compile("@");
         m = p.matcher(data[2]);
         if (!m.find()) {
-            toastMessage("Not a valid mail");
+            Utilities.toastMessage("Not a valid mail", RegisterActivity.this);
             return;
         }
 
+        /* TO DO change id of database bo znowu sie pruje o . # $ [ i ] */
         Query q = database.getReference().child("Users").orderByChild("mail").equalTo(data[2]);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.getChildrenCount() > 0) {
-                    toastMessage("User already exists");
+                    Utilities.toastMessage("User already exists", RegisterActivity.this);
                 }
                 else {
+                    /* need to call this function here to overcome multithreading */
                     addUser(data);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                toastMessage("error");
+                Utilities.toastMessage("error", RegisterActivity.this);
             }
         });
 
@@ -156,7 +157,7 @@ public class RegisterActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     DocumentSnapshot doc = task.getResult();
                     if (doc.exists()) {
-                        toastMessage("User already exists");
+                        Utilities.toastMessage("User already exists");
                     }
                     else {
                         addUser(data);
@@ -173,7 +174,7 @@ public class RegisterActivity extends AppCompatActivity {
         usersRef.child(data[2]).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                toastMessage("Successfully registered");
+                Utilities.toastMessage("Successfully registered", RegisterActivity.this);
                 openLoginActivity();
             }
         });
@@ -184,14 +185,9 @@ public class RegisterActivity extends AppCompatActivity {
             .addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    toastMessage("Successfully registered");
+                    Utilities.toastMessage("Successfully registered");
                     openLoginActivity();
                 }
             }); */
-    }
-
-    /* Messages user with long toast message */
-    private void toastMessage(String message) {
-        Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_LONG).show();
     }
 }

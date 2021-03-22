@@ -47,9 +47,9 @@ public class AddProjectActivity extends AppCompatActivity {
         String company_name = companyName.getText().toString();
         String description = desc.getText().toString();
 
-        /* Do not allow creating project if these fields are empty */ /* TO DO changing id of projects in db because sie pruje o $ . # [ ] */
+        /* Do not allow creating project if these fields are empty */
         if (project_name.length() == 0 || company_name.length() == 0) {
-            toastMessage("Project name and company name cannot be empty");
+            Utilities.toastMessage("Project name and company name cannot be empty", AddProjectActivity.this);
             return;
         }
 
@@ -78,10 +78,4 @@ public class AddProjectActivity extends AppCompatActivity {
         bundle.putString("desc", desc.getText().toString());
         super.onPause();
     }
-
-    /* Messages user with long toast message */
-    private void toastMessage(String message) {
-        Toast.makeText(AddProjectActivity.this, message, Toast.LENGTH_LONG).show();
-    }
-
 }

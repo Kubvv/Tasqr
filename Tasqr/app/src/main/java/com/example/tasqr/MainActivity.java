@@ -27,6 +27,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /* Firebase database */
     private FirebaseDatabase database;
+    /* Fetched projects counter */
+    private AtomicInteger projectsFetched;
 
     /* Nested class that helps us in creating listView */
     private class ProjectList extends ArrayAdapter {
@@ -160,12 +163,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 User u = new User();
                 for (DataSnapshot childSnapshot: snapshot.getChildren()) {
                     u = childSnapshot.getValue(User.class);
-                    Log.d(TAG, "onDataChange: " + u.getName());
                 }
 
+                projectsFetched = new AtomicInteger(0);
                 ArrayList<String> tmp = u.getProjects();
                 for (int i = 1; i < tmp.size(); i++) {
-                    Log.d(TAG, "onDataChange: " + tmp.get(i));
 
                     /* Querying all user projects */
                     Query qp = projectsRef.orderByKey().equalTo(tmp.get(i));
@@ -175,22 +177,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Project p;
                             for (DataSnapshot childSnapshot: snapshot.getChildren()) {
                                 p = childSnapshot.getValue(Project.class);
-                                Log.d(TAG, "onDataChange: " + p.getName());
 
                                 projectNames.add(p.getName());
                                 companyNames.add(p.getCompany());
                                 projectImages.add(R.drawable.templateproject);
+                                projectsFetched.getAndAdd(1);
                             }
 
                             /* Setting Adapter */
-                            projectList = findViewById(R.id.projectList);
-                            projectList.setAdapter(new ProjectList(MainActivity.this, projectNames, companyNames, projectImages));
+                            if (projectsFetched.get() == tmp.size() - 1) {
+                                projectList = findViewById(R.id.projectList);
+                                projectList.setAdapter(new ProjectList(MainActivity.this, projectNames, companyNames, projectImages));
+                            }
 
                         }
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-                            toastMessage("error" + error.toString());
+                            Utilities.toastMessage("error" + error.toString(), MainActivity.this);
                         }
                     });
                 }
@@ -198,13 +202,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                toastMessage("error" + error.toString());
+                Utilities.toastMessage("error" + error.toString(), MainActivity.this);
             }
         });
-    }
-
-    /* Messages user with long toast message */
-    private void toastMessage(String message) {
-        Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
     }
 }
