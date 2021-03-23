@@ -1,5 +1,10 @@
 package com.example.tasqr;
 
+import android.app.Activity;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -14,12 +19,12 @@ public class Task {
     public Task(){
     }
 
-    public Task(String taskName, User leader, ArrayList<User> workers, Date deadline, ArrayList<SubTask> subTasks) {
+    public Task(String taskName, User leader, ArrayList<User> workers, Date deadline) {
         this.taskName = taskName;
         this.leader = leader;
         this.workers = workers;
         this.deadline = deadline;
-        this.subTasks = subTasks;
+        this.subTasks = new ArrayList<>();
     }
 
 
@@ -63,5 +68,19 @@ public class Task {
 
     public void setTaskName(String taskName) {
         this.taskName = taskName;
+    }
+
+
+    public void addSubTask(Activity context, DatabaseReference projectRef, Integer position, SubTask subTask)
+    {
+        if(this.subTasks == null)
+            this.subTasks = new ArrayList<>();
+
+        this.subTasks.add(subTask);
+        projectRef.child("tasks").child(position.toString()).setValue(this.subTasks).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new subtask", context);
+            }
+        });
     }
 }

@@ -2,7 +2,6 @@ package com.example.tasqr;
 
 public class SubTask {
 
-
     private enum SubTaskState{
         abandoned, pending, done
     }

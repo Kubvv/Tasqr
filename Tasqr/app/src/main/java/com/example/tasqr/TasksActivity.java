@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -58,7 +59,7 @@ public class TasksActivity extends AppCompatActivity {
     private FirebaseDatabase database;
 
     private TextView projectName;
-    private ListView tasklist;
+    private ListView taskList;
     private FloatingActionButton addTaskButton;
 
     private ArrayList<Task> tasks;
@@ -68,7 +69,7 @@ public class TasksActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tasks);
 
         projectName = findViewById(R.id.projectNametsk);
-        tasklist = findViewById(R.id.taskList);
+        taskList = findViewById(R.id.taskList);
         addTaskButton = findViewById(R.id.addTaskButton);
 
         addTaskButton.setOnClickListener(new View.OnClickListener() {
@@ -81,9 +82,17 @@ public class TasksActivity extends AppCompatActivity {
             }
         });
 
+        taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent subTaskIntent = new Intent(TasksActivity.this, SubTasksActivity.class);
+                subTaskIntent.putExtra("taskPosition", position);
+                subTaskIntent.putExtra("taskName", tasks.get(position).getTaskName());
+                startActivity(subTaskIntent);
+            }
+        });
+
         fetchActivityData();
-
-
     }
 
     private void fetchActivityData()
@@ -101,7 +110,7 @@ public class TasksActivity extends AppCompatActivity {
                     for (Task task : tasks)
                         displayArray.add(task.getTaskName());
 
-                    tasklist.setAdapter(new TaskList(TasksActivity.this, displayArray));
+                    taskList.setAdapter(new TaskList(TasksActivity.this, displayArray));
                 }
             }
 
