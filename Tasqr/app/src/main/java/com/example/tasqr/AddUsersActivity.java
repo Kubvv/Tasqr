@@ -48,7 +48,7 @@ public class AddUsersActivity extends AppCompatActivity {
 
     /* button image TO DO zmienic przed prezentacja */
     private ImageButton nigga;
-    private Integer[] avatars = {R.drawable.avatarcircle, R.drawable.white, R.drawable.asian};
+    private Integer[] avatars = {R.drawable.avatar, R.drawable.white, R.drawable.asian};
     private int currentPhoto = 0;
 
     @Override
@@ -90,7 +90,7 @@ public class AddUsersActivity extends AppCompatActivity {
                     /* If user is not the owner show him on the list of users that can be added */
                     if (!user.getMail().equals(logged_mail)) {
                         userArray.add(user);
-                        displayArray.add(user.getNameSurname());
+                        displayArray.add(user.getName() + " " + user.getSurname());
                     } else {
                         owner = user;
                     }
