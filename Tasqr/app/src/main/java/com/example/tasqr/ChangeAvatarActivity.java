@@ -23,6 +23,8 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import io.grpc.okhttp.internal.Util;
+
 public class ChangeAvatarActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "ChangeAvatarActivity";
@@ -96,19 +98,22 @@ public class ChangeAvatarActivity extends AppCompatActivity implements View.OnCl
     /* uploads a file to database */
     private void Fileuploader() {
         StorageReference Ref = mStorageRef.child(logged_mail);
-        
-        Ref.putFile(cropped_uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Toast.makeText(ChangeAvatarActivity.this, "Image uploaded succesfully", Toast.LENGTH_LONG).show();
-            }
-        })
-        .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(ChangeAvatarActivity.this, "Image upload failed", Toast.LENGTH_LONG).show();
-            }
-        });
+        if (cropped_uri != null) {
+            Ref.putFile(cropped_uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(ChangeAvatarActivity.this, "Image uploaded succesfully", Toast.LENGTH_LONG).show();
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(ChangeAvatarActivity.this, "Image upload failed", Toast.LENGTH_LONG).show();
+                }
+            });
+        } else {
+            Utilities.toastMessage("You must select an image first", ChangeAvatarActivity.this);
+        }
     }
 
     @Override
@@ -131,7 +136,7 @@ public class ChangeAvatarActivity extends AppCompatActivity implements View.OnCl
                 imageViewChosenAvatar.setImageURI(result.getUri());
                 cropped_uri = result.getUri();
                 
-                Toast.makeText(this, "SUCCESS!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Succesfully changed profile picture!", Toast.LENGTH_SHORT).show();
             }
         }
     }

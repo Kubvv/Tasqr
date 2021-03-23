@@ -2,20 +2,17 @@ package com.example.tasqr;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.tasqr.classes.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -121,20 +118,20 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-        /* if clicked on profile was equal to logged user */
-        if (clicked_mail.equals(logged_mail)) {
+        /* if clicked on profile was not equal to logged user */
+        if (!clicked_mail.equals(logged_mail)) {
 
-            /* show buttons for logged user */
-            buttonSettings.setVisibility(View.VISIBLE);
-            buttonLogout.setVisibility(View.VISIBLE);
-            buttonUserList.setVisibility(View.VISIBLE);
-            buttonCreateCompany.setVisibility(View.VISIBLE);
-            buttonChangeAvatar.setVisibility(View.VISIBLE);
+            /* hide buttons for clicked user */
+            buttonSettings.setVisibility(View.INVISIBLE);
+            buttonLogout.setVisibility(View.INVISIBLE);
+            buttonUserList.setVisibility(View.INVISIBLE);
+            buttonCreateCompany.setVisibility(View.INVISIBLE);
+            buttonChangeAvatar.setVisibility(View.INVISIBLE);
             /* TO DO kminilem jak zmienic kolor tych buttonow ale dupa */
-//            buttonOptions.setBackgroundColor(Color.parseColor("#FFD900"));
-//            buttonLogout.setBackgroundColor(Color.parseColor("#FFD900"));
-//            buttonUserList.setBackgroundColor(Color.parseColor("#FFD900"));
-//            buttonCreateCompany.setBackgroundColor(Color.parseColor("#FFD900"));
+            //buttonSettings.setBackgroundColor(Color.parseColor("#FFD900"));
+            //buttonLogout.setBackgroundColor(Color.parseColor("#FFD900"));
+            //buttonUserList.setBackgroundColor(Color.parseColor("#FFD900"));
+            //buttonCreateCompany.setBackgroundColor(Color.parseColor("#FFD900"));
         }
     }
 
@@ -157,6 +154,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 startActivity(userListIntent);
                 break;
             case R.id.button_create_company:
+                Intent createCompanyIntent = new Intent(this, CreateCompanyActivity.class);
+                createCompanyIntent.putExtra("logged_mail", logged_mail);
+                startActivity(createCompanyIntent);
                 break;
             case R.id.button_change_avatar:
                 Intent changeAvatarIntent = new Intent(this, ChangeAvatarActivity.class);

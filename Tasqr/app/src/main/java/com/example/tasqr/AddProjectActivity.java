@@ -3,7 +3,6 @@ package com.example.tasqr;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -32,7 +31,7 @@ public class AddProjectActivity extends AppCompatActivity {
         logged_mail = bundle.getString("logged_mail");
 
         addPeopleButton = findViewById(R.id.addPeopleButton);
-        projectName = findViewById(R.id.addedProjectName);
+        projectName = findViewById(R.id.addedCompanyName);
         companyName = findViewById(R.id.addedProjectOwner);
         desc = findViewById(R.id.desc);
 
@@ -54,6 +53,7 @@ public class AddProjectActivity extends AppCompatActivity {
         }
 
         Intent addPeopleIntent = new Intent(AddProjectActivity.this, AddUsersActivity.class);
+        addPeopleIntent.putExtra("previous_activity", "Project");
         addPeopleIntent.putExtra("logged_name", logged_name);
         addPeopleIntent.putExtra("logged_surname", logged_surname);
         addPeopleIntent.putExtra("logged_mail", logged_mail);

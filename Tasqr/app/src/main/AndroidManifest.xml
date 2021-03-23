@@ -13,14 +13,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Tasqr">
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
-        <activity android:name=".ChangeAvatarActivity" />
-        <activity android:name=".UserListActivity" />
-        <activity
-            android:name=".RegisterActivity"
-            android:theme="@style/Theme.Tasqr_NoToolBar" />
-        <activity
             android:name=".LoginActivity"
             android:theme="@style/Theme.Tasqr_NoToolBar">
             <intent-filter>
@@ -29,6 +21,22 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".CreateCompanyActivity"
+            android:label="@string/title_activity_create_company"
+            android:theme="@style/Theme.Tasqr_NoToolBar"/>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".ChangeAvatarActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar"/>
+        <activity
+            android:name=".UserListActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar"/>
+        <activity
+            android:name=".RegisterActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
         <activity
             android:name=".MainActivity"
             android:theme="@style/Theme.Tasqr_NoToolBar" />

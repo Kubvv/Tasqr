@@ -12,59 +12,45 @@
         android:id="@+id/addedCompanyName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
         android:backgroundTint="@color/text_color"
         android:ems="10"
-        android:hint="@string/projname"
+        android:hint="@string/companyname"
         android:inputType="textPersonName"
         android:textColor="@color/text_color"
         android:textColorHint="@color/text_color"
-        app:layout_constraintEnd_toEndOf="@+id/textView4"
-        app:layout_constraintStart_toStartOf="@+id/textView4"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-    <EditText
-        android:id="@+id/addedProjectOwner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="@color/text_color"
-        android:ems="10"
-        android:hint="@string/company"
-        android:inputType="textPersonName"
-        android:textColor="@color/text_color"
-        android:textColorHint="@color/text_color"
-        app:layout_constraintEnd_toEndOf="@+id/addedCompanyName"
-        app:layout_constraintStart_toStartOf="@+id/addedCompanyName"
-        app:layout_constraintTop_toBottomOf="@+id/addedCompanyName" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.32" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="@string/newproj"
+        android:layout_marginBottom="30dp"
+        android:text="@string/createc"
         android:textColor="@color/text_color"
         android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toTopOf="@+id/addedCompanyName"
+        app:layout_constraintEnd_toEndOf="@+id/addedCompanyName"
+        app:layout_constraintStart_toStartOf="@+id/addedCompanyName" />
 
     <EditText
         android:id="@+id/desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="60dp"
         android:backgroundTint="@color/text_color"
         android:ems="10"
         android:gravity="start|top"
-        android:hint="@string/projdesc"
+        android:hint="@string/compdesc"
         android:inputType="textMultiLine"
         android:textColor="@color/text_color"
         android:textColorHint="@color/text_color"
-        app:layout_constraintEnd_toEndOf="@+id/addedProjectOwner"
-        app:layout_constraintStart_toStartOf="@+id/addedProjectOwner"
-        app:layout_constraintTop_toBottomOf="@+id/addedProjectOwner" />
+        app:layout_constraintEnd_toEndOf="@+id/addedCompanyName"
+        app:layout_constraintStart_toStartOf="@+id/addedCompanyName"
+        app:layout_constraintTop_toBottomOf="@+id/addedCompanyName" />
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -73,7 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:backgroundTint="@color/alt_text_color"
+        android:backgroundTint="@color/text_color"
         android:src="@android:drawable/ic_media_play"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
