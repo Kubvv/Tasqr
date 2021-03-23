@@ -17,23 +17,22 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/user_avatar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_marginTop="52dp"
             android:layout_marginBottom="32dp"
             app:layout_constraintBottom_toTopOf="@+id/user_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/avatarcircle" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="name"
+            android:text=""
             android:textColor="@color/text_color"
             android:textSize="36sp"
             app:layout_constraintBottom_toTopOf="@+id/user_surname"
@@ -44,7 +43,7 @@
             android:id="@+id/user_surname"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="surname"
+            android:text=""
             android:textColor="@color/text_color"
             android:textSize="36sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -60,7 +59,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="email"
+            android:text=""
             android:textColor="@color/text_color"
             android:textSize="36sp"
             app:layout_constraintBottom_toTopOf="@+id/user_password"
@@ -72,7 +71,7 @@
             android:id="@+id/user_password"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="password"
+            android:text=""
             android:textColor="@color/text_color"
             android:textSize="36sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -80,7 +79,7 @@
             app:layout_constraintTop_toBottomOf="@+id/user_email" />
 
         <Button
-            android:id="@+id/button_profile_options"
+            android:id="@+id/button_settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Options"
@@ -119,6 +118,17 @@
             android:text="Create a Company"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/user_password" />
+
+        <Button
+            android:id="@+id/button_change_avatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="change avatar"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/button_create_company"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/user_password" />

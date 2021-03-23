@@ -34,8 +34,6 @@ public class User {
         return password;
     }
 
-    public String getNameSurname() { return name + " " + surname; }
-
 
     public void setName(String name) {
         this.name = name;
