@@ -11,6 +11,7 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -65,6 +66,7 @@ public class AddTaskUsersActivity extends AppCompatActivity {
         projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
                 currProject = snapshot.getValue(Project.class);
                 userArray = currProject.getWorkers();
 
@@ -103,6 +105,7 @@ public class AddTaskUsersActivity extends AppCompatActivity {
         currProject.addTask(AddTaskUsersActivity.this, projectRef, newTask);
 
         openTasksActivity();
+
     }
 
     /* Opens main activity and closes activites relating to adding project */

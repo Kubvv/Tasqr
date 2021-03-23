@@ -120,7 +120,7 @@ public class Project {
             this.tasks = new ArrayList<>();
 
         this.tasks.add(task);
-        projectRef.setValue(this).addOnSuccessListener(new OnSuccessListener<Void>() {
+        projectRef.child("tasks").setValue(this.tasks).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new task", context);
         }
