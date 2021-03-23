@@ -44,8 +44,6 @@ public class User {
         return password;
     }
 
-    public String getNameSurname() { return name + " " + surname; }
-
     public ArrayList<String> getProjects() { return projects; }
 
     /* setters */

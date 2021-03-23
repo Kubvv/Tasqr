@@ -57,7 +57,7 @@ public class UserListActivity extends AppCompatActivity {
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     User user = ds.getValue(User.class);
                     userArray.add(user);
-                    displayArray.add(user.getNameSurname());
+                    displayArray.add(user.getName() + " " + user.getSurname());
                 }
 
                 /* create some weird ass adapter for list view */
@@ -76,8 +76,6 @@ public class UserListActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 /* get user's mail from userArray by index since we know displayArray index that was clicked on and both arrays share indices */
-                Log.d(TAG, "onItemClick: clicked item: " + position + " " + userArray.get(position).getNameSurname());
-
                 Intent profileIntent = new Intent(UserListActivity.this, ProfileActivity.class);
 
                 profileIntent.putExtra("clicked_mail", userArray.get(position).getMail());
