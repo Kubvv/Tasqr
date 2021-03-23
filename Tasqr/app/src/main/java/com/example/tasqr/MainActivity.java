@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /* Firebase database */
     private FirebaseDatabase database;
+    private DatabaseReference usersRef;
+    private DatabaseReference projectsRef;
+    private DatabaseReference companyRef;
     /* Fetched projects counter */
     private AtomicInteger projectsFetched;
 
@@ -94,6 +97,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+        usersRef = database.getReference("Users");
+        projectsRef = database.getReference("Projects");
+        companyRef = database.getReference("Companies");
+
+        Bundle bundle = getIntent().getExtras();
+        logged_name = bundle.getString("logged_name");
+        logged_surname = bundle.getString("logged_surname");
+        logged_mail = bundle.getString("logged_mail");
+
+        checkIfManager();
+
         addProjectButton = findViewById(R.id.addProjectButton);
         profileButton = findViewById(R.id.profileButton);
         name = findViewById(R.id.name);
@@ -102,14 +117,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         addProjectButton.setOnClickListener(this);
         profileButton.setOnClickListener(this);
 
-        logged_name = getIntent().getStringExtra("logged_name");
-        logged_surname = getIntent().getStringExtra("logged_surname");
-        logged_mail = getIntent().getStringExtra("logged_mail");
-
         name.setText(logged_name);
         surname.setText(logged_surname);
 
         fetchProjectData();
+    }
+
+    private void checkIfManager() {
+        Query q = companyRef.orderByChild("owner").equalTo(logged_mail);
+        q.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.getChildrenCount() == 0) {
+                    addProjectButton.setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Utilities.toastMessage("error" + error.toString(), MainActivity.this);
+            }
+        });
     }
 
     /* Basic method for determining clicked button */
@@ -150,9 +178,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * for setting up the listView adapter
      */
     private void fetchProjectData() {
-        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-        DatabaseReference usersRef = database.getReference("Users");
-        DatabaseReference projectsRef = database.getReference("Projects");
 
         /* Querying user */
         Query qu = usersRef.orderByChild("mail").equalTo(logged_mail);

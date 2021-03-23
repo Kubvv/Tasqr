@@ -11,6 +11,7 @@ import android.widget.EditText;
 import com.example.tasqr.classes.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
@@ -25,7 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etPass;
     Bundle bundle = new Bundle();
     private FirebaseDatabase database;
-//    private DatabaseReference userdb;
+    private DatabaseReference usersRef;
 
     /* lifecycle functions */
 
@@ -43,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         etPass = (EditText) findViewById(R.id.password_textfield);
 
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-//        userdb = database.getReference("Users");
+        usersRef = database.getReference("Users");
     }
 
     /* Resume previous inputs in textfields */
@@ -77,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         /* Query the database for user with given mail */
-        Query q = database.getReference().child("Users").orderByChild("mail").equalTo(mail);
+        Query q = usersRef.orderByChild("mail").equalTo(mail);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -103,21 +104,6 @@ public class LoginActivity extends AppCompatActivity {
                 Utilities.toastMessage("error" + error.toString(), LoginActivity.this);
             }
         });
-
-        /*{
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot doc = task.getResult();
-                    if (doc.exists() && doc.get("password").toString().equals(pass)) {
-                        loginUser(doc.get("name").toString(), doc.get("surname").toString());
-                    }
-                    else {
-                        Utilities.toastMessage("Wrong mail or password");
-                    }
-                }
-            }
-        }); */
     }
 
     /* Performs basic setup before moving on to mainActivity */

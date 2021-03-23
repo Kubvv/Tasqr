@@ -150,22 +150,6 @@ public class RegisterActivity extends AppCompatActivity {
                 Utilities.toastMessage("error", RegisterActivity.this);
             }
         });
-
-        /*DocumentReference checkMail = db.collection("Users").document(data[2]);
-        checkMail.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot doc = task.getResult();
-                    if (doc.exists()) {
-                        Utilities.toastMessage("User already exists");
-                    }
-                    else {
-                        addUser(data);
-                    }
-                }
-            }
-        });*/
     }
 
     /* data is basic user info data[2] references user mail mail  */
@@ -179,16 +163,5 @@ public class RegisterActivity extends AppCompatActivity {
                 openLoginActivity();
             }
         });
-
-        /* Old firestore method */
-        /*db.collection("Users").document(data[2])
-            .set(user)
-            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Utilities.toastMessage("Successfully registered");
-                    openLoginActivity();
-                }
-            }); */
     }
 }
