@@ -24,16 +24,16 @@
         <activity
             android:name=".CreateCompanyActivity"
             android:label="@string/title_activity_create_company"
-            android:theme="@style/Theme.Tasqr_NoToolBar"/>
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".ChangeAvatarActivity"
-            android:theme="@style/Theme.Tasqr_NoToolBar"/>
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
         <activity
             android:name=".UserListActivity"
-            android:theme="@style/Theme.Tasqr_NoToolBar"/>
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
         <activity
             android:name=".RegisterActivity"
             android:theme="@style/Theme.Tasqr_NoToolBar" />

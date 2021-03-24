@@ -61,6 +61,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/profileBar" />
 
+<!--TODO fix whole layout so there is a place where swiperefreshlayout works fine-->
+<!--    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
+<!--        android:id="@+id/swipe_refresh"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent">-->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -78,5 +84,6 @@
             app:rippleColor="@color/tasqr_yellow"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+<!--    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
 
 </RelativeLayout>

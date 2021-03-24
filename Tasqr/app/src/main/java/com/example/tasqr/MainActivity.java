@@ -2,13 +2,17 @@ package com.example.tasqr;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -18,12 +22,15 @@ import android.widget.TextView;
 
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.User;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -90,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button profileButton;
     private TextView name;
     private TextView surname;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     /* Methods */
     @Override
@@ -113,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         profileButton = findViewById(R.id.profileButton);
         name = findViewById(R.id.name);
         surname = findViewById(R.id.surname);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
 
         addProjectButton.setOnClickListener(this);
         profileButton.setOnClickListener(this);
@@ -121,6 +130,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         surname.setText(logged_surname);
 
         fetchProjectData();
+
+//        setRefresher();
     }
 
     private void checkIfManager() {
@@ -166,8 +177,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /* Starts profile activity */
     private void startProfileActivity() {
         Intent profileIntent = new Intent(this, ProfileActivity.class);
-//      profileIntent.putExtra("name", logged_name);
-//      profileIntent.putExtra("surname", logged_surname); TO DO clear?
         profileIntent.putExtra("logged_mail", logged_mail);
         startActivity(profileIntent);
     }
@@ -227,6 +236,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Utilities.toastMessage("error" + error.toString(), MainActivity.this);
+            }
+        });
+    }
+
+    /* Sets up refresh layout */
+    private void setRefresher() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                projectNames.clear();
+                companyNames.clear();
+                projectImages.clear();
+                projectsFetched.set(0);
+
+                fetchProjectData();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

@@ -2,6 +2,7 @@ package com.example.tasqr;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -48,7 +49,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     /* View items */
     private ImageView avatarImageView;
     private TextView emailTextView, passwordTextView, nameTextView, surnameTextView;
-    private Button buttonSettings, buttonLogout, buttonUserList, buttonCreateCompany, buttonChangeAvatar;
+    private Button buttonSettings, buttonLogout, buttonUserList, buttonCreateCompany, buttonChangeAvatar, buttonDeleteAccount;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +67,15 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonUserList = findViewById(R.id.button_user_list);
         buttonCreateCompany = findViewById(R.id.button_create_company);
         buttonChangeAvatar = findViewById(R.id.button_change_avatar);
+        buttonDeleteAccount = findViewById(R.id.button_delete_account);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
 
         buttonLogout.setOnClickListener(this);
         buttonSettings.setOnClickListener(this);
         buttonUserList.setOnClickListener(this);
         buttonCreateCompany.setOnClickListener(this);
         buttonChangeAvatar.setOnClickListener(this);
+        buttonDeleteAccount.setOnClickListener(this);
 
         bndl = getIntent().getExtras();
 
@@ -118,21 +123,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-        /* if clicked on profile was not equal to logged user */
+        /* hide buttons if clicked on profile was not equal to logged user */
         if (!clicked_mail.equals(logged_mail)) {
-
-            /* hide buttons for clicked user */
-            buttonSettings.setVisibility(View.INVISIBLE);
-            buttonLogout.setVisibility(View.INVISIBLE);
-            buttonUserList.setVisibility(View.INVISIBLE);
-            buttonCreateCompany.setVisibility(View.INVISIBLE);
-            buttonChangeAvatar.setVisibility(View.INVISIBLE);
-            /* TO DO kminilem jak zmienic kolor tych buttonow ale dupa */
-            //buttonSettings.setBackgroundColor(Color.parseColor("#FFD900"));
-            //buttonLogout.setBackgroundColor(Color.parseColor("#FFD900"));
-            //buttonUserList.setBackgroundColor(Color.parseColor("#FFD900"));
-            //buttonCreateCompany.setBackgroundColor(Color.parseColor("#FFD900"));
+            hideButtons();
         }
+
+        setRefresher();
     }
 
     /* Basic method for determining clicked button */
@@ -144,9 +140,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 startActivity(settingsIntent);
                 break;
             case R.id.button_logout:
-                Intent logoutIntent = new Intent(this, LoginActivity.class);
-                logoutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(logoutIntent);
+                logout();
                 break;
             case R.id.button_user_list:
                 Intent userListIntent = new Intent(this, UserListActivity.class);
@@ -160,10 +154,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.button_change_avatar:
                 Intent changeAvatarIntent = new Intent(this, ChangeAvatarActivity.class);
-
                 changeAvatarIntent.putExtra("logged_mail", logged_mail);
-
                 startActivity(changeAvatarIntent);
+                break;
+            case R.id.button_delete_account:
+                deleteAccout();
+                logout();
                 break;
         }
     }
@@ -175,6 +171,46 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         emailTextView.setText(usr.getMail());
         if (clicked_mail == logged_mail)
             passwordTextView.setText(usr.getPassword());
+    }
+
+    /* Sets up refresh layout */
+    private void setRefresher() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                avatarRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Picasso.with(ProfileActivity.this).load(uri).into(avatarImageView);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        avatarImageView.setImageResource(R.drawable.avatar);
+                    }
+                });
+
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    private void hideButtons() {
+        buttonSettings.setVisibility(View.INVISIBLE);
+        buttonLogout.setVisibility(View.INVISIBLE);
+        buttonUserList.setVisibility(View.INVISIBLE);
+        buttonCreateCompany.setVisibility(View.INVISIBLE);
+        buttonChangeAvatar.setVisibility(View.INVISIBLE);
+    }
+
+    private void logout() {
+        Intent logoutIntent = new Intent(this, LoginActivity.class);
+        logoutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(logoutIntent);
+    }
+
+    private void deleteAccout() {
+        //TODO
     }
 
 }
