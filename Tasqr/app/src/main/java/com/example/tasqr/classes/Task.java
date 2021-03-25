@@ -1,7 +1,8 @@
-package com.example.tasqr;
+package com.example.tasqr.classes;
 
 import android.app.Activity;
 
+import com.example.tasqr.Utilities;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 
@@ -10,8 +11,8 @@ import java.util.Date;
 
 public class Task {
     private String taskName;
-    private User leader;
-    private ArrayList<User> workers;
+    private String leader;
+    private ArrayList<String> workers;
     private Date deadline;
     private ArrayList<SubTask> subTasks;
 
@@ -19,7 +20,7 @@ public class Task {
     public Task(){
     }
 
-    public Task(String taskName, User leader, ArrayList<User> workers, Date deadline) {
+    public Task(String taskName, String leader, ArrayList<String> workers, Date deadline) {
         this.taskName = taskName;
         this.leader = leader;
         this.workers = workers;
@@ -29,11 +30,11 @@ public class Task {
 
 
     /* Getters */
-    public User getLeader() {
+    public String getLeader() {
         return leader;
     }
 
-    public ArrayList<User> getWorkers() {
+    public ArrayList<String> getWorkers() {
         return workers;
     }
 
@@ -54,7 +55,7 @@ public class Task {
         this.deadline = deadline;
     }
 
-    public void setWorkers(ArrayList<User> workers) {
+    public void setWorkers(ArrayList<String> workers) {
         this.workers = workers;
     }
 
@@ -62,7 +63,7 @@ public class Task {
         this.subTasks = subTasks;
     }
 
-    public void setLeader(User leader) {
+    public void setLeader(String leader) {
         this.leader = leader;
     }
 

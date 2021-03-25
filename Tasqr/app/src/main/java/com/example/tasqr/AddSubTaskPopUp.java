@@ -24,7 +24,7 @@ public class AddSubTaskPopUp extends AppCompatDialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.popup_addsubtask, null);
 
-        subTaskName = view.findViewById(R.id.subtask_name);
+        subTaskName = view.findViewById(R.id.subtask_nameadd);
 
         builder.setView(view).setTitle("Add Sub Task")
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

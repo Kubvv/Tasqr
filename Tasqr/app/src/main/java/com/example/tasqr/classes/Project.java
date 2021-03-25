@@ -1,5 +1,11 @@
 package com.example.tasqr.classes;
 
+import android.app.Activity;
+
+import com.example.tasqr.Utilities;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+
 import java.util.ArrayList;
 
 public class Project {
@@ -11,6 +17,7 @@ public class Project {
     private String owner;
     private ArrayList<String> leaders;
     private ArrayList<String> workers;
+    private ArrayList<Task> tasks;
 
     /*constructors */
 
@@ -57,6 +64,10 @@ public class Project {
         return workers;
     }
 
+    public ArrayList<Task> getTasks() {
+        return tasks;
+    }
+
     /* setters */
 
     public void setName(String name) {
@@ -85,5 +96,22 @@ public class Project {
 
     public void setWorkers(ArrayList<String> workers) {
         this.workers = workers;
+    }
+
+    public void setTasks(ArrayList<Task> tasks) {
+        this.tasks = tasks;
+    }
+
+    public void addTask(Activity context, DatabaseReference projectRef, Task task)
+    {
+        if(this.tasks == null)
+            this.tasks = new ArrayList<>();
+
+        this.tasks.add(task);
+        projectRef.child("tasks").setValue(this.tasks).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new task", context);
+            }
+        });
     }
 }

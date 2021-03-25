@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/editTextTextPersonName"
+        android:id="@+id/subtask_nameadd"
         android:layout_width="273dp"
         android:layout_height="43dp"
         android:ems="10"

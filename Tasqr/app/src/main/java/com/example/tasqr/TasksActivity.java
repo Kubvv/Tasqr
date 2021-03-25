@@ -9,19 +9,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.tasqr.classes.Project;
+import com.example.tasqr.classes.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -99,6 +99,7 @@ public class TasksActivity extends AppCompatActivity {
     {
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         DatabaseReference projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
+        Log.e(TAG, "projectId is: " + getIntent().getStringExtra("projectId"));
 
         projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

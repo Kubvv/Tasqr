@@ -1,4 +1,4 @@
-package com.example.tasqr;
+package com.example.tasqr.classes;
 
 public class SubTask {
 

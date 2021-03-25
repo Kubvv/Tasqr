@@ -1,14 +1,8 @@
 package com.example.tasqr;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,17 +14,18 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.User;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -132,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         fetchProjectData();
 
-//        setRefresher();
+        setRefresher();
     }
 
     private void checkIfManager() {
@@ -216,7 +211,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 projectNames.add(p.getName());
                                 companyNames.add(p.getCompany());
                                 projectImages.add(R.drawable.templateproject);
-                                projectIds.add(p.getId());
+                                projectIds.add(childSnapshot.getKey());
 
                                 projectsFetched.getAndAdd(1);
                             }

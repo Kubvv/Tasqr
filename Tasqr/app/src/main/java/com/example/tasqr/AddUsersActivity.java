@@ -109,6 +109,7 @@ public class AddUsersActivity extends AppCompatActivity {
         projectsRef = rootRef.child("Projects");
 
         Log.d(TAG, "onCreate: " + previous_activity);
+
         if (previous_activity.equals("Company")) {
             fetchCompany();
         }
@@ -159,17 +160,15 @@ public class AddUsersActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 /* iterate through users and add each to array */
-                int i = 0;
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     User user = ds.getValue(User.class);
                     /* If user is not the owner show him on the list of users that can be added */
                     if (!user.getMail().equals(logged_mail) && user.getCompanies().contains(companyId)) {
                         userArray.add(user);
                         displayArray.add(user.getName() + " " + user.getSurname());
-                    } else {
+                    } else if(user.getMail().equals(logged_mail)) {
                         owner = user;
                     }
-                    i++;
                 }
 
                 /* create some weird adapter for list view */
@@ -264,6 +263,7 @@ public class AddUsersActivity extends AppCompatActivity {
 
         DatabaseReference pushedProjectsRef = projectsRef.push();
         String id = pushedProjectsRef.getKey();
+
         projectsRef.child(id).setValue(project).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new project", AddUsersActivity.this);
@@ -272,7 +272,9 @@ public class AddUsersActivity extends AppCompatActivity {
 
         /* add project to owner's projects array, then leave the activity */
         ArrayList<String> tmp = owner.getProjects();
+        Log.e(TAG, "finishAddingProject: " + owner.getMail());
         tmp.add(id);
+        Log.e(TAG, tmp.get(tmp.size() - 1));
         usersRef.child(owner.getMail()).child("projects").setValue(tmp).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
