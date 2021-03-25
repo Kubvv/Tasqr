@@ -132,7 +132,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         /* TO DO change id of database bo znowu sie pruje o . # $ [ i ] */
-        Query q = database.getReference().child("Users").orderByChild("mail").equalTo(data[2]);
+        Query q = usersRef.orderByChild("mail").equalTo(data[2]);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -155,8 +155,10 @@ public class RegisterActivity extends AppCompatActivity {
     /* data is basic user info data[2] references user mail mail  */
     private void addUser(String[] data) {
 
-        User user = new User(data[0], data[1], data[2], data[3]);
-        usersRef.child(data[2]).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
+        DatabaseReference pushedUsersRef = usersRef.push();
+        String id = pushedUsersRef.getKey();
+        User user = new User(id, data[0], data[1], data[2], data[3]);
+        usersRef.child(id).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Utilities.toastMessage("Successfully registered", RegisterActivity.this);

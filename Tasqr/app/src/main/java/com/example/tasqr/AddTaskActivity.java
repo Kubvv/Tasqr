@@ -26,8 +26,9 @@ public class AddTaskActivity extends AppCompatActivity {
         addPeopleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent addPeopleIntent = new Intent(AddTaskActivity.this, AddTaskUsersActivity.class);
+                Intent addPeopleIntent = new Intent(AddTaskActivity.this, AddUsersActivity.class);
                 addPeopleIntent.putExtra("projectId", getIntent().getStringExtra("projectId"));
+                addPeopleIntent.putExtra("previous_activity", "Task");
                 addPeopleIntent.putExtra("taskName", taskName.getText().toString());
                 addPeopleIntent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
                 startActivity(addPeopleIntent);

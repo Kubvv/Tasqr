@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class User {
 
+    private String id;
     private String name;
     private String surname;
     private String mail;
@@ -18,7 +19,8 @@ public class User {
 
     public User() {}
 
-    public User(String name, String surname, String mail, String password) {
+    public User(String id, String name, String surname, String mail, String password) {
+        this.id = id;
         this.name = name;
         this.surname = surname;
         this.mail = mail;
@@ -30,6 +32,10 @@ public class User {
     }
 
     /* getters */
+
+    public String getId() {
+        return id;
+    }
 
     public String getName() {
         return name;
@@ -52,6 +58,10 @@ public class User {
     public ArrayList<String> getCompanies() { return companies; }
 
     /* setters */
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public void setProjects(ArrayList<String> projects) {
         this.projects = projects;

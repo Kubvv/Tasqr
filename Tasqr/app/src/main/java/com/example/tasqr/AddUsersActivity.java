@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.Project;
+import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
@@ -23,6 +24,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class AddUsersActivity extends AppCompatActivity {
 
@@ -38,6 +40,12 @@ public class AddUsersActivity extends AppCompatActivity {
 
     /* Owner of currently creating project [not in userArray!]*/
     private User owner;
+    /* Mail of the task leader */
+    private String leader;
+
+    /* Project we are currently in */
+    private Project currProject;
+    private ArrayList<String> projectUsers;
 
     /* Arraylists used for creating user listView */
     private ArrayList<User> userArray = new ArrayList<>();
@@ -51,6 +59,7 @@ public class AddUsersActivity extends AppCompatActivity {
     private DatabaseReference rootRef = database.getReference();
     private DatabaseReference usersRef = rootRef.child("Users");
     private DatabaseReference projectsRef = rootRef.child("Projects");
+    private DatabaseReference projectRef;
     private DatabaseReference companiesRef = rootRef.child("Companies");
 
     /* button image TO DO zmienic przed prezentacja */
@@ -70,6 +79,50 @@ public class AddUsersActivity extends AppCompatActivity {
         logged_mail = bndl.getString("logged_mail");
         company = bndl.getString("company_name");
 
+        preFetch();
+
+        nigga = findViewById(R.id.snickers);
+        nigga.setImageResource(avatars[currentPhoto]);
+
+        nigga.setOnClickListener(v -> {
+            switch (previous_activity) {
+                case "Company":
+                    finishAddingCompany();
+                    break;
+                case "Project":
+                    finishAddingProject();
+                    break;
+                case "Task":
+                    finishAddingTask();
+                    break;
+            }
+        });
+
+        listView = (ListView) findViewById(R.id.userlist);
+
+        /* establish connection to database and some references */
+        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+        rootRef = database.getReference();
+        usersRef = rootRef.child("Users");
+        projectsRef = rootRef.child("Projects");
+
+        Log.d(TAG, "onCreate: " + previous_activity);
+
+        /* Fetch required data from database */
+        switch (previous_activity) {
+            case "Company":
+                fetchCompany();
+                break;
+            case "Project":
+                fetchProject();
+                break;
+            case "Task":
+                fetchTask();
+                break;
+        }
+    }
+
+    private void preFetch() {
         if (previous_activity.equals("Project")) {
             Query q = companiesRef.orderByChild("name").equalTo(company);
             q.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -85,36 +138,21 @@ public class AddUsersActivity extends AppCompatActivity {
                     Utilities.toastMessage("error" + error.toString(), AddUsersActivity.this);
                 }
             });
-
         }
-
-        nigga = findViewById(R.id.snickers);
-        nigga.setImageResource(avatars[currentPhoto]);
-
-        nigga.setOnClickListener(v -> {
-            if (previous_activity.equals("Company")) {
-                finishAddingCompany();
-            }
-            else if (previous_activity.equals("Project")) {
-                finishAddingProject();
-            }
-        });
-
-        listView = (ListView)findViewById(R.id.userlist);
-
-        /* establish connection to database and some references */
-        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-        rootRef = database.getReference();
-        usersRef = rootRef.child("Users");
-        projectsRef = rootRef.child("Projects");
-
-        Log.d(TAG, "onCreate: " + previous_activity);
-
-        if (previous_activity.equals("Company")) {
-            fetchCompany();
-        }
-        else if (previous_activity.equals("Project")) {
-            fetchProject();
+        else if (previous_activity.equals("Task")) {
+            projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
+            projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    currProject = snapshot.getValue(Project.class);
+                    projectUsers = currProject.getWorkers();
+                    leader = currProject.getOwner();
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "onCancelled: " + error);
+                }
+            });
         }
     }
 
@@ -125,12 +163,8 @@ public class AddUsersActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 /* iterate through users and add each to array */
-                int i = 0;
-                Log.d(TAG, "onDataChange: siema");
                 for (DataSnapshot ds : snapshot.getChildren()) {
-                    Log.d(TAG, "onDataChange: 111");
                     User user = ds.getValue(User.class);
-                    Log.d(TAG, "onCreate: " + user.getName());
                     /* If user is not the owner show him on the list of users that can be added */
                     if (!user.getMail().equals(logged_mail)) {
                         userArray.add(user);
@@ -138,7 +172,6 @@ public class AddUsersActivity extends AppCompatActivity {
                     } else {
                         owner = user;
                     }
-                    i++;
                 }
 
                 /* create some weird adapter for list view */
@@ -166,8 +199,41 @@ public class AddUsersActivity extends AppCompatActivity {
                     if (!user.getMail().equals(logged_mail) && user.getCompanies().contains(companyId)) {
                         userArray.add(user);
                         displayArray.add(user.getName() + " " + user.getSurname());
-                    } else if(user.getMail().equals(logged_mail)) {
+                    } else if (user.getMail().equals(logged_mail)) {
                         owner = user;
+                    }
+                }
+
+                /* create some weird adapter for list view */
+                ArrayAdapter<String> adapter = new ArrayAdapter(AddUsersActivity.this, android.R.layout.simple_list_item_multiple_choice, displayArray);
+
+                listView.setAdapter(adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "onCancelled: " + error);
+            }
+        });
+    }
+
+    private void fetchTask() {
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int i = 0;
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if (i == projectUsers.size())
+                        break;
+
+                    User user = ds.getValue(User.class);
+                    Log.d(TAG, "onDataChange: " + projectUsers.get(i) + i);
+                    if (user.getMail().equals(projectUsers.get(i))) {
+                        if (!user.getMail().equals(logged_mail)) {
+                            displayArray.add(user.getName() + " " + user.getSurname());
+                            Log.d(TAG, "onDataChange: " + user.getMail() + projectUsers.get(i));
+                        }
+                        i++;
                     }
                 }
 
@@ -187,7 +253,7 @@ public class AddUsersActivity extends AppCompatActivity {
     /* Adds company and all it's workers to database.
      * Also updates all added user's companies arrays.
      * If succesful, goes to ProfileActivity and closes all previous activities.*/
-    private void finishAddingCompany() {
+    private void finishAddingCompany () {
         currentPhoto = (currentPhoto + 1) % 3;
         nigga.setImageResource(avatars[currentPhoto]);
 
@@ -213,14 +279,15 @@ public class AddUsersActivity extends AppCompatActivity {
         String id = pushedCompaniesRef.getKey();
         companiesRef.child(id).setValue(company).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new Company", AddUsersActivity.this);
+            public void onSuccess(Void aVoid) {
+                Utilities.toastMessage("Successfully added new Company", AddUsersActivity.this);
             }
         });
 
         /* add company to owner's projects array, then leave the activity */
         ArrayList<String> tmp = owner.getCompanies();
         tmp.add(id);
-        usersRef.child(owner.getMail()).child("companies").setValue(tmp).addOnSuccessListener(new OnSuccessListener<Void>() {
+        usersRef.child(owner.getId()).child("companies").setValue(tmp).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 openProfileActivity();
@@ -231,14 +298,15 @@ public class AddUsersActivity extends AppCompatActivity {
         for (int i = 1; i < companyUsers.size(); i++) {
             tmp = companyUsers.get(i).getCompanies();
             tmp.add(id);
-            usersRef.child(companyUsers.get(i).getMail()).child("companies").setValue(tmp); /* TO DO Identyfying users will be wrong after user id change */
+            Log.d(TAG, "finishAddingCompany: " + companyUsers.get(i).getName());
+            usersRef.child(companyUsers.get(i).getId()).child("companies").setValue(tmp);
         }
     }
 
     /* Adds project and all it's workers to database.
-    * Also updates all added user's projects arrays.
-    * If succesful, goes to MainActivity and closes all previous activities.*/
-    private void finishAddingProject() {
+     * Also updates all added user's projects arrays.
+     * If succesful, goes to MainActivity and closes all previous activities.*/
+    private void finishAddingProject () {
         currentPhoto = (currentPhoto + 1) % 3;
         nigga.setImageResource(avatars[currentPhoto]);
 
@@ -266,7 +334,8 @@ public class AddUsersActivity extends AppCompatActivity {
 
         projectsRef.child(id).setValue(project).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new project", AddUsersActivity.this);
+            public void onSuccess(Void aVoid) {
+                Utilities.toastMessage("Successfully added new project", AddUsersActivity.this);
             }
         });
 
@@ -275,7 +344,7 @@ public class AddUsersActivity extends AppCompatActivity {
         Log.e(TAG, "finishAddingProject: " + owner.getMail());
         tmp.add(id);
         Log.e(TAG, tmp.get(tmp.size() - 1));
-        usersRef.child(owner.getMail()).child("projects").setValue(tmp).addOnSuccessListener(new OnSuccessListener<Void>() {
+        usersRef.child(owner.getId()).child("projects").setValue(tmp).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 openMainActivity();
@@ -286,12 +355,34 @@ public class AddUsersActivity extends AppCompatActivity {
         for (int i = 1; i < projectUsers.size(); i++) {
             tmp = projectUsers.get(i).getProjects();
             tmp.add(id);
-            usersRef.child(projectUsers.get(i).getMail()).child("projects").setValue(tmp);
+            usersRef.child(projectUsers.get(i).getId()).child("projects").setValue(tmp);
         }
     }
 
+    private void finishAddingTask() {
+        currentPhoto = (currentPhoto + 1) % 3;
+        nigga.setImageResource(avatars[currentPhoto]);
+
+        projectsRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
+
+        Log.d(TAG, "finishAddingTask: " + leader);
+        ArrayList<String> taskUsers = new ArrayList<>();
+        taskUsers.add(leader);
+
+        SparseBooleanArray checked = listView.getCheckedItemPositions();
+        for (int i = 0; i < listView.getCount(); i++)
+            if (checked.get(i))
+                taskUsers.add(projectUsers.get(i));
+
+        /* Create new task to be added */
+        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, taskUsers, new Date());
+        currProject.addTask(AddUsersActivity.this, projectRef, newTask);
+
+        openTasksActivity();
+    }
+
     /* Opens main activity and closes activites relating to adding project */
-    private void openMainActivity() {
+    private void openMainActivity () {
         Intent intent = new Intent(AddUsersActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("logged_name", logged_name);
@@ -300,10 +391,19 @@ public class AddUsersActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    private void openProfileActivity() {
+    private void openProfileActivity () {
         Intent intent = new Intent(AddUsersActivity.this, ProfileActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("logged_mail", logged_mail);
+        startActivity(intent);
+    }
+
+    /* Opens main activity and closes activites relating to adding project */
+    private void openTasksActivity() {
+        Intent intent = new Intent(AddUsersActivity.this, TasksActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("projectId", getIntent().getStringExtra("projectId"));
+        intent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
         startActivity(intent);
     }
 }
