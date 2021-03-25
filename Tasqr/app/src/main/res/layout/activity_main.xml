@@ -80,7 +80,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/addprojectbutton"
-            app:backgroundTint="@color/alt_text_color"
+            app:backgroundTint="@color/text_color"
             app:rippleColor="@color/tasqr_yellow"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

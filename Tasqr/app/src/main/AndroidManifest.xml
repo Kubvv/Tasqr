@@ -52,6 +52,18 @@
         <activity
             android:name=".AddUsersActivity"
             android:theme="@style/Theme.Tasqr_NoToolBar" />
+        <activity
+            android:name=".TasksActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
+        <activity
+            android:name=".SubTasksActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
+        <activity
+            android:name=".AddTaskActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
+        <activity
+            android:name=".AddTaskUsersActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
     </application>
 
 </manifest>
