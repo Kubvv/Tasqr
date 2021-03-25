@@ -1,7 +1,9 @@
 package com.example.tasqr.classes;
 
 import android.app.Activity;
+import android.util.SparseBooleanArray;
 
+import com.example.tasqr.SubTasksActivity;
 import com.example.tasqr.Utilities;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
@@ -50,6 +52,16 @@ public class Task {
         return taskName;
     }
 
+    public ArrayList<String> getSubTasksString()
+    {
+        ArrayList<String> subTaskStrings = new ArrayList<>();
+        if(this.subTasks != null)
+            for(SubTask subtask: this.subTasks)
+                subTaskStrings.add(subtask.getDesc());
+
+        return subTaskStrings;
+    }
+
     /* Setters */
     public void setDeadline(Date deadline) {
         this.deadline = deadline;
@@ -71,16 +83,32 @@ public class Task {
         this.taskName = taskName;
     }
 
-
-    public void addSubTask(Activity context, DatabaseReference projectRef, Integer position, SubTask subTask)
+    public void addSubTask(Activity context, DatabaseReference taskRef, SubTask subTask)
     {
         if(this.subTasks == null)
             this.subTasks = new ArrayList<>();
 
         this.subTasks.add(subTask);
-        projectRef.child("tasks").child(position.toString()).setValue(this.subTasks).addOnSuccessListener(new OnSuccessListener<Void>() {
+        taskRef.child("subTasks").setValue(this.subTasks).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new subtask", context);
+            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new sub task", context);
+            }
+        });
+    }
+
+    public void setSubTasksState(Activity context, DatabaseReference taskRef, SparseBooleanArray checked)
+    {
+        for (int i = 0; i < this.subTasks.size(); i++) {
+            if (checked.get(i)) {
+               this.subTasks.get(i).setState(SubTask.SubTaskState.done);
+            } else {
+                this.subTasks.get(i).setState(SubTask.SubTaskState.pending);
+            }
+        }
+
+        taskRef.child("subTasks").setValue(this.subTasks).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully set states", context);
             }
         });
     }

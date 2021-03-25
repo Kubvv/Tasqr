@@ -137,6 +137,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.getChildrenCount() == 0) {
                     addProjectButton.setVisibility(View.INVISIBLE);
+                } else {
+                    addProjectButton.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -261,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 projectsFetched.set(0);
 
                 fetchProjectData();
+                checkIfManager();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });

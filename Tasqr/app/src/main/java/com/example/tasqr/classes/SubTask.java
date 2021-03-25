@@ -2,7 +2,7 @@ package com.example.tasqr.classes;
 
 public class SubTask {
 
-    private enum SubTaskState{
+    public enum SubTaskState{
         abandoned, pending, done
     }
 

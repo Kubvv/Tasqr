@@ -86,8 +86,9 @@ public class TasksActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent subTaskIntent = new Intent(TasksActivity.this, SubTasksActivity.class);
-                subTaskIntent.putExtra("taskPosition", position);
+                subTaskIntent.putExtra("taskPosition", Integer.toString(position));
                 subTaskIntent.putExtra("taskName", tasks.get(position).getTaskName());
+                subTaskIntent.putExtra("projectId", getIntent().getStringExtra("projectId"));
                 startActivity(subTaskIntent);
             }
         });

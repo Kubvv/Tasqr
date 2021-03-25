@@ -166,6 +166,7 @@ public class AddUsersActivity extends AppCompatActivity {
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     User user = ds.getValue(User.class);
                     /* If user is not the owner show him on the list of users that can be added */
+                    Log.e(TAG, user.getMail());
                     if (!user.getMail().equals(logged_mail)) {
                         userArray.add(user);
                         displayArray.add(user.getName() + " " + user.getSurname());

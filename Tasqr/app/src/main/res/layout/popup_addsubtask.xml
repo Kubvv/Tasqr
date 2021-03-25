@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/subtask_name"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -10,7 +9,6 @@
         android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:layout_margin="30dp"
         android:background="@drawable/rectangle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,13 +19,14 @@
         android:id="@+id/subtask_nameadd"
         android:layout_width="273dp"
         android:layout_height="43dp"
+        android:backgroundTint="@color/tasqr_blue"
         android:ems="10"
+        android:hint="Sub Task Name"
         android:inputType="textPersonName"
+        android:textColor="@color/tasqr_blue"
+        android:textColorHint="@color/tasqr_blue"
         app:layout_constraintBottom_toBottomOf="@+id/view"
         app:layout_constraintEnd_toEndOf="@+id/view"
         app:layout_constraintStart_toStartOf="@+id/view"
-        app:layout_constraintTop_toTopOf="@+id/view"
-        android:textColor="@color/tasqr_blue"
-        android:textColorHint="@color/tasqr_blue"
-        android:hint="Sub Task Name"/>
+        app:layout_constraintTop_toTopOf="@+id/view" />
 </androidx.constraintlayout.widget.ConstraintLayout>
