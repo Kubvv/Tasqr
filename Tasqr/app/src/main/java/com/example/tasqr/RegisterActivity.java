@@ -131,7 +131,6 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        /* TO DO change id of database bo znowu sie pruje o . # $ [ i ] */
         Query q = usersRef.orderByChild("mail").equalTo(data[2]);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

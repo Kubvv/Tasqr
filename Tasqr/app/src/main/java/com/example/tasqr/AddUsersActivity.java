@@ -23,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -62,7 +63,7 @@ public class AddUsersActivity extends AppCompatActivity {
     private DatabaseReference projectRef;
     private DatabaseReference companiesRef = rootRef.child("Companies");
 
-    /* button image TO DO zmienic przed prezentacja */
+    /* button image TODO zmienic przed prezentacja */
     private ImageButton nigga;
     private Integer[] avatars = {R.drawable.avatar, R.drawable.white, R.drawable.asian};
     private int currentPhoto = 0;
@@ -85,16 +86,41 @@ public class AddUsersActivity extends AppCompatActivity {
         nigga.setImageResource(avatars[currentPhoto]);
 
         nigga.setOnClickListener(v -> {
+
+            currentPhoto = (currentPhoto + 1) % 3;
+            nigga.setImageResource(avatars[currentPhoto]);
+
+            /* Fetch all of the selected users */
+            ArrayList<User> checkedUsers = new ArrayList<>();
+            ArrayList<String> usersMail = new ArrayList<>();
+            /* Also add the owner user object */
+            if (previous_activity.equals("Company") || previous_activity.equals("Project")) {
+                checkedUsers.add(owner);
+            }
+            /* Also add the leader's mail, as he is also a worker */ /* TODO czy ownerzy i leaderzy są workerami? */
+            else if (previous_activity.equals("Task")) {
+                usersMail.add(leader);
+            }
+            SparseBooleanArray checked = listView.getCheckedItemPositions();
+            for (int i = 0; i < listView.getCount(); i++) {
+                if (checked.get(i)) {
+                    checkedUsers.add(userArray.get(i));
+                    usersMail.add(userArray.get(i).getMail());
+                }
+            }
+
             switch (previous_activity) {
                 case "Company":
-                    finishAddingCompany();
+                    finishAddingCompany(checkedUsers, usersMail);
                     break;
                 case "Project":
-                    finishAddingProject();
+                    finishAddingProject(checkedUsers, usersMail);
                     break;
                 case "Task":
-                    finishAddingTask();
+                    finishAddingTask(usersMail);
                     break;
+                case "addProjUsers":
+                    finishAddingLeaders(usersMail);
             }
         });
 
@@ -108,7 +134,7 @@ public class AddUsersActivity extends AppCompatActivity {
 
         Log.d(TAG, "onCreate: " + previous_activity);
 
-        /* Fetch required data from database */
+        /* Fetch required data from database based on previous activity */
         switch (previous_activity) {
             case "Company":
                 fetchCompany();
@@ -119,6 +145,19 @@ public class AddUsersActivity extends AppCompatActivity {
             case "Task":
                 fetchTask();
                 break;
+            case "addProjUsers":
+                ArrayList<User> checked = getIntent().getParcelableArrayListExtra("checked_users");
+                if (checked == null) Log.e(TAG, "onCreate: siema ");
+                fetchProjUsers(checked);
+                break;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (previous_activity.equals("addProjUsers")) { /* TODO maly problem z przejsciem do main activity po kliknieciu <-*/
+            openMainActivity();
         }
     }
 
@@ -139,7 +178,7 @@ public class AddUsersActivity extends AppCompatActivity {
                 }
             });
         }
-        else if (previous_activity.equals("Task")) {
+        else if (previous_activity.equals("Task") || previous_activity.equals("addProjUsers")) {
             projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
             projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -155,6 +194,9 @@ public class AddUsersActivity extends AppCompatActivity {
             });
         }
     }
+
+    /* All of these functions are used to fetch data from different parts of database and create multiple choice list
+    * based on them. Later on checked positions will be used to create new objects. */
 
     private void fetchCompany() {
         /* fetching all users in order to show them in a listview */
@@ -231,6 +273,7 @@ public class AddUsersActivity extends AppCompatActivity {
                     Log.d(TAG, "onDataChange: " + projectUsers.get(i) + i);
                     if (user.getMail().equals(projectUsers.get(i))) {
                         if (!user.getMail().equals(logged_mail)) {
+                            userArray.add(user);
                             displayArray.add(user.getName() + " " + user.getSurname());
                             Log.d(TAG, "onDataChange: " + user.getMail() + projectUsers.get(i));
                         }
@@ -251,24 +294,21 @@ public class AddUsersActivity extends AppCompatActivity {
         });
     }
 
+    private void fetchProjUsers(ArrayList<User> checked) {
+
+        for (int i = 1; i < checked.size(); i++) {
+            userArray.add(checked.get(i));
+            displayArray.add(checked.get(i).getName() + " " + checked.get(i).getSurname());
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter(AddUsersActivity.this, android.R.layout.simple_list_item_multiple_choice, displayArray);
+
+        listView.setAdapter(adapter);
+    }
+
     /* Adds company and all it's workers to database.
      * Also updates all added user's companies arrays.
      * If succesful, goes to ProfileActivity and closes all previous activities.*/
-    private void finishAddingCompany () {
-        currentPhoto = (currentPhoto + 1) % 3;
-        nigga.setImageResource(avatars[currentPhoto]);
-
-        ArrayList<User> companyUsers = new ArrayList<>();
-        ArrayList<String> usersMail = new ArrayList<>();
-        companyUsers.add(owner);
-        SparseBooleanArray checked = listView.getCheckedItemPositions();
-        for (int i = 0; i < listView.getCount(); i++) {
-            if (checked.get(i)) {
-                companyUsers.add(userArray.get(i));
-                usersMail.add(userArray.get(i).getMail());
-            }
-        }
-
+    private void finishAddingCompany (ArrayList<User> companyUsers, ArrayList<String> usersMail) {
         /* Create new company to be added */
         Company company = new Company(
                 bndl.getString("company_name"),
@@ -307,21 +347,7 @@ public class AddUsersActivity extends AppCompatActivity {
     /* Adds project and all it's workers to database.
      * Also updates all added user's projects arrays.
      * If succesful, goes to MainActivity and closes all previous activities.*/
-    private void finishAddingProject () {
-        currentPhoto = (currentPhoto + 1) % 3;
-        nigga.setImageResource(avatars[currentPhoto]);
-
-        ArrayList<User> projectUsers = new ArrayList<>();
-        ArrayList<String> usersMail = new ArrayList<>();
-        projectUsers.add(owner);
-        SparseBooleanArray checked = listView.getCheckedItemPositions();
-        for (int i = 0; i < listView.getCount(); i++) {
-            if (checked.get(i)) {
-                projectUsers.add(userArray.get(i));
-                usersMail.add(userArray.get(i).getMail());
-            }
-        }
-
+    private void finishAddingProject (ArrayList<User> projectUsers, ArrayList<String> usersMail) {
         /* Create new project to be added */
         Project project = new Project(
                 bndl.getString("project_name"),
@@ -348,7 +374,12 @@ public class AddUsersActivity extends AppCompatActivity {
         usersRef.child(owner.getId()).child("projects").setValue(tmp).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                openMainActivity();
+                /* No possible workers to choose as leaders, as no one besides owner is in the project */
+                if (projectUsers.size() == 1) {
+                    openMainActivity();
+                } else {
+                    openAddLeaderActivity(id, projectUsers);
+                }
             }
         });
 
@@ -360,30 +391,30 @@ public class AddUsersActivity extends AppCompatActivity {
         }
     }
 
-    private void finishAddingTask() {
-        currentPhoto = (currentPhoto + 1) % 3;
-        nigga.setImageResource(avatars[currentPhoto]);
-
+    /* Creates a new task in current project */
+    private void finishAddingTask(ArrayList<String> usersMail) {
         projectsRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
-
-        Log.d(TAG, "finishAddingTask: " + leader);
-        ArrayList<String> taskUsers = new ArrayList<>();
-        taskUsers.add(leader);
-
-        SparseBooleanArray checked = listView.getCheckedItemPositions();
-        for (int i = 0; i < listView.getCount(); i++)
-            if (checked.get(i))
-                taskUsers.add(projectUsers.get(i));
-
         /* Create new task to be added */
-        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, taskUsers, new Date());
+        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, usersMail, new Date());
         currProject.addTask(AddUsersActivity.this, projectRef, newTask);
 
         openTasksActivity();
     }
 
+    /* Adds leader to current project */
+    private void finishAddingLeaders(ArrayList<String> usersMail) {
+        projectsRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
+        /* Add leaders to current project */
+        currProject.addLeaders(AddUsersActivity.this, projectRef, usersMail);
+
+        openMainActivity();
+    }
+
+    /* Activities openers */
+
     /* Opens main activity and closes activites relating to adding project */
     private void openMainActivity () {
+        previous_activity = "addedLeaders";
         Intent intent = new Intent(AddUsersActivity.this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("logged_name", logged_name);
@@ -392,6 +423,7 @@ public class AddUsersActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /* Opens profile activity and closes activities relating to adding company */
     private void openProfileActivity () {
         Intent intent = new Intent(AddUsersActivity.this, ProfileActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -405,6 +437,20 @@ public class AddUsersActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("projectId", getIntent().getStringExtra("projectId"));
         intent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
+        startActivity(intent);
+    }
+
+    /* Opens addUsersActivity in order to choose leaders among picked users */
+    private void openAddLeaderActivity(String projectId, ArrayList<User> checked) {
+        Intent intent = new Intent(AddUsersActivity.this, AddUsersActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("logged_name", logged_name);
+        intent.putExtra("logged_surname", logged_surname);
+        intent.putExtra("logged_mail", logged_mail);
+        intent.putExtra("previous_activity", "addProjUsers");
+        intent.putExtra("company_name", company);
+        intent.putExtra("projectId", projectId);
+        intent.putParcelableArrayListExtra("checked_users", checked);
         startActivity(intent);
     }
 }

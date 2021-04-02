@@ -1,10 +1,13 @@
 package com.example.tasqr.classes;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.ArrayList;
 
-public class User {
+public class User implements Parcelable {
 
     private String id;
     private String name;
@@ -13,7 +16,6 @@ public class User {
     private String password;
     private ArrayList<String> projects;
     private ArrayList<String> companies;
-
 
      /*constructors */
 
@@ -29,6 +31,46 @@ public class User {
         projects.add("root");
         companies = new ArrayList<>();
         companies.add("root");
+    }
+
+    protected User(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        surname = in.readString();
+        mail = in.readString();
+        password = in.readString();
+        projects = in.createStringArrayList();
+        companies = in.createStringArrayList();
+    }
+
+    /* Parcelable part of code */
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.id);
+        dest.writeString(this.name);
+        dest.writeString(this.surname);
+        dest.writeString(this.mail);
+        dest.writeString(this.password);
+        dest.writeStringList(this.projects);
+        dest.writeStringList(this.companies);
     }
 
     /* getters */

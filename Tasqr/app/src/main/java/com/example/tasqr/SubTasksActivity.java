@@ -79,10 +79,11 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Task task = snapshot.getValue(Task.class);
                 subTaskList.setAdapter(new ArrayAdapter<>(SubTasksActivity.this, android.R.layout.simple_list_item_multiple_choice, task.getSubTasksString()));
-
-                for(int i = 0; i < task.getSubTasks().size(); i++){
-                    boolean state = task.getSubTasks().get(i).getState() == SubTask.SubTaskState.done;
-                    subTaskList.setItemChecked(i, state);
+                if (task.getSubTasks() != null) { /* TODO po dodaniu nowego taska nie ma nic w subtasku i sie dzebie, nwm czy to rozw styknie */
+                    for (int i = 0; i < task.getSubTasks().size(); i++) {
+                        boolean state = task.getSubTasks().get(i).getState() == SubTask.SubTaskState.done;
+                        subTaskList.setItemChecked(i, state);
+                    }
                 }
             }
 

@@ -75,10 +75,7 @@ public class TasksActivity extends AppCompatActivity {
         addTaskButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent addTaskIntent = new Intent(TasksActivity.this, AddTaskActivity.class);
-                addTaskIntent.putExtra("projectId", getIntent().getStringExtra("projectId"));
-                addTaskIntent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
-                startActivity(addTaskIntent);
+                openSubTaskActivity();
             }
         });
 
@@ -121,5 +118,12 @@ public class TasksActivity extends AppCompatActivity {
                 Utilities.toastMessage("error" + error.toString(), TasksActivity.this);
             }
         });
+    }
+
+    private void openSubTaskActivity() {
+        Intent addTaskIntent = new Intent(TasksActivity.this, AddTaskActivity.class);
+        addTaskIntent.putExtra("projectId", getIntent().getStringExtra("projectId"));
+        addTaskIntent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
+        startActivity(addTaskIntent);
     }
 }

@@ -1,6 +1,7 @@
 package com.example.tasqr.classes;
 
 import android.app.Activity;
+import android.provider.ContactsContract;
 
 import com.example.tasqr.Utilities;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -102,6 +103,7 @@ public class Project {
         this.tasks = tasks;
     }
 
+    /* Add task to current project object and push it to database */
     public void addTask(Activity context, DatabaseReference projectRef, Task task)
     {
         if(this.tasks == null)
@@ -110,7 +112,19 @@ public class Project {
         this.tasks.add(task);
         projectRef.child("tasks").setValue(this.tasks).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new task", context);
+            public void onSuccess(Void aVoid) {
+                Utilities.toastMessage("Successfully added new task", context);
+            }
+        });
+    }
+
+    /* Add leaders to current project object and push it to database */
+    public void addLeaders(Activity context, DatabaseReference projectRef, ArrayList<String> toAdd) {
+        this.leaders.addAll(toAdd);
+        projectRef.child("leaders").setValue(this.leaders).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Utilities.toastMessage("Successfully added leaders", context);
             }
         });
     }
