@@ -27,6 +27,10 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 
+/* AddUsers Activity is an activity that creates list of users based on context, which is usually
+* taken from previous activities. This list contains all users that can be checked. After the button
+*  click, checked users are then added to appropriate objects in database, thus adding them to
+* projects, companies etc..  */
 public class AddUsersActivity extends AppCompatActivity {
 
     private static final String TAG = "AddUsersActivity";
@@ -49,11 +53,12 @@ public class AddUsersActivity extends AppCompatActivity {
     private ArrayList<String> projectUsers;
 
     /* Arraylists used for creating user listView */
+    private ListView listView;
     private ArrayList<User> userArray = new ArrayList<>();
     private ArrayList<String> displayArray = new ArrayList<>();
 
+    /* bundle used in storing items */
     private Bundle bndl;
-    private ListView listView;
 
     /* Firebase database */
     private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
@@ -68,6 +73,7 @@ public class AddUsersActivity extends AppCompatActivity {
     private Integer[] avatars = {R.drawable.avatar, R.drawable.white, R.drawable.asian};
     private int currentPhoto = 0;
 
+    /* links appropriate view items, initializes listview, sets some attributes */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,11 +86,11 @@ public class AddUsersActivity extends AppCompatActivity {
         logged_mail = bndl.getString("logged_mail");
         company = bndl.getString("company_name");
 
+        /* Fetch some data before moving on with creating listviews */
         preFetch();
 
         nigga = findViewById(R.id.snickers);
         nigga.setImageResource(avatars[currentPhoto]);
-
         nigga.setOnClickListener(v -> {
 
             currentPhoto = (currentPhoto + 1) % 3;
@@ -146,6 +152,7 @@ public class AddUsersActivity extends AppCompatActivity {
                 fetchTask();
                 break;
             case "addProjUsers":
+                /* This listview will consist of previously chosen users, so we have to take it from prev intent */
                 ArrayList<User> checked = getIntent().getParcelableArrayListExtra("checked_users");
                 if (checked == null) Log.e(TAG, "onCreate: siema ");
                 fetchProjUsers(checked);
@@ -161,8 +168,9 @@ public class AddUsersActivity extends AppCompatActivity {
         }
     }
 
+    /* Used to fetch some information from database based on previous activity, before creating listview */
     private void preFetch() {
-        if (previous_activity.equals("Project")) {
+        if (previous_activity.equals("Project")) { /* we need to parse company that creates this project */
             Query q = companiesRef.orderByChild("name").equalTo(company);
             q.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -178,6 +186,7 @@ public class AddUsersActivity extends AppCompatActivity {
                 }
             });
         }
+        /* we nedd to parse leader that created the task / project, and also all the users that take part in the project */
         else if (previous_activity.equals("Task") || previous_activity.equals("addProjUsers")) {
             projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
             projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -217,7 +226,7 @@ public class AddUsersActivity extends AppCompatActivity {
                     }
                 }
 
-                /* create some weird adapter for list view */
+                /* create adapter for list view */
                 ArrayAdapter<String> adapter = new ArrayAdapter(AddUsersActivity.this, android.R.layout.simple_list_item_multiple_choice, displayArray);
 
                 listView.setAdapter(adapter);
@@ -231,7 +240,7 @@ public class AddUsersActivity extends AppCompatActivity {
     }
 
     private void fetchProject() {
-        /* fetching all users in order to show them in a listview */
+        /* fetching all company users in order to show them in a listview */
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -247,7 +256,7 @@ public class AddUsersActivity extends AppCompatActivity {
                     }
                 }
 
-                /* create some weird adapter for list view */
+                /* create adapter for list view */
                 ArrayAdapter<String> adapter = new ArrayAdapter(AddUsersActivity.this, android.R.layout.simple_list_item_multiple_choice, displayArray);
 
                 listView.setAdapter(adapter);
@@ -261,6 +270,7 @@ public class AddUsersActivity extends AppCompatActivity {
     }
 
     private void fetchTask() {
+        /* fetching project users in order to show them in a listview */
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -281,7 +291,7 @@ public class AddUsersActivity extends AppCompatActivity {
                     }
                 }
 
-                /* create some weird adapter for list view */
+                /* create adapter for list view */
                 ArrayAdapter<String> adapter = new ArrayAdapter(AddUsersActivity.this, android.R.layout.simple_list_item_multiple_choice, displayArray);
 
                 listView.setAdapter(adapter);
@@ -294,8 +304,9 @@ public class AddUsersActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchProjUsers(ArrayList<User> checked) {
 
+    private void fetchProjUsers(ArrayList<User> checked) {
+        /* fetching project users in order to show them in a listview */
         for (int i = 1; i < checked.size(); i++) {
             userArray.add(checked.get(i));
             displayArray.add(checked.get(i).getName() + " " + checked.get(i).getSurname());

@@ -19,15 +19,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-
+/* Register activity is used to register users only. After successful registration Register Activity
+* closes and redirects to Login activity. Register Activity has 4 text fields that user can fill,
+* name, surname, mail, password. It also has 2 buttons used to register user and come back to login
+* activity, respectively. Users can't register the same mail twice. Users can register only if their
+* name and surname consists of max 40 letters, and their mail is a correct one. */
 public class RegisterActivity extends AppCompatActivity {
 
     private static final String TAG = "RegisterActivity";
 
+    /* View elements */
     private Button goToLoginButton;
     private Button registerUserButton;
     private final EditText[] ets = new EditText[4];
+
+    /* bundle used in storing elements */
     private final Bundle bundle = new Bundle();
+
+    /* Firebase database info */
     private FirebaseDatabase database;
     private DatabaseReference usersRef;
 
@@ -78,7 +87,7 @@ public class RegisterActivity extends AppCompatActivity {
         RegisterActivity.this.finish();
     }
 
-    /* Adds user to firestore and closes register activity */
+    /* Parses texts that user inputted and goes on to validate them */
     public void registerUser() {
         String[] data = new String[4];
         data[0] = ets[0].getText().toString();
@@ -89,7 +98,8 @@ public class RegisterActivity extends AppCompatActivity {
         validateInput(data);
     }
 
-    /* Validates if given account is unique and correct */
+    /* Validates if given account is unique and correct, and if given name and surname consists of
+    * max 40 letters only and min of 1 letter.  */
     private void validateInput(String[] data) {
         String item;
         HashMap<Integer, String> dic = new HashMap<>();
@@ -113,6 +123,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         }
 
+        /* Using regex check if name and surname consists of only letters */
         Pattern p = Pattern.compile("[A-Za-z]{1,40}");
         Matcher m = p.matcher(data[0]);
         if (!m.matches()) {
@@ -124,6 +135,7 @@ public class RegisterActivity extends AppCompatActivity {
             Utilities.toastMessage("Surname can only contain characters between A-z and a-z", RegisterActivity.this);
             return;
         }
+        /* Also check mail correctness */
         p = Pattern.compile("@");
         m = p.matcher(data[2]);
         if (!m.find()) {
@@ -131,6 +143,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        /* Check if parsed mail is already in the database. If not, go on to registering user*/
         Query q = usersRef.orderByChild("mail").equalTo(data[2]);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -151,7 +164,9 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    /* data is basic user info data[2] references user mail mail  */
+    /* data is basic user info, data[2] references user's mail */
+    /* addUser is used in adding the user to database. It creates a new instance of User object and
+    * puts it in database  */
     private void addUser(String[] data) {
 
         DatabaseReference pushedUsersRef = usersRef.push();
@@ -161,6 +176,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void aVoid) {
                 Utilities.toastMessage("Successfully registered", RegisterActivity.this);
+                /* redirect to login activity */
                 openLoginActivity();
             }
         });
