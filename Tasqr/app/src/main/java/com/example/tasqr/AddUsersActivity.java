@@ -103,7 +103,7 @@ public class AddUsersActivity extends AppCompatActivity {
             if (previous_activity.equals("Company") || previous_activity.equals("Project")) {
                 checkedUsers.add(owner);
             }
-            /* Also add the leader's mail, as he is also a worker */ /* TODO czy ownerzy i leaderzy są workerami? */
+            /* Also add the leader's mail, as he is also a worker */
             else if (previous_activity.equals("Task")) {
                 usersMail.add(leader);
             }
@@ -163,7 +163,7 @@ public class AddUsersActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (previous_activity.equals("addProjUsers")) { /* TODO maly problem z przejsciem do main activity po kliknieciu <-*/
+        if (previous_activity.equals("addProjUsers")) { /* TO DO Zmienic miejsce dodanie projektu */
             openMainActivity();
         }
     }
