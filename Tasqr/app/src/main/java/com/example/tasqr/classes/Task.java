@@ -83,6 +83,7 @@ public class Task {
         this.taskName = taskName;
     }
 
+    /* Adds new substask to the database within a given task (taskRef)*/
     public void addSubTask(Activity context, DatabaseReference taskRef, SubTask subTask)
     {
         if(this.subTasks == null)
@@ -96,6 +97,7 @@ public class Task {
         });
     }
 
+    /* Sets states of subtasks of a given task (taskRef) and saves in the database*/
     public void setSubTasksState(Activity context, DatabaseReference taskRef, SparseBooleanArray checked)
     {
         for (int i = 0; i < this.subTasks.size(); i++) {

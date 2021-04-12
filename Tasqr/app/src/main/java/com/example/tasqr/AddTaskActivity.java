@@ -1,3 +1,8 @@
+/*
+*   ADD TASK ACTIVITY
+*   CONTAINS    form for task name
+*               button to forward into AddTaskUsersActivity
+* */
 package com.example.tasqr;
 
 import android.content.Intent;
@@ -11,18 +16,19 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class AddTaskActivity extends AppCompatActivity {
 
-    private FloatingActionButton addPeopleButton;
     private TextView taskName;
 
-    private Bundle bundle = new Bundle();
+    private final Bundle bundle = new Bundle();
 
+    /* Main on create method */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addtask);
 
         taskName = findViewById(R.id.taskName);
-        addPeopleButton = findViewById(R.id.addPeopleButtontsk);
+        FloatingActionButton addPeopleButton = findViewById(R.id.addPeopleButtontsk);
 
+        /* Sending all useful data inside intent */
         addPeopleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

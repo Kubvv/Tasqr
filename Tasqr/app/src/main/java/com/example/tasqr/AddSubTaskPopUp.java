@@ -1,3 +1,10 @@
+/*
+*   ADD SUBTASK POPUP
+*   A dialog fragment which gets user input for creating new subtask
+*   CONTAINS    Cancel and add buttons
+*               EditText form
+* */
+
 package com.example.tasqr;
 
 import android.app.AlertDialog;
@@ -11,16 +18,18 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.fragment.app.DialogFragment;
 
-public class AddSubTaskPopUp extends AppCompatDialogFragment {
+public class AddSubTaskPopUp extends DialogFragment {
 
     private EditText subTaskName;
     private AddSubTaskListener listener;
 
+    /* Main on create method */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        /* Creating layout dependencies */
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -28,6 +37,7 @@ public class AddSubTaskPopUp extends AppCompatDialogFragment {
 
         subTaskName = view.findViewById(R.id.subtask_nameadd);
 
+        /* Setting listeners */
         builder.setView(view).setTitle("Add Sub Task")
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -44,6 +54,7 @@ public class AddSubTaskPopUp extends AppCompatDialogFragment {
         return builder.create();
     }
 
+    /* Method to get context for listener */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -55,6 +66,7 @@ public class AddSubTaskPopUp extends AppCompatDialogFragment {
         }
     }
 
+    /* Listener interface for add subtask activity to override for it to get subtask name*/
     public interface AddSubTaskListener
     {
         void sendSubTaskName(String subTaskName);

@@ -68,9 +68,8 @@ public class AddUsersActivity extends AppCompatActivity {
     private DatabaseReference projectRef;
     private DatabaseReference companiesRef = rootRef.child("Companies");
 
-    /* button image TODO zmienic przed prezentacja */
-    private ImageButton nigga;
-    private Integer[] avatars = {R.drawable.avatar, R.drawable.white, R.drawable.asian};
+    private ImageButton tmpImg;
+    private Integer[] avatars = {R.drawable.avatar, R.drawable.avatar2};
     private int currentPhoto = 0;
 
     /* links appropriate view items, initializes listview, sets some attributes */
@@ -89,12 +88,12 @@ public class AddUsersActivity extends AppCompatActivity {
         /* Fetch some data before moving on with creating listviews */
         preFetch();
 
-        nigga = findViewById(R.id.snickers);
-        nigga.setImageResource(avatars[currentPhoto]);
-        nigga.setOnClickListener(v -> {
+        tmpImg = findViewById(R.id.snickers);
+        tmpImg.setImageResource(avatars[currentPhoto]);
+        tmpImg.setOnClickListener(v -> {
 
-            currentPhoto = (currentPhoto + 1) % 3;
-            nigga.setImageResource(avatars[currentPhoto]);
+            currentPhoto = (currentPhoto + 1) % 2;
+            tmpImg.setImageResource(avatars[currentPhoto]);
 
             /* Fetch all of the selected users */
             ArrayList<User> checkedUsers = new ArrayList<>();

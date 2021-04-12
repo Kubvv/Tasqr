@@ -1,3 +1,10 @@
+/*
+* MAIN ACTIVITY
+* Contains  List of all projects a user participates in which can be clicked to go to project activity
+*           Name and Surname with profile going to profile
+*           Button to add new project given logged user is allowed to do that
+*/
+
 package com.example.tasqr;
 
 import android.app.Activity;
@@ -30,7 +37,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
@@ -48,12 +55,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private AtomicInteger projectsFetched;
 
     /* Nested class that helps us in creating listView */
-    private class ProjectList extends ArrayAdapter {
+    private static class ProjectList extends ArrayAdapter {
 
-        private ArrayList<String> projectNames;
-        private ArrayList<String> ownerNames;
-        private ArrayList<Integer> projectImages;
-        private Activity context;
+        private final ArrayList<String> projectNames;
+        private final ArrayList<String> ownerNames;
+        private final ArrayList<Integer> projectImages;
+        private final Activity context;
 
         public ProjectList(Activity context, ArrayList<String> projectNames, ArrayList<String> ownerNames, ArrayList<Integer> projectImages) {
             super(context, R.layout.project_list_item, projectNames);
@@ -81,55 +88,59 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    /* Sample project list data */
-    private ArrayList<String> projectNames = new ArrayList<>();
-    private ArrayList<String> companyNames = new ArrayList<>();
-    private ArrayList<Integer> projectImages = new ArrayList<>();
-    private ArrayList<String> projectIds = new ArrayList<>();
+    /* Fetched project list data */
+    private final ArrayList<String> projectNames = new ArrayList<>();
+    private final ArrayList<String> companyNames = new ArrayList<>();
+    private final ArrayList<Integer> projectImages = new ArrayList<>();
+    private final ArrayList<String> projectIds = new ArrayList<>();
     private ListView projectList;
 
     /* View items */
     private ImageButton addProjectButton;
-    private Button profileButton;
-    private TextView name;
-    private TextView surname;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     /* Methods */
+
+    /* On Create main method */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /* Database fetch */
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         usersRef = database.getReference("Users");
         projectsRef = database.getReference("Projects");
         companyRef = database.getReference("Companies");
 
+        /* Intent bundle fetch */
         Bundle bundle = getIntent().getExtras();
         logged_name = bundle.getString("logged_name");
         logged_surname = bundle.getString("logged_surname");
         logged_mail = bundle.getString("logged_mail");
 
+        /* Checks whether we should display add project button */
         checkIfManager();
 
+        /* Xml items find and set */
         addProjectButton = findViewById(R.id.addProjectButton);
-        profileButton = findViewById(R.id.profileButton);
-        name = findViewById(R.id.name);
-        surname = findViewById(R.id.surname);
+        Button profileButton = findViewById(R.id.profileButton);
+        TextView name = findViewById(R.id.name);
+        TextView surname = findViewById(R.id.surname);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
 
-        addProjectButton.setOnClickListener(this);
-        profileButton.setOnClickListener(this);
+        addProjectButton.setOnClickListener(v -> startAddProjectActivity());
+        profileButton.setOnClickListener(v -> startProfileActivity());
 
         name.setText(logged_name);
         surname.setText(logged_surname);
 
+        /* Fetch project data and set on refresh action */
         fetchProjectData();
-
         setRefresher();
     }
 
+    /* Sets visibility depending on the type of logged user */
     private void checkIfManager() {
         Query q = companyRef.orderByChild("owner").equalTo(logged_mail);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -147,20 +158,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Utilities.toastMessage("error" + error.toString(), MainActivity.this);
             }
         });
-    }
-
-    /* Basic method for determining clicked button */
-    @Override
-    public void onClick(View v) {
-        switch (v.getId())
-        {
-            case R.id.addProjectButton:
-                startAddProjectActivity();
-                break;
-            case R.id.profileButton:
-                startProfileActivity();
-                break;
-        }
     }
 
     /* Starts addProject activity */

@@ -1,3 +1,7 @@
+/*
+*   CURRENTLY NOT USED
+*
+* */
 package com.example.tasqr;
 
 import android.content.Context;

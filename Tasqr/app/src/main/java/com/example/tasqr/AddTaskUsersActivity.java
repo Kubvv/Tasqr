@@ -1,3 +1,8 @@
+/*
+ *   ADD TASK USERS ACTIVITY
+ *   CONTAINS    list of users tied to a given project
+ *               button to add new task to database
+ * */
 package com.example.tasqr;
 
 import android.content.Intent;
@@ -22,7 +27,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Queue;
 
 public class AddTaskUsersActivity extends AppCompatActivity {
 
@@ -43,30 +47,29 @@ public class AddTaskUsersActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference projectRef;
 
-    /* button image TO DO zmienic przed prezentacja */
-    private ImageButton nigga;
-    private Integer[] avatars = {R.drawable.avatar, R.drawable.white, R.drawable.asian};
+    private ImageButton tmpImg;
+    private final Integer[] avatars = {R.drawable.avatar, R.drawable.avatar2};
     private int currentPhoto = 0;
 
+    /* Main on create method */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addtaskusersactivity);
 
-        nigga = findViewById(R.id.snickerstsk);
-        nigga.setImageResource(avatars[currentPhoto]);
+        tmpImg = findViewById(R.id.snickerstsk);
+        tmpImg.setImageResource(avatars[currentPhoto]);
 
-        nigga.setOnClickListener(v -> {
-            finishAddingTask();
-        });
+        tmpImg.setOnClickListener(v -> finishAddingTask());
 
         listView = (ListView)findViewById(R.id.userlisttsk);
 
-        /* establish connection to database and some references */
+        /* Establish connection to database and some references */
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
         DatabaseReference usersRef = database.getReference("Users");
 
+        /* Get current project */
         projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -79,6 +82,7 @@ public class AddTaskUsersActivity extends AppCompatActivity {
             }
         });
 
+        /* Get users into list */
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -111,9 +115,10 @@ public class AddTaskUsersActivity extends AppCompatActivity {
         });
     }
 
+    /* Add new task with all checked people tied to it */
     private void finishAddingTask () {
-        currentPhoto = (currentPhoto + 1) % 3;
-        nigga.setImageResource(avatars[currentPhoto]);
+        currentPhoto = (currentPhoto + 1) % 2;
+        tmpImg.setImageResource(avatars[currentPhoto]);
 
         ArrayList<String> taskUsers = new ArrayList<>();
         taskUsers.add(leader);

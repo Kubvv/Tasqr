@@ -1,3 +1,9 @@
+/*
+ * SUBTASKS ACTIVITY
+ * Contains  List of all subtasks in a given task
+ *           Add new subtask button (target: visible only if user is project leader, but it's easier to debug right now)
+ */
+
 package com.example.tasqr;
 
 import android.os.Bundle;
@@ -20,8 +26,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-
 public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPopUp.AddSubTaskListener {
 
     private static final String TAG = "SubTaskActivity";
@@ -29,17 +33,18 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
     private FirebaseDatabase database;
 
     private ListView subTaskList;
-    private FloatingActionButton addSubTaskButton;
     private Button saveChangesButton;
 
+    /* Main On Create Method */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subtasks);
 
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
 
+        /* Find and set xml items */
         subTaskList = findViewById(R.id.subTaskList);
-        addSubTaskButton = findViewById(R.id.addSubTaskButton);
+        FloatingActionButton addSubTaskButton = findViewById(R.id.addSubTaskButton);
         saveChangesButton = findViewById(R.id.saveSubTaskChangesButton);
 
         addSubTaskButton.setOnClickListener(v -> showPopUp());
@@ -54,6 +59,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         fetchSubTaskData();
     }
 
+    /* Saves subtask states into the database */
     private void saveStateChanges() {
         DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/" + getIntent().getStringExtra("taskPosition"));
 
@@ -71,6 +77,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         });
     }
 
+    /* Data fetcher for subtask list inside subtask activity */
     private void fetchSubTaskData() {
         DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/" + getIntent().getStringExtra("taskPosition"));
 
@@ -78,8 +85,9 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Task task = snapshot.getValue(Task.class);
-                subTaskList.setAdapter(new ArrayAdapter<>(SubTasksActivity.this, android.R.layout.simple_list_item_multiple_choice, task.getSubTasksString()));
-                if (task.getSubTasks() != null) {
+                if (task != null) {
+                    subTaskList.setAdapter(new ArrayAdapter<>(SubTasksActivity.this, android.R.layout.simple_list_item_multiple_choice, task.getSubTasksString()));
+
                     for (int i = 0; i < task.getSubTasks().size(); i++) {
                         boolean state = task.getSubTasks().get(i).getState() == SubTask.SubTaskState.done;
                         subTaskList.setItemChecked(i, state);
@@ -94,11 +102,13 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         });
     }
 
+    /* Shows pop-up for adding new subtask */
     private void showPopUp() {
         AddSubTaskPopUp popUp = new AddSubTaskPopUp();
         popUp.show(getSupportFragmentManager(), "addSubTaskPopUp");
     }
 
+    /* List refresher after adding new subtask */
     @Override
     public void sendSubTaskName(String subTaskName) {
         DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/" + getIntent().getStringExtra("taskPosition"));
