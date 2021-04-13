@@ -1,3 +1,10 @@
+/*
+ * USER LIST ACTIVITY
+ *
+ * Used for displaying list of users in project's database
+ *
+ */
+
 package com.example.tasqr;
 
 import androidx.annotation.NonNull;
@@ -60,7 +67,7 @@ public class UserListActivity extends AppCompatActivity {
                     displayArray.add(user.getName() + " " + user.getSurname());
                 }
 
-                /* create some weird ass adapter for list view */
+                /* create some weird adapter for list view */
                 ArrayAdapter<String> adapter = new ArrayAdapter(UserListActivity.this, android.R.layout.simple_list_item_1, displayArray);
 
                 listView.setAdapter(adapter);
@@ -80,11 +87,8 @@ public class UserListActivity extends AppCompatActivity {
 
                 profileIntent.putExtra("clicked_mail", userArray.get(position).getMail());
                 profileIntent.putExtra("logged_mail", bndl.getString("logged_mail"));
-//                profileIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
                 startActivity(profileIntent);
-
-
             }
         });
     }

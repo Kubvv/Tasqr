@@ -1,3 +1,8 @@
+/*
+ * SETTINGS ACTIVITY
+ * Currently as a placeholder for settings and options to be moved here from profile activity
+ */
+
 package com.example.tasqr;
 
 import android.os.Bundle;

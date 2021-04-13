@@ -1,3 +1,14 @@
+/*
+ * PROFILE ACTIVITY
+ * Contains  User's profile with it's data stored in firebase realtime db
+ *           User's profile picture stored from firebase storage
+ *           Button for user's settings
+ *           Button for logging out of an account
+ *           Button for viewing the list of all users in database
+ *           Button for changing user's avatar
+ *           Button for deleting user's account
+ */
+
 package com.example.tasqr;
 
 import androidx.annotation.NonNull;
@@ -98,7 +109,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-//                Toast.makeText(ProfileActivity.this, "Failed to fetch users avatar from database", Toast.LENGTH_LONG).show();
                 avatarImageView.setImageResource(R.drawable.avatar);
             }
         });
@@ -195,6 +205,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
+    /* used for setting buttons' visibility for when the profile we are on are not our's */
     private void hideButtons() {
         buttonSettings.setVisibility(View.INVISIBLE);
         buttonLogout.setVisibility(View.INVISIBLE);
@@ -203,6 +214,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonChangeAvatar.setVisibility(View.INVISIBLE);
     }
 
+    /* logs user out of an account and opens login activity */
     private void logout() {
         Intent logoutIntent = new Intent(this, LoginActivity.class);
         logoutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -1,3 +1,10 @@
+/*
+ * CHANGE AVATAR ACTIVITY
+ * Contains  Button for choosing image from gallery
+ *           ImageView for displaying user's chosen avatar
+ *           Button for uploading user's chosen avatar to database and for setting it as user's avatar
+ */
+
 package com.example.tasqr;
 
 import androidx.annotation.NonNull;
@@ -68,7 +75,6 @@ public class ChangeAvatarActivity extends AppCompatActivity implements View.OnCl
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-//                Toast.makeText(ChangeAvatarActivity.this, "Failed to fetch users avatar from database", Toast.LENGTH_LONG).show();
                 imageViewChosenAvatar.setImageResource(R.drawable.avatar);
             }
         });
@@ -91,6 +97,7 @@ public class ChangeAvatarActivity extends AppCompatActivity implements View.OnCl
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
+
         /* fetch result from activity, request code is 200 since CropImage class requests it for further work */
         startActivityForResult(intent, CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE);
     }
@@ -116,10 +123,12 @@ public class ChangeAvatarActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
+    /* we need to fetch result from activity */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        
+
+        /* request code for crop image addon is specified by constant */
         if (requestCode == CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             uri = data.getData();
             if (CropImage.isReadExternalStoragePermissionsRequired(this, uri)) {

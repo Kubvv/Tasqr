@@ -1,3 +1,10 @@
+/*
+ * CREATE COMPANY ACTIVITY
+ * Contains  Company creation interface
+ *           Button to continue company creation - add users to the company
+ *
+ */
+
 package com.example.tasqr;
 
 import android.content.Intent;
