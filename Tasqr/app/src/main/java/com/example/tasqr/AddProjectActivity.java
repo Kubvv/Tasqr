@@ -2,7 +2,9 @@ package com.example.tasqr;
 //
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,8 +19,8 @@ public class AddProjectActivity extends AppCompatActivity {
     private Bundle bundle = new Bundle();
     private FloatingActionButton addPeopleButton;
     private EditText projectName;
-    private EditText companyName;
     private EditText desc;
+    private Spinner companySpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +34,12 @@ public class AddProjectActivity extends AppCompatActivity {
 
         addPeopleButton = findViewById(R.id.addPeopleButton);
         projectName = findViewById(R.id.addedCompanyName);
-        companyName = findViewById(R.id.addedProjectOwner);
+        companySpinner = findViewById(R.id.chooseCompanySpinner);
         desc = findViewById(R.id.desc);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter(this, R.layout.spinner_item, bundle.getStringArrayList("owned_companies"));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        companySpinner.setAdapter(adapter);
 
         addPeopleButton.setOnClickListener(v -> {
             startAddUsersActivity();
@@ -43,7 +49,7 @@ public class AddProjectActivity extends AppCompatActivity {
     private void startAddUsersActivity() {
 
         String project_name = projectName.getText().toString();
-        String company_name = companyName.getText().toString();
+        String company_name = companySpinner.getSelectedItem().toString();
         String description = desc.getText().toString();
 
         /* Do not allow creating project if these fields are empty */
@@ -66,16 +72,16 @@ public class AddProjectActivity extends AppCompatActivity {
     /* Resume previous inputs in textfields */
     protected void onResume() {
         projectName.setText(bundle.getString("projectName"));
-        companyName.setText(bundle.getString("companyName"));
         desc.setText(bundle.getString("desc"));
+        companySpinner.setSelection(bundle.getInt("spinnerPosition"));
         super.onResume();
     }
 
     /* Saves inputs from textfields */
     protected void onPause() {
         bundle.putString("projectName", projectName.getText().toString());
-        bundle.putString("companyName", companyName.getText().toString());
         bundle.putString("desc", desc.getText().toString());
+        bundle.putInt("spinnerPosition", companySpinner.getSelectedItemPosition());
         super.onPause();
     }
 }

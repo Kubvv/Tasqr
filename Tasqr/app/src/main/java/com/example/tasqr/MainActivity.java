@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.User;
 import com.google.firebase.database.DataSnapshot;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private String logged_name;
     private String logged_surname;
     private String logged_mail;
+    private ArrayList<String> owned_companies = new ArrayList<>();
 
     /* Firebase database */
     private FirebaseDatabase database;
@@ -150,6 +152,12 @@ public class MainActivity extends AppCompatActivity {
                     addProjectButton.setVisibility(View.INVISIBLE);
                 } else {
                     addProjectButton.setVisibility(View.VISIBLE);
+                    Company c = new Company();
+                    owned_companies.clear();
+                    for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                        c = childSnapshot.getValue(Company.class);
+                        owned_companies.add(c.getName());
+                    }
                 }
             }
 
@@ -166,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
         addProjectIntent.putExtra("logged_name", logged_name);
         addProjectIntent.putExtra("logged_surname", logged_surname);
         addProjectIntent.putExtra("logged_mail", logged_mail);
+        Bundle arrayBundle = new Bundle();
+        addProjectIntent.putStringArrayListExtra("owned_companies", owned_companies);
         startActivity(addProjectIntent);
     }
 
