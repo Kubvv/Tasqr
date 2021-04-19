@@ -1,4 +1,5 @@
 <resources>
+    <!-- General view string -->
     <string name="app_name">Tasqr</string>
     <string name="name">Name</string>
     <string name="surname">Surname</string>
@@ -23,6 +24,11 @@
     <string name="projname">Project Name</string>
     <string name="companyname">Company Name</string>
     <string name="compdesc">Company description</string>
+    <string name="adduserscompany">Add %s\'s employees</string>
+    <string name="addusersproject">Add %s\'s workers</string>
+    <string name="addusersleaders">Add %s\'s leaders</string>
+    <string name="adduserstask">Add %s\'s team</string>
+    <string name="search">search...</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

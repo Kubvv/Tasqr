@@ -1,12 +1,19 @@
 package com.example.tasqr;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.rpc.context.AttributeContext;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -42,6 +50,8 @@ public class AddUsersActivity extends AppCompatActivity {
     private String logged_mail;
     private String company;
     private String companyId;
+    private String project;
+    private String task;
 
     /* Owner of currently creating project [not in userArray!]*/
     private User owner;
@@ -56,9 +66,14 @@ public class AddUsersActivity extends AppCompatActivity {
     private ListView listView;
     private ArrayList<User> userArray = new ArrayList<>();
     private ArrayList<String> displayArray = new ArrayList<>();
+    ArrayAdapter<String> adapter;
+
+    private TextView addUsersTitle;
+    private EditText searchUsers;
 
     /* bundle used in storing items */
     private Bundle bndl;
+    private Resources res;
 
     /* Firebase database */
     private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
@@ -78,15 +93,37 @@ public class AddUsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addusers);
 
+        res = getResources();
         bndl = getIntent().getExtras();
         previous_activity = bndl.getString("previous_activity");
         logged_name = bndl.getString("logged_name");
         logged_surname = bndl.getString("logged_surname");
         logged_mail = bndl.getString("logged_mail");
         company = bndl.getString("company_name");
+        project = bndl.getString("project_name");
+        task = bndl.getString("taskName");
 
         /* Fetch some data before moving on with creating listviews */
         preFetch();
+
+        addUsersTitle = findViewById(R.id.addUsersTitle);
+        searchUsers = findViewById(R.id.editTextUsername);
+        searchUsers.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                (AddUsersActivity.this).adapter.getFilter().filter(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         tmpImg = findViewById(R.id.snickers);
         tmpImg.setImageResource(avatars[currentPhoto]);
@@ -130,6 +167,18 @@ public class AddUsersActivity extends AppCompatActivity {
         });
 
         listView = (ListView) findViewById(R.id.userlist);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                /* get user's mail from userArray by index since we know displayArray index that was clicked on and both arrays share indices */
+                /*Intent profileIntent = new Intent(AddUsersActivity.this, ProfileActivity.class);
+                //TODO chcialem dac tu przekierowanie do profilu ale nie dziala to za dobrze, do zmiany
+                profileIntent.putExtra("clicked_mail", userArray.get(position).getMail());
+                profileIntent.putExtra("logged_mail", "logged_mail");
+
+                startActivity(profileIntent);*/
+            }
+        });
 
         /* establish connection to database and some references */
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
@@ -142,12 +191,15 @@ public class AddUsersActivity extends AppCompatActivity {
         /* Fetch required data from database based on previous activity */
         switch (previous_activity) {
             case "Company":
+                addUsersTitle.setText(String.format(res.getString(R.string.adduserscompany), company));
                 fetchCompany();
                 break;
             case "Project":
+                addUsersTitle.setText(String.format(res.getString(R.string.addusersproject), project));
                 fetchProject();
                 break;
             case "Task":
+                addUsersTitle.setText(String.format(res.getString(R.string.adduserstask), task));
                 fetchTask();
                 break;
             case "addProjUsers":
@@ -169,7 +221,7 @@ public class AddUsersActivity extends AppCompatActivity {
 
     /* Used to fetch some information from database based on previous activity, before creating listview */
     private void preFetch() {
-        if (previous_activity.equals("Project")) { /* we need to parse company that creates this project */
+        if (previous_activity.equals("Project")) { /* we need to parse company that created this project */
             Query q = companiesRef.orderByChild("name").equalTo(company);
             q.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -193,7 +245,16 @@ public class AddUsersActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     currProject = snapshot.getValue(Project.class);
                     projectUsers = currProject.getWorkers();
-                    leader = currProject.getOwner();
+                    leader = logged_mail;
+                    if (projectUsers == null) { /* If there are no workers, create task with only you enlisted */
+                        ArrayList<String> usersMail = new ArrayList<>();
+                        usersMail.add(leader);
+                        finishAddingTask(usersMail);
+                    }
+                    if (previous_activity.equals("addProjUsers")) {
+                        /* add title to activity */
+                        addUsersTitle.setText(String.format(res.getString(R.string.addusersleaders), currProject.getName()));
+                    }
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
@@ -226,7 +287,7 @@ public class AddUsersActivity extends AppCompatActivity {
                 }
 
                 /* create adapter for list view */
-                ArrayAdapter<String> adapter = new ArrayAdapter(AddUsersActivity.this, android.R.layout.simple_list_item_multiple_choice, displayArray);
+                adapter = new ArrayAdapter(AddUsersActivity.this, R.layout.user_list_item, displayArray);
 
                 listView.setAdapter(adapter);
             }
@@ -256,7 +317,7 @@ public class AddUsersActivity extends AppCompatActivity {
                 }
 
                 /* create adapter for list view */
-                ArrayAdapter<String> adapter = new ArrayAdapter(AddUsersActivity.this, android.R.layout.simple_list_item_multiple_choice, displayArray);
+                adapter = new ArrayAdapter(AddUsersActivity.this, R.layout.user_list_item, displayArray);
 
                 listView.setAdapter(adapter);
             }
@@ -275,7 +336,7 @@ public class AddUsersActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 int i = 0;
                 for (DataSnapshot ds : snapshot.getChildren()) {
-                    if (i == projectUsers.size())
+                    if (projectUsers == null || i == projectUsers.size())
                         break;
 
                     User user = ds.getValue(User.class);
@@ -291,7 +352,7 @@ public class AddUsersActivity extends AppCompatActivity {
                 }
 
                 /* create adapter for list view */
-                ArrayAdapter<String> adapter = new ArrayAdapter(AddUsersActivity.this, android.R.layout.simple_list_item_multiple_choice, displayArray);
+                adapter = new ArrayAdapter(AddUsersActivity.this, R.layout.user_list_item, displayArray);
 
                 listView.setAdapter(adapter);
             }
@@ -310,7 +371,7 @@ public class AddUsersActivity extends AppCompatActivity {
             userArray.add(checked.get(i));
             displayArray.add(checked.get(i).getName() + " " + checked.get(i).getSurname());
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter(AddUsersActivity.this, android.R.layout.simple_list_item_multiple_choice, displayArray);
+        adapter = new ArrayAdapter(AddUsersActivity.this, R.layout.user_list_item, displayArray);
 
         listView.setAdapter(adapter);
     }

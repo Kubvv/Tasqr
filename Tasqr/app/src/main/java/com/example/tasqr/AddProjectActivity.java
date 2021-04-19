@@ -53,8 +53,8 @@ public class AddProjectActivity extends AppCompatActivity {
         String description = desc.getText().toString();
 
         /* Do not allow creating project if these fields are empty */
-        if (project_name.length() == 0 || company_name.length() == 0) {
-            Utilities.toastMessage("Project name and company name cannot be empty", AddProjectActivity.this);
+        if (project_name.length() == 0) {
+            Utilities.toastMessage("Project name cannot be empty", AddProjectActivity.this);
             return;
         }
 

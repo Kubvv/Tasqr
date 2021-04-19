@@ -85,7 +85,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Task task = snapshot.getValue(Task.class);
-                if (task != null) {
+                if (task != null && task.getSubTasks() != null) {
                     subTaskList.setAdapter(new ArrayAdapter<>(SubTasksActivity.this, android.R.layout.simple_list_item_multiple_choice, task.getSubTasksString()));
 
                     for (int i = 0; i < task.getSubTasks().size(); i++) {
