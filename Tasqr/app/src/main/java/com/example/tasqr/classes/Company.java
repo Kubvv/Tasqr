@@ -1,9 +1,13 @@
 package com.example.tasqr.classes;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
-public class Company {
+public class Company implements Parcelable {
 
+    private String id;
     private String name;
     private String description;
     private String owner;
@@ -12,7 +16,8 @@ public class Company {
     private ArrayList<String> projectsId;
 
     /* Constructors */
-    public Company(String name, String description, String owner, ArrayList<String> workers) {
+    public Company(String id, String name, String description, String owner, ArrayList<String> workers) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.owner = owner;
@@ -24,7 +29,33 @@ public class Company {
 
     public Company() {}
 
+    protected Company(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        description = in.readString();
+        owner = in.readString();
+        workers = in.createStringArrayList();
+        managers = in.createStringArrayList();
+        projectsId = in.createStringArrayList();
+    }
+
+    public static final Creator<Company> CREATOR = new Creator<Company>() {
+        @Override
+        public Company createFromParcel(Parcel in) {
+            return new Company(in);
+        }
+
+        @Override
+        public Company[] newArray(int size) {
+            return new Company[size];
+        }
+    };
+
     /* Getters */
+    public String getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -50,6 +81,9 @@ public class Company {
     }
 
     /* Setters */
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -73,5 +107,21 @@ public class Company {
 
     public void setProjectsId(ArrayList<String> projectsId) {
         this.projectsId = projectsId;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(description);
+        dest.writeString(owner);
+        dest.writeStringList(workers);
+        dest.writeStringList(managers);
+        dest.writeStringList(projectsId);
     }
 }

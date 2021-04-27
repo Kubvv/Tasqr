@@ -10,6 +10,7 @@ package com.example.tasqr;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private String logged_surname;
     private String logged_mail;
     private ArrayList<String> owned_companies = new ArrayList<>();
+    private User user;
 
     /* Firebase database */
     private FirebaseDatabase database;
@@ -144,20 +146,22 @@ public class MainActivity extends AppCompatActivity {
 
     /* Sets visibility depending on the type of logged user */
     private void checkIfManager() {
-        Query q = companyRef.orderByChild("owner").equalTo(logged_mail);
+        Query q = usersRef.orderByChild("mail").equalTo(logged_mail);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.getChildrenCount() == 0) {
-                    addProjectButton.setVisibility(View.INVISIBLE);
-                } else {
-                    addProjectButton.setVisibility(View.VISIBLE);
-                    Company c = new Company();
-                    owned_companies.clear();
-                    for (DataSnapshot childSnapshot: snapshot.getChildren()) {
-                        c = childSnapshot.getValue(Company.class);
-                        owned_companies.add(c.getName());
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    user = ds.getValue(User.class);
+                    ArrayList<String> managed = user.getManagedCompanies();
+                    if (managed.size() == 1) {
+                        addProjectButton.setVisibility(View.INVISIBLE);
+                    } else {
+                        owned_companies = managed;
+                        owned_companies.remove(0);
+                        addProjectButton.setVisibility(View.VISIBLE);
+                        Log.e(TAG, "onDataChange: " + managed.size());
                     }
+
                 }
             }
 

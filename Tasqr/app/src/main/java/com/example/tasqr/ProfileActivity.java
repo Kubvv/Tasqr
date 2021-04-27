@@ -76,7 +76,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonSettings = findViewById(R.id.button_settings);
         buttonLogout = findViewById(R.id.button_logout);
         buttonUserList = findViewById(R.id.button_user_list);
-        buttonCreateCompany = findViewById(R.id.button_create_company);
+        buttonCreateCompany = findViewById(R.id.button_manage_company);
         buttonChangeAvatar = findViewById(R.id.button_change_avatar);
         buttonDeleteAccount = findViewById(R.id.button_delete_account);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
@@ -157,10 +157,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 userListIntent.putExtra("logged_mail", logged_mail);
                 startActivity(userListIntent);
                 break;
-            case R.id.button_create_company:
-                Intent createCompanyIntent = new Intent(this, CreateCompanyActivity.class);
-                createCompanyIntent.putExtra("logged_mail", logged_mail);
-                startActivity(createCompanyIntent);
+            case R.id.button_manage_company:
+                Intent manageCompanyIntent = new Intent(this, ManageCompanyActivity.class);
+                manageCompanyIntent.putExtra("logged_mail", logged_mail);
+                startActivity(manageCompanyIntent);
                 break;
             case R.id.button_change_avatar:
                 Intent changeAvatarIntent = new Intent(this, ChangeAvatarActivity.class);
