@@ -78,7 +78,12 @@ public class ManageCompanyPopUp extends DialogFragment {
         changeOwnerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO change owner
+                if (company.getWorkers() == null || company.getWorkers().size() == 0) {
+                    Utilities.toastMessage("No users to choose from", getActivity());
+                }
+                else {
+                    startChangeOwnershipActivity();
+                }
             }
         });
 
@@ -108,6 +113,15 @@ public class ManageCompanyPopUp extends DialogFragment {
         intent.putExtra("company", company);
         intent.putExtra("previous_activity", previous_activity);
         intent.putExtra("company_name", company.getName());
+        getDialog().dismiss();
+        startActivity(intent);
+    }
+
+    private void startChangeOwnershipActivity() {
+        Intent intent = new Intent(getContext(), ChangeOwnershipActivity.class);
+        intent.putExtra("logged_mail", logged_mail);
+        intent.putExtra("company", company);
+        intent.putExtra("previous_activity", "manageCompany");
         getDialog().dismiss();
         startActivity(intent);
     }

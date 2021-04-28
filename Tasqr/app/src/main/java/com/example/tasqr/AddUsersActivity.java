@@ -10,7 +10,6 @@ import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -61,6 +60,7 @@ public class AddUsersActivity extends AppCompatActivity {
     private Project currProject;
     private ArrayList<String> projectUsers;
 
+    /* Company info */
     private Company currCompany;
     private ArrayList<String> alreadyWorking = new ArrayList<>();
 
@@ -109,8 +109,8 @@ public class AddUsersActivity extends AppCompatActivity {
         /* Fetch some data before moving on with creating listviews */
         preFetch();
 
-        addUsersTitle = findViewById(R.id.addUsersTitle);
-        searchUsers = findViewById(R.id.editTextUsername);
+        addUsersTitle = findViewById(R.id.changeOwnershipTitle);
+        searchUsers = findViewById(R.id.editTextOwnership);
         searchUsers.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -178,7 +178,7 @@ public class AddUsersActivity extends AppCompatActivity {
             }
         });
 
-        listView = (ListView) findViewById(R.id.companylist);
+        listView = (ListView) findViewById(R.id.userlist);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

@@ -1,10 +1,7 @@
 package com.example.tasqr;
 
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -58,10 +55,9 @@ public class ManageCompanyActivity extends AppCompatActivity {
         /* Database fetch */
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         usersRef = database.getReference("Users");
-        usersRef = database.getReference("Users");
         companyRef = database.getReference("Companies");
 
-        listView = (ListView) findViewById(R.id.companylist);
+        listView = (ListView) findViewById(R.id.userlist);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

@@ -8,14 +8,14 @@
     tools:context=".ManageCompanyActivity">
 
     <ListView
-        android:id="@+id/companylist"
+        android:id="@+id/userlist"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:choiceMode="multipleChoice"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHeight_percent="0.6"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addUsersTitle"
+        app:layout_constraintTop_toBottomOf="@+id/changeOwnershipTitle"
         app:layout_constraintVertical_bias="0.184"
         app:layout_constraintWidth_percent="1" />
 
@@ -29,7 +29,7 @@
         app:layout_constraintVertical_bias="1.0"/>
 
     <TextView
-        android:id="@+id/addUsersTitle"
+        android:id="@+id/changeOwnershipTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/manageComp"
@@ -52,6 +52,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/companylist" />
+        app:layout_constraintTop_toBottomOf="@+id/userlist" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
