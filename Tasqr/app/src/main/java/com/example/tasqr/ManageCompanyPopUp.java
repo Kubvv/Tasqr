@@ -1,7 +1,7 @@
 /*
- *   ADD SUBTASK POPUP
- *   A dialog fragment which gets user input for creating new subtask
- *   CONTAINS    Cancel and add buttons
+ *   MANAGE COMPANY POPUP
+ *   A dialog fragment which gets user input for managing company
+ *   CONTAINS    buttons
  *               EditText form
  * */
 

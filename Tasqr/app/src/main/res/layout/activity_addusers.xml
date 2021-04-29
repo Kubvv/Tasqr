@@ -8,7 +8,7 @@
     tools:context=".AddUsersActivity">
 
     <ListView
-        android:id="@+id/userlist"
+        android:id="@+id/companylist"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:choiceMode="multipleChoice"

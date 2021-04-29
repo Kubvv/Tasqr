@@ -178,7 +178,7 @@ public class AddUsersActivity extends AppCompatActivity {
             }
         });
 
-        listView = (ListView) findViewById(R.id.userlist);
+        listView = (ListView) findViewById(R.id.companylist);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {

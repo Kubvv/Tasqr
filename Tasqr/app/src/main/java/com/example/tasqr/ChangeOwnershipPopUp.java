@@ -57,7 +57,7 @@ public class ChangeOwnershipPopUp extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
 
                     }
-                }).setPositiveButton("add", new DialogInterface.OnClickListener() {
+                }).setPositiveButton("change", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         ((ChangeOwnershipActivity)getActivity()).changeOwner(company, clickedUser);

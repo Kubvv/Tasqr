@@ -28,12 +28,13 @@
     <string name="addusersproject">Add %s\'s workers</string>
     <string name="addusersleaders">Add %s\'s leaders</string>
     <string name="adduserstask">Add %s\'s team</string>
-    <string name="search">search...</string>
+    <string name="search">search…</string>
     <string name="manageComp">Manage companies </string>
     <string name="manemployees">Manage employees</string>
     <string name="manmanagers">Manage managers</string>
     <string name="changeown">Change owner</string>
     <string name="deletecompany">Delete Company</string>
+    <string name="leavecomp">Leave Company</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

@@ -9,6 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="status_bar_color">#070C36</color>
     <color name="text_color">#FFC0B0</color>
+    <color name="stronger_text_color">#ff9d85</color>
+    <color name="strongest_text_color">#ff7c5c</color>
     <color name="alt_text_color">#FFF2DC</color>
     <color name="tasqr_yellow">#FFD900</color>
     <color name="tasqr_purple">#30093D</color>
