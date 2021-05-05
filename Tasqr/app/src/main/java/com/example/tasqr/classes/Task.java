@@ -14,20 +14,23 @@ import java.util.Date;
 public class Task {
     private String taskName;
     private String leader;
+    private String parentProject;
     private ArrayList<String> workers;
     private Date deadline;
     private ArrayList<SubTask> subTasks;
-
+    private int progress;
 
     public Task(){
     }
 
-    public Task(String taskName, String leader, ArrayList<String> workers, Date deadline) {
+    public Task(String taskName, String leader, String parentProject, ArrayList<String> workers, Date deadline, int progress) {
         this.taskName = taskName;
         this.leader = leader;
+        this.parentProject = parentProject;
         this.workers = workers;
         this.deadline = deadline;
         this.subTasks = new ArrayList<>();
+        this.progress = progress;
     }
 
 
@@ -50,6 +53,14 @@ public class Task {
 
     public String getTaskName() {
         return taskName;
+    }
+
+    public String getParentProject(){
+        return parentProject;
+    }
+
+    public int getProgress(){
+        return progress;
     }
 
     public ArrayList<String> getSubTasksString()
@@ -83,6 +94,10 @@ public class Task {
         this.taskName = taskName;
     }
 
+    public void setParentProject(String parentProject){
+        this.parentProject = parentProject;
+    }
+
     /* Adds new substask to the database within a given task (taskRef)*/
     public void addSubTask(Activity context, DatabaseReference taskRef, SubTask subTask)
     {
@@ -113,5 +128,18 @@ public class Task {
             public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully set states", context);
             }
         });
+
+        setProgress(taskRef);
+    }
+
+    private void setProgress(DatabaseReference taskRef){
+        int counter = 0;
+        for (SubTask subtask : this.subTasks)
+            if (subtask.getState() == SubTask.SubTaskState.done)
+                counter++;
+
+        progress = counter == 0 ? 0 : (this.subTasks.size() / counter) * 100;
+
+        taskRef.child("progress").setValue(progress);
     }
 }

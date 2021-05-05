@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -32,21 +33,56 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class TasksActivity extends AppCompatActivity {
 
     private static final String TAG = "TasksActivity";
 
+    /* Custom array type for sorting purposes */
+    private static class TaskListElement implements Comparable<TaskListElement> {
+        private final String name;
+        private final boolean visibility;
+        private final int progress;
+
+        private TaskListElement(String name, boolean visibility, int progress) {
+            this.name = name;
+            this.visibility = visibility;
+            this.progress = progress;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isVisible() {
+            return visibility;
+        }
+
+        public int getProgress(){
+            return progress;
+        }
+
+        @Override
+        public int compareTo(TaskListElement o) {
+            if (this.visibility == o.visibility)
+                return Integer.compare(this.progress, o.progress);
+            if (this.visibility)
+                return -1;
+            return 1;
+        }
+    }
+
     /*  Custom Array Adapter */
     private static class TaskList extends ArrayAdapter {
 
-        private final ArrayList<String> taskNames;
+        private final ArrayList<TaskListElement> taskElements;
         private final Activity context;
 
-        public TaskList(Activity context, ArrayList<String> taskNames) {
-            super(context, R.layout.project_list_item, taskNames);
+        public TaskList(Activity context, ArrayList<TaskListElement> taskElements) {
+            super(context, R.layout.project_list_item, taskElements);
             this.context = context;
-            this.taskNames = taskNames;
+            this.taskElements = taskElements;
         }
 
         /* Creates one row of ListView, consisting of task name */
@@ -54,11 +90,17 @@ public class TasksActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             View row = convertView;
             LayoutInflater inflater = context.getLayoutInflater();
-            if(convertView == null)
-                row = inflater.inflate(R.layout.task_list_item, null, true);
-            TextView taskName = (TextView) row.findViewById(R.id.taskNameList);
 
-            taskName.setText(taskNames.get(position));
+            if(convertView == null && taskElements.get(position).isVisible())
+                row = inflater.inflate(R.layout.task_list_item_visible, null, true);
+            else if (convertView == null)
+                row = inflater.inflate(R.layout.task_list_item_invisible, null, true);
+
+            TextView taskName = row.findViewById(R.id.taskNameList);
+            ProgressBar progressBar = row.findViewById(R.id.taskProg);
+
+            taskName.setText(taskElements.get(position).getName());
+            progressBar.setProgress(taskElements.get(position).getProgress());
             return row;
         }
     }
@@ -66,6 +108,7 @@ public class TasksActivity extends AppCompatActivity {
     private TextView projectName;
     private ListView taskList;
     private ArrayList<Task> tasks;
+    ArrayList<TaskListElement> displayArray = new ArrayList<>();
 
     /* Main on create method */
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +141,6 @@ public class TasksActivity extends AppCompatActivity {
     /* Fetches task list into displayArray for a given project */
     private void fetchActivityData()
     {
-
         /* Database fetch */
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         DatabaseReference projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
@@ -111,10 +153,19 @@ public class TasksActivity extends AppCompatActivity {
                 tasks = snapshot.getValue(Project.class).getTasks();
 
                 if(tasks != null && tasks.size() != 0) {
-                    ArrayList<String> displayArray = new ArrayList<>();
-                    for (Task task : tasks)
-                        displayArray.add(task.getTaskName());
+                    for (Task task : tasks) {
+                        boolean found = false;
+                        /* Determining visibility for every list element */
+                        for (String user: task.getWorkers()){
+                            if (user.equals(getIntent().getStringExtra("logged_mail"))){
+                                found = true;
+                                break;
+                            }
+                        }
 
+                        displayArray.add(new TaskListElement(task.getTaskName(), found, task.getProgress()));
+                    }
+                    Collections.sort(displayArray);
                     taskList.setAdapter(new TaskList(TasksActivity.this, displayArray));
                 }
             }
@@ -136,6 +187,9 @@ public class TasksActivity extends AppCompatActivity {
 
     /* Opens sub task activity */
     private void openSubTaskActivity(int position){
+        if (!displayArray.get(position).isVisible())
+            return;
+
         Intent subTaskIntent = new Intent(TasksActivity.this, SubTasksActivity.class);
         subTaskIntent.putExtra("taskPosition", Integer.toString(position));
         subTaskIntent.putExtra("taskName", tasks.get(position).getTaskName());

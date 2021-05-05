@@ -129,7 +129,7 @@ public class AddTaskUsersActivity extends AppCompatActivity {
                 taskUsers.add(userArray.get(i));
 
         /* Create new task to be added */
-        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, taskUsers, new Date());
+        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, getIntent().getStringExtra("projectId"), taskUsers, new Date(), 0);
         currProject.addTask(AddTaskUsersActivity.this, projectRef, newTask);
 
         openTasksActivity();

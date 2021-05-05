@@ -15,4 +15,7 @@
     <color name="tasqr_yellow">#FFD900</color>
     <color name="tasqr_purple">#30093D</color>
     <color name="tasqr_blue">#090B37</color>
+    <color name="tasqr_yellow_opaque">#A0FFD900</color>
+    <color name="progress">#4DFF00</color>
+    <color name="progress_opaque">#A04DFF00</color>
 </resources>

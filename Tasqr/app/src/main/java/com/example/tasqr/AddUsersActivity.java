@@ -551,7 +551,7 @@ public class AddUsersActivity extends AppCompatActivity {
     private void finishAddingTask(ArrayList<String> usersMail) {
         projectsRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
         /* Create new task to be added */
-        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, usersMail, new Date());
+        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, getIntent().getStringExtra("projectId"), usersMail, new Date(), 0);
         currProject.addTask(AddUsersActivity.this, projectRef, newTask);
 
         openTasksActivity();
