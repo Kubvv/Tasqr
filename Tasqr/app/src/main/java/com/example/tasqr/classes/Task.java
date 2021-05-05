@@ -98,6 +98,10 @@ public class Task {
         this.parentProject = parentProject;
     }
 
+    public void setProgress(int progress){
+        this.progress = progress;
+    }
+
     /* Adds new substask to the database within a given task (taskRef)*/
     public void addSubTask(Activity context, DatabaseReference taskRef, SubTask subTask)
     {
@@ -129,10 +133,10 @@ public class Task {
             }
         });
 
-        setProgress(taskRef);
+        calcProgress(taskRef);
     }
 
-    private void setProgress(DatabaseReference taskRef){
+    private void calcProgress(DatabaseReference taskRef){
         int counter = 0;
         for (SubTask subtask : this.subTasks)
             if (subtask.getState() == SubTask.SubTaskState.done)
