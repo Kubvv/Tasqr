@@ -2,12 +2,16 @@ package com.example.tasqr.classes;
 
 import android.app.Activity;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import com.example.tasqr.Utilities;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
+import java.util.Collections;
+
+import static android.content.ContentValues.TAG;
 
 public class Project {
 
@@ -127,5 +131,13 @@ public class Project {
                 Utilities.toastMessage("Successfully added leaders", context);
             }
         });
+    }
+
+    public void sortTasks() {
+        Collections.sort(this.tasks);
+    }
+
+    public void setTask(int position, Task task){
+        this.tasks.set(position, task);
     }
 }

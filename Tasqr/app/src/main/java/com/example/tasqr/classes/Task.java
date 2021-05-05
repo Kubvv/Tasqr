@@ -11,7 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Task {
+public class Task implements Comparable<Task>{
     private String taskName;
     private String leader;
     private String parentProject;
@@ -103,21 +103,20 @@ public class Task {
     }
 
     /* Adds new substask to the database within a given task (taskRef)*/
-    public void addSubTask(Activity context, DatabaseReference taskRef, SubTask subTask)
+    public void addSubTask(Activity context, DatabaseReference projectRef, SubTask subTask, Project project, int position)
     {
         if(this.subTasks == null)
             this.subTasks = new ArrayList<>();
 
         this.subTasks.add(subTask);
-        taskRef.child("subTasks").setValue(this.subTasks).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully added new sub task", context);
-            }
-        });
+        calcProgress();
+        project.setTask(position, this);
+        project.sortTasks();
+        projectRef.setValue(project);
     }
 
     /* Sets states of subtasks of a given task (taskRef) and saves in the database*/
-    public void setSubTasksState(Activity context, DatabaseReference taskRef, SparseBooleanArray checked)
+    public void setSubTasksState(Activity context, DatabaseReference projectRef, SparseBooleanArray checked, Project project, int position)
     {
         for (int i = 0; i < this.subTasks.size(); i++) {
             if (checked.get(i)) {
@@ -127,23 +126,23 @@ public class Task {
             }
         }
 
-        taskRef.child("subTasks").setValue(this.subTasks).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {  Utilities.toastMessage("Successfully set states", context);
-            }
-        });
-
-        calcProgress(taskRef);
+        calcProgress();
+        project.setTask(position, this);
+        project.sortTasks();
+        projectRef.setValue(project);
     }
 
-    private void calcProgress(DatabaseReference taskRef){
+    private void calcProgress(){
         int counter = 0;
         for (SubTask subtask : this.subTasks)
             if (subtask.getState() == SubTask.SubTaskState.done)
                 counter++;
 
-        progress = counter == 0 ? 0 : (this.subTasks.size() / counter) * 100;
+        progress = counter == 0 ? 0 : (int)(((double)counter / (double)this.subTasks.size()) * 100);
+    }
 
-        taskRef.child("progress").setValue(progress);
+    @Override
+    public int compareTo(Task o) {
+        return Integer.compare(o.progress, this.progress);
     }
 }

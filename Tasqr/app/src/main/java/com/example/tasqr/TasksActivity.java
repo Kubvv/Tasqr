@@ -39,50 +39,21 @@ public class TasksActivity extends AppCompatActivity {
 
     private static final String TAG = "TasksActivity";
 
-    /* Custom array type for sorting purposes */
-    private static class TaskListElement implements Comparable<TaskListElement> {
-        private final String name;
-        private final boolean visibility;
-        private final int progress;
-
-        private TaskListElement(String name, boolean visibility, int progress) {
-            this.name = name;
-            this.visibility = visibility;
-            this.progress = progress;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean isVisible() {
-            return visibility;
-        }
-
-        public int getProgress(){
-            return progress;
-        }
-
-        @Override
-        public int compareTo(TaskListElement o) {
-            if (this.visibility == o.visibility)
-                return Integer.compare(this.progress, o.progress);
-            if (this.visibility)
-                return -1;
-            return 1;
-        }
-    }
-
     /*  Custom Array Adapter */
     private static class TaskList extends ArrayAdapter {
 
-        private final ArrayList<TaskListElement> taskElements;
+        private final ArrayList<String> taskString;
+        private final ArrayList<Integer> progress;
+        private final ArrayList<Boolean> visibility;
+
         private final Activity context;
 
-        public TaskList(Activity context, ArrayList<TaskListElement> taskElements) {
-            super(context, R.layout.project_list_item, taskElements);
+        public TaskList(Activity context, ArrayList<String> taskString, ArrayList<Integer> progress, ArrayList<Boolean> visibility) {
+            super(context, R.layout.project_list_item, taskString);
             this.context = context;
-            this.taskElements = taskElements;
+            this.taskString = taskString;
+            this.progress = progress;
+            this.visibility = visibility;
         }
 
         /* Creates one row of ListView, consisting of task name */
@@ -91,7 +62,7 @@ public class TasksActivity extends AppCompatActivity {
             View row = convertView;
             LayoutInflater inflater = context.getLayoutInflater();
 
-            if(convertView == null && taskElements.get(position).isVisible())
+            if(convertView == null && visibility.get(position))
                 row = inflater.inflate(R.layout.task_list_item_visible, null, true);
             else if (convertView == null)
                 row = inflater.inflate(R.layout.task_list_item_invisible, null, true);
@@ -99,16 +70,17 @@ public class TasksActivity extends AppCompatActivity {
             TextView taskName = row.findViewById(R.id.taskNameList);
             ProgressBar progressBar = row.findViewById(R.id.taskProg);
 
-            taskName.setText(taskElements.get(position).getName());
-            progressBar.setProgress(taskElements.get(position).getProgress());
+            taskName.setText(taskString.get(position));
+            progressBar.setProgress(progress.get(position));
             return row;
         }
     }
 
     private TextView projectName;
     private ListView taskList;
-    private ArrayList<Task> tasks;
-    ArrayList<TaskListElement> displayArray = new ArrayList<>();
+    ArrayList<String> displayStringArray = new ArrayList<>();
+    ArrayList<Boolean> displayVisibilityArray = new ArrayList<>();
+    ArrayList<Integer> displayProgressArray = new ArrayList<>();
 
     /* Main on create method */
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +122,7 @@ public class TasksActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 projectName.setText(snapshot.getValue(Project.class).getName());
-                tasks = snapshot.getValue(Project.class).getTasks();
+                ArrayList<Task> tasks = snapshot.getValue(Project.class).getTasks();
 
                 if(tasks != null && tasks.size() != 0) {
                     for (Task task : tasks) {
@@ -163,10 +135,11 @@ public class TasksActivity extends AppCompatActivity {
                             }
                         }
 
-                        displayArray.add(new TaskListElement(task.getTaskName(), found, task.getProgress()));
+                        displayStringArray.add(task.getTaskName());
+                        displayProgressArray.add(task.getProgress());
+                        displayVisibilityArray.add(found);
                     }
-                    Collections.sort(displayArray);
-                    taskList.setAdapter(new TaskList(TasksActivity.this, displayArray));
+                    taskList.setAdapter(new TaskList(TasksActivity.this, displayStringArray, displayProgressArray, displayVisibilityArray));
                 }
             }
 
@@ -187,12 +160,12 @@ public class TasksActivity extends AppCompatActivity {
 
     /* Opens sub task activity */
     private void openSubTaskActivity(int position){
-        if (!displayArray.get(position).isVisible())
+        if (!displayVisibilityArray.get(position))
             return;
 
         Intent subTaskIntent = new Intent(TasksActivity.this, SubTasksActivity.class);
         subTaskIntent.putExtra("taskPosition", Integer.toString(position));
-        subTaskIntent.putExtra("taskName", tasks.get(position).getTaskName());
+        subTaskIntent.putExtra("taskName", displayStringArray.get(position));
         subTaskIntent.putExtra("projectId", getIntent().getStringExtra("projectId"));
         startActivity(subTaskIntent);
     }

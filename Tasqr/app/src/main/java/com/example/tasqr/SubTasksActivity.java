@@ -17,6 +17,7 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.SubTask;
 import com.example.tasqr.classes.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -61,12 +62,15 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
     /* Saves subtask states into the database */
     private void saveStateChanges() {
-        DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/" + getIntent().getStringExtra("taskPosition"));
+        DatabaseReference projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
 
-        taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                snapshot.getValue(Task.class).setSubTasksState(SubTasksActivity.this, taskRef, subTaskList.getCheckedItemPositions());
+                /* do zmiany bo nieobiektowo */
+                snapshot.child("tasks/" + getIntent().getStringExtra("taskPosition")).getValue(Task.class)
+                        .setSubTasksState(SubTasksActivity.this, projectRef, subTaskList.getCheckedItemPositions(),snapshot.getValue(Project.class),
+                                Integer.parseInt(getIntent().getStringExtra("taskPosition")));
                 saveChangesButton.setVisibility(View.GONE);
             }
 
@@ -79,7 +83,8 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
     /* Data fetcher for subtask list inside subtask activity */
     private void fetchSubTaskData() {
-        DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/" + getIntent().getStringExtra("taskPosition"));
+        DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/"
+                + getIntent().getStringExtra("taskPosition"));
 
         taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -108,15 +113,20 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         popUp.show(getSupportFragmentManager(), "addSubTaskPopUp");
     }
 
+
+    /* TODO id tasków */
+
     /* List refresher after adding new subtask */
     @Override
     public void sendSubTaskName(String subTaskName) {
-        DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/" + getIntent().getStringExtra("taskPosition"));
+        DatabaseReference projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
 
-        taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                snapshot.getValue(Task.class).addSubTask(SubTasksActivity.this, taskRef, new SubTask(subTaskName, SubTask.SubTaskState.pending));
+                snapshot.getValue(Task.class).addSubTask(SubTasksActivity.this, projectRef,
+                        new SubTask(subTaskName, SubTask.SubTaskState.pending), snapshot.getValue(Project.class),
+                        Integer.parseInt(getIntent().getStringExtra("taskPosition")));
                 fetchSubTaskData();
             }
 

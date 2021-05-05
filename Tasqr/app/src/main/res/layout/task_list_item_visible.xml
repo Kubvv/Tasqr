@@ -33,10 +33,10 @@
         android:textColor="@color/tasqr_blue"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/taskrect"
-        app:layout_constraintEnd_toEndOf="@+id/taskrect"
+        app:layout_constraintBottom_toBottomOf="@+id/taskProg"
+        app:layout_constraintEnd_toEndOf="@+id/taskProg"
         app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="@+id/taskrect"
-        app:layout_constraintTop_toTopOf="@+id/taskrect" />
+        app:layout_constraintStart_toStartOf="@+id/taskProg"
+        app:layout_constraintTop_toTopOf="@+id/taskProg" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
