@@ -27,6 +27,30 @@
           app:backgroundTint="@color/text_color"
           app:rippleColor="@color/tasqr_yellow"/>
 
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+          android:id="@+id/workerListButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="20dp"
+          android:layout_marginBottom="20dp"
+          app:backgroundTint="@color/text_color"
+          app:layout_constraintBottom_toBottomOf="parent"
+          app:layout_constraintStart_toStartOf="parent"
+          app:rippleColor="@color/tasqr_yellow"
+          app:srcCompat="@drawable/people" />
+
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+          android:id="@+id/workerSettingsButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginStart="20dp"
+          android:layout_marginBottom="20dp"
+          app:backgroundTint="@color/text_color"
+          app:layout_constraintBottom_toTopOf="@id/workerListButton"
+          app:layout_constraintStart_toStartOf="parent"
+          app:rippleColor="@color/tasqr_yellow"
+          app:srcCompat="@drawable/ic_baseline_settings_24" />
+
       <Button
           android:id="@+id/saveSubTaskChangesButton"
           android:layout_width="wrap_content"

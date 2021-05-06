@@ -116,6 +116,7 @@ public class TasksActivity extends AppCompatActivity {
         }
     }
 
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
     private SwipeRefreshLayout refreshLayout;
     private TextView projectName;
     private ListView taskList;
@@ -130,15 +131,14 @@ public class TasksActivity extends AppCompatActivity {
         projectName = findViewById(R.id.projectNametsk);
         taskList = findViewById(R.id.taskList);
         FloatingActionButton addTaskButton = findViewById(R.id.addTaskButton);
+        FloatingActionButton workerListButton = findViewById(R.id.workerListButton);
+        FloatingActionButton workerSettingsButton = findViewById(R.id.workerSettingsButton);
         refreshLayout = findViewById(R.id.swipe_refresh);
         setRefresher();
 
-        addTaskButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openAddSubTaskActivity();
-            }
-        });
+        addTaskButton.setOnClickListener(v -> openAddTaskActivity());
+        workerListButton.setOnClickListener(v -> showWorkerListPopUp());
+        workerSettingsButton.setOnClickListener(v -> showWorkerSettingsPopup());
 
         taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -155,7 +155,6 @@ public class TasksActivity extends AppCompatActivity {
     private void fetchActivityData()
     {
         /* Database fetch */
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         DatabaseReference projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
         Log.e(TAG, "projectId is: " + getIntent().getStringExtra("projectId"));
 
@@ -210,7 +209,7 @@ public class TasksActivity extends AppCompatActivity {
     }
 
     /* Opens activity for adding new task */
-    private void openAddSubTaskActivity() {
+    private void openAddTaskActivity() {
         Intent addTaskIntent = new Intent(TasksActivity.this, AddTaskActivity.class);
         addTaskIntent.putExtra("projectId", getIntent().getStringExtra("projectId"));
         addTaskIntent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
@@ -229,6 +228,7 @@ public class TasksActivity extends AppCompatActivity {
         startActivity(subTaskIntent);
     }
 
+    /* Refreshes activity with recent data */
     private void setRefresher() {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -239,5 +239,16 @@ public class TasksActivity extends AppCompatActivity {
                 refreshLayout.setRefreshing(false);
             }
         });
+    }
+
+    /* Shows popup with list of workers */
+    private void showWorkerListPopUp() {
+        WorkerListPopUp popUp = new WorkerListPopUp(database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/workers"));
+        popUp.show(getSupportFragmentManager(), "worker list");
+    }
+
+    /* Shows popup with team leader activities */
+    private void showWorkerSettingsPopup(){
+
     }
 }

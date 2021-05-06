@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/swipe_refresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
 <RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/backgroundlogin">
@@ -46,6 +45,30 @@
             app:srcCompat="@drawable/addprojectbutton"
             app:backgroundTint="@color/text_color"
             app:rippleColor="@color/tasqr_yellow"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/workerListButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="20dp"
+            app:backgroundTint="@color/text_color"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:rippleColor="@color/tasqr_yellow"
+            app:srcCompat="@drawable/people" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/workerSettingsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="20dp"
+            app:backgroundTint="@color/text_color"
+            app:layout_constraintBottom_toTopOf="@id/workerListButton"
+            app:layout_constraintStart_toStartOf="parent"
+            app:rippleColor="@color/tasqr_yellow"
+            app:srcCompat="@drawable/ic_baseline_settings_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

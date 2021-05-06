@@ -46,9 +46,15 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         /* Find and set xml items */
         subTaskList = findViewById(R.id.subTaskList);
         FloatingActionButton addSubTaskButton = findViewById(R.id.addSubTaskButton);
+        FloatingActionButton workerListButton = findViewById(R.id.workerListButton);
+        FloatingActionButton workerSettingsButton = findViewById(R.id.workerSettingsButton);
+
         saveChangesButton = findViewById(R.id.saveSubTaskChangesButton);
 
-        addSubTaskButton.setOnClickListener(v -> showPopUp());
+        addSubTaskButton.setOnClickListener(v -> showAddPopUp());
+        workerListButton.setOnClickListener(v -> showWorkerListPopUp());
+        workerSettingsButton.setOnClickListener(v -> showWorkerSettingsPopup());
+
         saveChangesButton.setOnClickListener(v -> saveStateChanges());
         subTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -107,13 +113,10 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
     }
 
     /* Shows pop-up for adding new subtask */
-    private void showPopUp() {
+    private void showAddPopUp() {
         AddSubTaskPopUp popUp = new AddSubTaskPopUp();
         popUp.show(getSupportFragmentManager(), "addSubTaskPopUp");
     }
-
-
-    /* TODO id tasków */
 
     /* List refresher after adding new subtask */
     @Override
@@ -133,5 +136,16 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
                 Utilities.toastMessage("error" + error.toString(), SubTasksActivity.this);
             }
         });
+    }
+
+    /* Shows popup with list of workers */
+    private void showWorkerListPopUp() {
+        WorkerListPopUp popUp = new WorkerListPopUp(database.getReference("Tasks/" + getIntent().getStringExtra("taskId") + "/workers/"));
+        popUp.show(getSupportFragmentManager(), "worker list");
+    }
+
+    /* Shows popup with team leader activities */
+    private void showWorkerSettingsPopup(){
+
     }
 }
