@@ -36,6 +36,8 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Objects;
 
 public class TasksActivity extends AppCompatActivity {
 
@@ -161,22 +163,42 @@ public class TasksActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 projectName.setText(snapshot.getValue(Project.class).getName());
-                HashMap<String, Task> tasks = snapshot.getValue(Project.class).getTasks();
+                /* Getting all project tasks */
 
-                if(tasks != null && tasks.size() != 0) {
-                    for (Task task : tasks.values()) {
-                        boolean found = false;
-                        /* Determining visibility for every list element */
-                        for (String user: task.getWorkers()){
-                            if (user.equals(getIntent().getStringExtra("logged_mail"))){
-                                found = true;
-                                break;
+                if(snapshot.getValue(Project.class).getTasks() != null && snapshot.getValue(Project.class).getTasks().size() != 0) {
+                    HashSet<String> taskIds =  new HashSet<>(snapshot.getValue(Project.class).getTasks());
+                    /* Nested query to avoid nulls from multithreading */
+                    /* We get all the tasks */
+                    database.getReference("Tasks").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            ArrayList<Task> tasks = new ArrayList<>(taskIds.size());
+                            /* We match the project task ids to ids present in Tasks */
+                            for (DataSnapshot task: snapshot.getChildren())
+                                if (taskIds.contains(task.getValue(Task.class).getId()))
+                                    tasks.add(task.getValue(Task.class));
+
+                            /* Setting up display array */
+                            for (Task task : tasks) {
+                                boolean found = false;
+                                /* Determining visibility for every list element */
+                                for (String user: task.getWorkers()){
+                                    if (user.equals(getIntent().getStringExtra("logged_mail"))){
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                displayArray.add(new DisplayArrayElement(task.getId(), task.getTaskName(), found, task.getProgress()));
                             }
+                                Collections.sort(displayArray);
+                                taskList.setAdapter(new TaskList(TasksActivity.this, displayArray));
                         }
-                        displayArray.add(new DisplayArrayElement(task.getId(), task.getTaskName(), found, task.getProgress()));
-                    }
-                    Collections.sort(displayArray);
-                    taskList.setAdapter(new TaskList(TasksActivity.this, displayArray));
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Utilities.toastMessage("error" + error.toString(), TasksActivity.this);
+                        }
+                    });
                 }
             }
 

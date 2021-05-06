@@ -7,6 +7,7 @@ import android.util.Log;
 import com.example.tasqr.Utilities;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +25,7 @@ public class Project {
     private String owner;
     private ArrayList<String> leaders;
     private ArrayList<String> workers;
-    private HashMap<String, Task> tasks;
+    private ArrayList<String> tasks;
 
     /*constructors */
 
@@ -71,7 +72,7 @@ public class Project {
         return workers;
     }
 
-    public HashMap<String, Task> getTasks() {
+    public ArrayList<String> getTasks() {
         return tasks;
     }
 
@@ -105,30 +106,28 @@ public class Project {
         this.workers = workers;
     }
 
-    public void setTasks(HashMap<String, Task> tasks) {
+    public void setTasks(ArrayList<String> tasks) {
         this.tasks = tasks;
     }
 
-    public void setTask(String id, Task task){
-        if (this.tasks.containsKey(id))
-            this.tasks.put(id, task);
-    }
-
     /* Add task to current project object and push it to database */
-    public void addTask(Activity context, DatabaseReference projectRef, Task task)
+    public void addTask(Activity context, FirebaseDatabase database, DatabaseReference projectRef, Task task)
     {
         if(this.tasks == null)
-            this.tasks = new HashMap<>();
+            this.tasks = new ArrayList<>();
 
-        DatabaseReference taskRef = projectRef.child("tasks").push();
+        DatabaseReference taskRef = database.getReference("Tasks").push();
         task.setId(taskRef.getKey());
+        this.tasks.add(task.getId());
 
-        projectRef.child("tasks/" + taskRef.getKey()).setValue(task).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Utilities.toastMessage("Successfully added new task", context);
-            }
-        });
+        database.getReference("Tasks").child(taskRef.getKey()).setValue(task);
+
+        projectRef.child("tasks").setValue(this.tasks).addOnSuccessListener(new OnSuccessListener<Void>() {
+        @Override
+        public void onSuccess(Void aVoid) {
+            Utilities.toastMessage("Successfully added new task", context);
+        }
+    });
     }
 
     /* Add leaders to current project object and push it to database */

@@ -62,8 +62,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
     /* Saves subtask states into the database */
     private void saveStateChanges() {
-        DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/"
-                + getIntent().getStringExtra("taskId"));
+        DatabaseReference taskRef = database.getReference("Tasks/" + getIntent().getStringExtra("taskId"));
 
         taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -83,8 +82,8 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
     /* Data fetcher for subtask list inside subtask activity */
     private void fetchSubTaskData() {
-        DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/"
-                + getIntent().getStringExtra("taskId"));
+        DatabaseReference taskRef = database.getReference("Tasks/" + getIntent().getStringExtra("taskId"));
+
         Log.e(TAG, "fetchSubTaskData: " + getIntent().getStringExtra("taskId"));
         taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -120,8 +119,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
     @Override
     public void sendSubTaskName(String subTaskName) {
         Log.e(TAG, "sendSubTaskName: " + getIntent().getStringExtra("taskId"));
-        DatabaseReference taskRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId") + "/tasks/"
-                + getIntent().getStringExtra("taskId"));
+        DatabaseReference taskRef = database.getReference("Tasks/" + getIntent().getStringExtra("taskId"));
 
         taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
