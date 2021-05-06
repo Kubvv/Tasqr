@@ -11,7 +11,9 @@ import com.google.firebase.database.DatabaseReference;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Task implements Comparable<Task>{
+public class Task{
+
+    private String id;
     private String taskName;
     private String leader;
     private String parentProject;
@@ -24,6 +26,7 @@ public class Task implements Comparable<Task>{
     }
 
     public Task(String taskName, String leader, String parentProject, ArrayList<String> workers, Date deadline, int progress) {
+        this.id = "Default";
         this.taskName = taskName;
         this.leader = leader;
         this.parentProject = parentProject;
@@ -35,6 +38,10 @@ public class Task implements Comparable<Task>{
 
 
     /* Getters */
+    public String getId(){
+        return id;
+    }
+
     public String getLeader() {
         return leader;
     }
@@ -74,6 +81,10 @@ public class Task implements Comparable<Task>{
     }
 
     /* Setters */
+    public void setId(String id){
+        this.id = id;
+    }
+
     public void setDeadline(Date deadline) {
         this.deadline = deadline;
     }
@@ -102,21 +113,29 @@ public class Task implements Comparable<Task>{
         this.progress = progress;
     }
 
+    private void updateDatabase(Activity context, DatabaseReference taskRef){
+        calcProgress();
+        taskRef.child("progress").setValue(this.progress);
+        taskRef.child("subTasks").setValue(this.subTasks).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Utilities.toastMessage("Successfully added subtask!", context);
+            }
+        });
+    }
     /* Adds new substask to the database within a given task (taskRef)*/
-    public void addSubTask(Activity context, DatabaseReference projectRef, SubTask subTask, Project project, int position)
+    public void addSubTask(Activity context, DatabaseReference taskRef, SubTask subTask)
     {
         if(this.subTasks == null)
             this.subTasks = new ArrayList<>();
 
         this.subTasks.add(subTask);
-        calcProgress();
-        project.setTask(position, this);
-        project.sortTasks();
-        projectRef.setValue(project);
+
+       updateDatabase(context, taskRef);
     }
 
     /* Sets states of subtasks of a given task (taskRef) and saves in the database*/
-    public void setSubTasksState(Activity context, DatabaseReference projectRef, SparseBooleanArray checked, Project project, int position)
+    public void setSubTasksState(Activity context, DatabaseReference taskRef, SparseBooleanArray checked)
     {
         for (int i = 0; i < this.subTasks.size(); i++) {
             if (checked.get(i)) {
@@ -126,10 +145,7 @@ public class Task implements Comparable<Task>{
             }
         }
 
-        calcProgress();
-        project.setTask(position, this);
-        project.sortTasks();
-        projectRef.setValue(project);
+        updateDatabase(context, taskRef);
     }
 
     private void calcProgress(){
@@ -139,10 +155,5 @@ public class Task implements Comparable<Task>{
                 counter++;
 
         progress = counter == 0 ? 0 : (int)(((double)counter / (double)this.subTasks.size()) * 100);
-    }
-
-    @Override
-    public int compareTo(Task o) {
-        return Integer.compare(o.progress, this.progress);
     }
 }

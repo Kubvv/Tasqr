@@ -10,6 +10,8 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 import static android.content.ContentValues.TAG;
 
@@ -22,7 +24,7 @@ public class Project {
     private String owner;
     private ArrayList<String> leaders;
     private ArrayList<String> workers;
-    private ArrayList<Task> tasks;
+    private HashMap<String, Task> tasks;
 
     /*constructors */
 
@@ -69,7 +71,7 @@ public class Project {
         return workers;
     }
 
-    public ArrayList<Task> getTasks() {
+    public HashMap<String, Task> getTasks() {
         return tasks;
     }
 
@@ -103,18 +105,25 @@ public class Project {
         this.workers = workers;
     }
 
-    public void setTasks(ArrayList<Task> tasks) {
+    public void setTasks(HashMap<String, Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public void setTask(String id, Task task){
+        if (this.tasks.containsKey(id))
+            this.tasks.put(id, task);
     }
 
     /* Add task to current project object and push it to database */
     public void addTask(Activity context, DatabaseReference projectRef, Task task)
     {
         if(this.tasks == null)
-            this.tasks = new ArrayList<>();
+            this.tasks = new HashMap<>();
 
-        this.tasks.add(task);
-        projectRef.child("tasks").setValue(this.tasks).addOnSuccessListener(new OnSuccessListener<Void>() {
+        DatabaseReference taskRef = projectRef.child("tasks").push();
+        task.setId(taskRef.getKey());
+
+        projectRef.child("tasks/" + taskRef.getKey()).setValue(task).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Utilities.toastMessage("Successfully added new task", context);
@@ -131,13 +140,5 @@ public class Project {
                 Utilities.toastMessage("Successfully added leaders", context);
             }
         });
-    }
-
-    public void sortTasks() {
-        Collections.sort(this.tasks);
-    }
-
-    public void setTask(int position, Task task){
-        this.tasks.set(position, task);
     }
 }

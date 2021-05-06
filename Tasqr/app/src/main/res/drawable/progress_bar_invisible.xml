@@ -4,8 +4,6 @@
     <item
         android:id="@android:id/background">
         <shape>
-            <corners
-                android:radius="5dip"/>
             <solid android:color="@color/tasqr_yellow_opaque"/>
         </shape>
     </item>
@@ -13,8 +11,6 @@
         android:id="@android:id/progress">
         <clip>
             <shape>
-                <corners
-                    android:radius="5dip"/>
                 <solid android:color="@color/progress_opaque"/>
             </shape>
         </clip>
