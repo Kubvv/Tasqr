@@ -58,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
     /* Fetched projects counter */
     private AtomicInteger projectsFetched;
 
+    private TextView name;
+    private TextView surname;
+
     private Boolean onResumeFirstTime;
 
     /* Nested class that helps us in creating listView */
@@ -133,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
         /* Xml items find and set */
         addProjectButton = findViewById(R.id.addProjectButton);
         Button profileButton = findViewById(R.id.profileButton);
-        TextView name = findViewById(R.id.name);
-        TextView surname = findViewById(R.id.surname);
+        name = findViewById(R.id.name);
+        surname = findViewById(R.id.surname);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
 
         addProjectButton.setOnClickListener(v -> startAddProjectActivity());
@@ -159,6 +162,27 @@ public class MainActivity extends AppCompatActivity {
         if (onResumeFirstTime)
             onResumeFirstTime = Boolean.FALSE;
         else {
+            /* Fetch user in case he just modified his profile */
+            Query q = usersRef.orderByChild("mail").equalTo(logged_mail);
+            q.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                        user = childSnapshot.getValue(User.class);
+                    }
+                    logged_name = user.getName();
+                    logged_surname = user.getSurname();
+
+                    name.setText(logged_name);
+                    surname.setText(logged_surname);
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "onCancelled: " + error);
+                }
+            });
+
+            /* Clear project list structures and fetch updated ones */
             projectNames.clear();
             companyNames.clear();
             projectImages.clear();

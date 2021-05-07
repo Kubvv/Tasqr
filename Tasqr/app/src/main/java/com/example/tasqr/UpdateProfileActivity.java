@@ -84,7 +84,6 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
             Picasso.with(UpdateProfileActivity.this).load(avatarUri).into(avatarImageView);
         else
             avatarImageView.setImageResource(R.drawable.avatar);
-
     }
 
     @Override
@@ -94,42 +93,9 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                 Filechooser();
                 break;
             case R.id.button_save:
-                User newUserData = new User(user);
-                String name = nameEditText.getText().toString();
-                String surname = surnameEditText.getText().toString();
-                String password = passwordEditText.getText().toString();
-                String passwordConfirm = passwordConfirmEditText.getText().toString();
-
-                Intent returnIntent = new Intent();
-
-                if (!password.equals("") || !passwordConfirm.equals("")) {
-                    if (!password.equals(passwordConfirm)) {
-                        Utilities.toastMessage("New password and confirmation password do not match.", UpdateProfileActivity.this);
-                        break;
-                    }
-                    else {
-                        newUserData.setPassword(password);
-                    }
-                }
-
-                if (!name.equals(user.getName())) {
-                    newUserData.setName(name);
-                    returnIntent.putExtra("new_name", name);
-                }
-
-                if (!surname.equals(user.getSurname())) {
-                    newUserData.setSurname(surname);
-                    returnIntent.putExtra("new_surname", surname);
-                }
-
-                usersRef.child(user.getId()).setValue(newUserData);
-
-                /* upload new avatar */
-                Fileuploader();
-
-                if (cropped_uri != null)
-                    returnIntent.putExtra("new_avatar_uri", cropped_uri.toString());
-
+                Intent returnIntent = onButtonSave();
+                if (returnIntent == null)
+                    break;
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
                 break;
@@ -199,7 +165,43 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                 .start(this);
     }
 
-    private void onButtonSave() {
+    private Intent onButtonSave() {
+        User newUserData = new User(user);
+        String name = nameEditText.getText().toString();
+        String surname = surnameEditText.getText().toString();
+        String password = passwordEditText.getText().toString();
+        String passwordConfirm = passwordConfirmEditText.getText().toString();
 
+        Intent returnIntent = new Intent();
+
+        if (!password.equals("") || !passwordConfirm.equals("")) {
+            if (!password.equals(passwordConfirm)) {
+                Utilities.toastMessage("New password and confirmation password do not match.", UpdateProfileActivity.this);
+                return null;
+            }
+            else {
+                newUserData.setPassword(password);
+            }
+        }
+
+        if (!name.equals(user.getName())) {
+            newUserData.setName(name);
+            returnIntent.putExtra("new_name", name);
+        }
+
+        if (!surname.equals(user.getSurname())) {
+            newUserData.setSurname(surname);
+            returnIntent.putExtra("new_surname", surname);
+        }
+
+        usersRef.child(user.getId()).setValue(newUserData);
+
+        /* upload new avatar */
+        Fileuploader();
+
+        if (cropped_uri != null)
+            returnIntent.putExtra("new_avatar_uri", cropped_uri.toString());
+
+        return returnIntent;
     }
 }
