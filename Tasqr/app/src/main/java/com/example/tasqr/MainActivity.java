@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     /* Fetched projects counter */
     private AtomicInteger projectsFetched;
 
+    private Boolean onResumeFirstTime;
+
     /* Nested class that helps us in creating listView */
     private static class ProjectList extends ArrayAdapter {
 
@@ -111,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        onResumeFirstTime = new Boolean(Boolean.TRUE);
+
         /* Database fetch */
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         usersRef = database.getReference("Users");
@@ -150,8 +154,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        /* Don't fetch projects if this onResume is after onCreate */
+        if (onResumeFirstTime)
+            onResumeFirstTime = Boolean.FALSE;
+        else {
+            projectNames.clear();
+            companyNames.clear();
+            projectImages.clear();
+            projectsFetched.set(0);
+            fetchProjectData();
+        }
+
         checkIfManager();
-        fetchProjectData();
     }
 
     /* Override back button so it doesn't logout user */
