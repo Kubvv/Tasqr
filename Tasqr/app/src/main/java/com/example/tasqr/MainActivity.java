@@ -58,6 +58,11 @@ public class MainActivity extends AppCompatActivity {
     /* Fetched projects counter */
     private AtomicInteger projectsFetched;
 
+    private TextView name;
+    private TextView surname;
+
+    private Boolean onResumeFirstTime;
+
     /* Nested class that helps us in creating listView */
     private static class ProjectList extends ArrayAdapter {
 
@@ -111,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        onResumeFirstTime = new Boolean(Boolean.TRUE);
+
         /* Database fetch */
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         usersRef = database.getReference("Users");
@@ -129,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
         /* Xml items find and set */
         addProjectButton = findViewById(R.id.addProjectButton);
         Button profileButton = findViewById(R.id.profileButton);
-        TextView name = findViewById(R.id.name);
-        TextView surname = findViewById(R.id.surname);
+        name = findViewById(R.id.name);
+        surname = findViewById(R.id.surname);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
 
         addProjectButton.setOnClickListener(v -> startAddProjectActivity());
@@ -142,6 +149,58 @@ public class MainActivity extends AppCompatActivity {
         /* Fetch project data and set on refresh action */
         fetchProjectData();
         setRefresher();
+    }
+
+    /* When coming back to main activity there should be no need
+     * to refresh the activity to get addProjectButton to show
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        /* Don't fetch projects if this onResume is after onCreate */
+        if (onResumeFirstTime)
+            onResumeFirstTime = Boolean.FALSE;
+        else {
+            /* Fetch user in case he just modified his profile */
+            Query q = usersRef.orderByChild("mail").equalTo(logged_mail);
+            q.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                        user = childSnapshot.getValue(User.class);
+                    }
+                    logged_name = user.getName();
+                    logged_surname = user.getSurname();
+
+                    name.setText(logged_name);
+                    surname.setText(logged_surname);
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "onCancelled: " + error);
+                }
+            });
+
+            /* Clear project list structures and fetch updated ones */
+            projectNames.clear();
+            companyNames.clear();
+            projectImages.clear();
+            projectsFetched.set(0);
+            fetchProjectData();
+        }
+
+        checkIfManager();
+    }
+
+    /* Override back button so it doesn't logout user */
+    @Override
+    public void onBackPressed() {
+        Log.d("CDA", "onBackPressed Called");
+        Intent setIntent = new Intent(Intent.ACTION_MAIN);
+        setIntent.addCategory(Intent.CATEGORY_HOME);
+        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(setIntent);
     }
 
     /* Sets visibility depending on the type of logged user */

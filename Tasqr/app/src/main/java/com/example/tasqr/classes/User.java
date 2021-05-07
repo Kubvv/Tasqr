@@ -36,6 +36,18 @@ public class User implements Parcelable {
         managedCompanies.add("root");
     }
 
+    /* copy constructor */
+    public User(User user) {
+        this.id = user.id;
+        this.name = user.name;
+        this.surname = user.surname;
+        this.mail = user.mail;
+        this.password = user.password;
+        this.projects = user.projects;
+        this.companies = user.companies;
+        this.managedCompanies = user.managedCompanies;
+    }
+
     protected User(Parcel in) {
         id = in.readString();
         name = in.readString();

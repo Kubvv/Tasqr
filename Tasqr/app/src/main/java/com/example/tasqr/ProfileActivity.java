@@ -12,9 +12,12 @@
 package com.example.tasqr;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,6 +27,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -36,6 +40,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 /* Profile activity has two functionalities, depending if you are inspecting your own profile or someone else's */
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
@@ -59,9 +64,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     /* View items */
     private ImageView avatarImageView;
-    private TextView emailTextView, passwordTextView, nameTextView, surnameTextView;
-    private Button buttonSettings, buttonLogout, buttonUserList, buttonCreateCompany, buttonChangeAvatar, buttonDeleteAccount;
+    private TextView emailTextView, nameTextView, surnameTextView;
+    private Button buttonSettings, buttonLogout, buttonCreateCompany, buttonUpdateProfile;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private Uri avatarUri;
+
+    private final int LAUNCH_UPDATE_PROFILE_ACTIVITY = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,23 +78,18 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         avatarImageView = findViewById(R.id.user_avatar);
         emailTextView = findViewById(R.id.user_email);
-        passwordTextView = findViewById(R.id.user_password);
         nameTextView = findViewById(R.id.user_name);
         surnameTextView = findViewById(R.id.user_surname);
         buttonSettings = findViewById(R.id.button_settings);
         buttonLogout = findViewById(R.id.button_logout);
-        buttonUserList = findViewById(R.id.button_user_list);
         buttonCreateCompany = findViewById(R.id.button_manage_company);
-        buttonChangeAvatar = findViewById(R.id.button_change_avatar);
-        buttonDeleteAccount = findViewById(R.id.button_delete_account);
+        buttonUpdateProfile = findViewById(R.id.button_update_profile);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
 
         buttonLogout.setOnClickListener(this);
         buttonSettings.setOnClickListener(this);
-        buttonUserList.setOnClickListener(this);
         buttonCreateCompany.setOnClickListener(this);
-        buttonChangeAvatar.setOnClickListener(this);
-        buttonDeleteAccount.setOnClickListener(this);
+        buttonUpdateProfile.setOnClickListener(this);
 
         bndl = getIntent().getExtras();
 
@@ -104,11 +107,14 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         avatarRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
+                findViewById(R.id.loadingPanel).setVisibility(View.GONE);
+                avatarUri = uri;
                 Picasso.with(ProfileActivity.this).load(uri).into(avatarImageView);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
+                findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                 avatarImageView.setImageResource(R.drawable.avatar);
             }
         });
@@ -152,25 +158,43 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.button_logout:
                 logout();
                 break;
-            case R.id.button_user_list:
-                Intent userListIntent = new Intent(this, UserListActivity.class);
-                userListIntent.putExtra("logged_mail", logged_mail);
-                startActivity(userListIntent);
-                break;
             case R.id.button_manage_company:
                 Intent manageCompanyIntent = new Intent(this, ManageCompanyActivity.class);
                 manageCompanyIntent.putExtra("logged_mail", logged_mail);
                 startActivity(manageCompanyIntent);
                 break;
-            case R.id.button_change_avatar:
-                Intent changeAvatarIntent = new Intent(this, ChangeAvatarActivity.class);
-                changeAvatarIntent.putExtra("logged_mail", logged_mail);
-                startActivity(changeAvatarIntent);
+            case R.id.button_update_profile:
+                Intent updateProfileIntent = new Intent(this, UpdateProfileActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("user", user);
+                if (avatarUri != null)
+                    bundle.putString("uri", avatarUri.toString());
+                updateProfileIntent.putExtras(bundle);
+                startActivityForResult(updateProfileIntent, LAUNCH_UPDATE_PROFILE_ACTIVITY);
                 break;
-            case R.id.button_delete_account:
-                deleteAccout();
-                logout();
-                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == LAUNCH_UPDATE_PROFILE_ACTIVITY && resultCode == Activity.RESULT_OK) {
+            String new_avatar = data.getStringExtra("new_avatar_uri");
+            if (new_avatar != null) {
+                avatarUri = Uri.parse(new_avatar);
+                Picasso.with(ProfileActivity.this).load(avatarUri).into(avatarImageView);
+            }
+
+            String new_name = data.getStringExtra("new_name");
+            String new_surname = data.getStringExtra("new_surname");
+
+            if (new_name != null)
+                user.setName(new_name);
+            if (new_surname != null)
+                user.setSurname(new_surname);
+
+            setTextViews(user);
         }
     }
 
@@ -179,8 +203,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         nameTextView.setText(usr.getName());
         surnameTextView.setText(usr.getSurname());
         emailTextView.setText(usr.getMail());
-        if (clicked_mail == logged_mail)
-            passwordTextView.setText(usr.getPassword());
     }
 
     /* Sets up refresh layout */
@@ -188,6 +210,20 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                /* refresh user info */
+                DatabaseReference userRef = database.getReference("Users/" + user.getId());
+                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        user = snapshot.getValue(User.class);
+                        setTextViews(user);
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
+
+                /* refresh avatar */
                 avatarRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
@@ -209,9 +245,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private void hideButtons() {
         buttonSettings.setVisibility(View.INVISIBLE);
         buttonLogout.setVisibility(View.INVISIBLE);
-        buttonUserList.setVisibility(View.INVISIBLE);
         buttonCreateCompany.setVisibility(View.INVISIBLE);
-        buttonChangeAvatar.setVisibility(View.INVISIBLE);
+        buttonUpdateProfile.setVisibility(View.INVISIBLE);
     }
 
     /* logs user out of an account and opens login activity */
