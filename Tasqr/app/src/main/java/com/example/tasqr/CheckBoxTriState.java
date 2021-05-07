@@ -10,9 +10,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 public class CheckBoxTriState extends androidx.appcompat.widget.AppCompatCheckBox {
-    static private final int PENDING = -1;
-    static private final int DONE = 0;
-    static private final int ABANDONED = 1;
+    static private final int PENDING = 0;
+    static private final int DONE = 1;
+    static private final int ABANDONED = 2;
     private int state;
 
     public CheckBoxTriState(Context context) {
@@ -56,17 +56,17 @@ public class CheckBoxTriState extends androidx.appcompat.widget.AppCompatCheckBo
     }
 
     private void updateBtn() {
-        int btnDrawable = R.drawable.ic_baseline_carpenter_24;
+        int btnDrawable = R.drawable.working;
         switch (state) {
             default:
             case PENDING:
-                btnDrawable = R.drawable.ic_baseline_carpenter_24;
+                btnDrawable = R.drawable.working;
                 break;
             case DONE:
-                btnDrawable = R.drawable.ic_baseline_check_circle_outline_24;
+                btnDrawable = R.drawable.ok;
                 break;
             case ABANDONED:
-                btnDrawable = R.drawable.ic_baseline_clear_24;
+                btnDrawable = R.drawable.notok;
                 break;
         }
 

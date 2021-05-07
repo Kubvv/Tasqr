@@ -44,7 +44,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/addprojectbutton"
             app:backgroundTint="@color/text_color"
-            app:rippleColor="@color/tasqr_yellow"/>
+            app:rippleColor="@color/tasqr_yellow"
+            android:visibility="gone"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/workerListButton"

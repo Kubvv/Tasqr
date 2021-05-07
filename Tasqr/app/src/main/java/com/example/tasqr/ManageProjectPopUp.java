@@ -23,10 +23,6 @@ public class ManageProjectPopUp extends DialogFragment {
 
     private Bundle bundle;
 
-    private Button addUsersButton;
-    private Button addLeadersButton;
-    private Button leaveButton;
-
     private Project project;
     private String logged_mail;
     private String logged_name;
@@ -47,16 +43,18 @@ public class ManageProjectPopUp extends DialogFragment {
         logged_name = bundle.getString("logged_name");
         logged_surname = bundle.getString("logged_surname");
         project = bundle.getParcelable("project");
+        boolean isLeader = bundle.getBoolean("isLeader");
+
         Log.e(TAG, "onCreateDialog: " + project.getName());
 
-        addUsersButton = view.findViewById(R.id.addUsersButton);
+        Button addUsersButton = view.findViewById(R.id.addUsersButton);
         addUsersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startAddUsersActivity("manageProjectUsers");
             }
         });
-        addLeadersButton = view.findViewById(R.id.addLeadersButton);
+        Button addLeadersButton = view.findViewById(R.id.addLeadersButton);
         addLeadersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,7 +66,12 @@ public class ManageProjectPopUp extends DialogFragment {
             }
         });
 
-        leaveButton = view.findViewById(R.id.leaveButton);
+        if(isLeader){
+            addUsersButton.setVisibility(View.VISIBLE);
+            addLeadersButton.setVisibility(View.VISIBLE);
+        }
+        
+        Button leaveButton = view.findViewById(R.id.leaveButton);
         leaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

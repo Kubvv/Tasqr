@@ -48,7 +48,6 @@ public class TasksActivity extends AppCompatActivity {
     private static final String TAG = "TasksActivity";
 
     private boolean isLeader = false;
-    private String project_name;
     private Project currProject;
 
     /* Class for sorting purposes */
@@ -125,6 +124,7 @@ public class TasksActivity extends AppCompatActivity {
     }
 
     private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+    private FloatingActionButton addTaskButton;
     private SwipeRefreshLayout refreshLayout;
     private TextView projectName;
     private ListView taskList;
@@ -138,7 +138,7 @@ public class TasksActivity extends AppCompatActivity {
         /* Finding and setting xml elements */
         projectName = findViewById(R.id.projectNametsk);
         taskList = findViewById(R.id.taskList);
-        FloatingActionButton addTaskButton = findViewById(R.id.addTaskButton);
+        addTaskButton = findViewById(R.id.addTaskButton);
         FloatingActionButton workerListButton = findViewById(R.id.workerListButton);
         FloatingActionButton workerSettingsButton = findViewById(R.id.workerSettingsButton);
         refreshLayout = findViewById(R.id.swipe_refresh);
@@ -172,12 +172,12 @@ public class TasksActivity extends AppCompatActivity {
                 String logged_mail = getIntent().getStringExtra("logged_mail");
                 if (currProject.getLeaders().contains(logged_mail)) {
                     isLeader = true;
+                    addTaskButton.setVisibility(View.VISIBLE);
                 }
-                project_name = currProject.getName();
 
                 projectName.setText(snapshot.getValue(Project.class).getName());
-                /* Getting all project tasks */
 
+                /* Getting all project tasks */
                 if(snapshot.getValue(Project.class).getTasks() != null && snapshot.getValue(Project.class).getTasks().size() != 0) {
                     HashSet<String> taskIds =  new HashSet<>(snapshot.getValue(Project.class).getTasks());
                     /* Nested query to avoid nulls from multithreading */
@@ -238,7 +238,6 @@ public class TasksActivity extends AppCompatActivity {
         Intent subTaskIntent = new Intent(TasksActivity.this, SubTasksActivity.class);
         subTaskIntent.putExtra("taskId", displayArray.get(position).getId());
         subTaskIntent.putExtra("taskName", displayArray.get(position).getName());
-        subTaskIntent.putExtra("projectId", getIntent().getStringExtra("projectId"));
         startActivity(subTaskIntent);
     }
 
@@ -262,7 +261,7 @@ public class TasksActivity extends AppCompatActivity {
     }
 
     /* Shows popup with team leader activities */
-    private void showWorkerSettingsPopup(){
+    private void showWorkerSettingsPopup() {
         Bundle bundle = new Bundle();
         bundle.putString("logged_mail", getIntent().getStringExtra("logged_mail"));
         bundle.putString("logged_name", getIntent().getStringExtra("logged_name"));
@@ -270,15 +269,10 @@ public class TasksActivity extends AppCompatActivity {
         bundle.putString("company_name", getIntent().getStringExtra("company_name"));
         bundle.putParcelable("project", currProject);
         bundle.putString("project_id", getIntent().getStringExtra("projectId"));
-        if (isLeader) {
-            ManageProjectPopUp popUp = new ManageProjectPopUp();
-            popUp.setArguments(bundle);
-            popUp.show(getSupportFragmentManager(), "ManageProjectPopUp");
-        }
-        else {
-            LeaveProjectPopUp popUp = new LeaveProjectPopUp();
-            popUp.setArguments(bundle);
-            popUp.show(getSupportFragmentManager(), "LeaveProjectPopUp");
-        }
+        bundle.putBoolean("isLeader", isLeader);
+
+        ManageProjectPopUp popUp = new ManageProjectPopUp();
+        popUp.setArguments(bundle);
+        popUp.show(getSupportFragmentManager(), "ManageProjectPopUp");
     }
 }

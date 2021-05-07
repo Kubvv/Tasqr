@@ -6,13 +6,19 @@
 
 package com.example.tasqr;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +33,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPopUp.AddSubTaskListener {
 
     private static final String TAG = "SubTaskActivity";
@@ -35,6 +43,56 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
     private ListView subTaskList;
     private Button saveChangesButton;
+    private TextView projectName;
+    
+    /* Custom SubTask array adapter */
+    private class SubTaskList extends ArrayAdapter{
+
+        private final ArrayList<String> displayArray;
+        private final ArrayList<CheckBoxTriState> checkBoxes;
+        private final ArrayList<SubTask.SubTaskState> initStates;
+        private final Activity context;
+
+        public SubTaskList(Activity context, ArrayList<String> displayArray, ArrayList<SubTask.SubTaskState> states) {
+            super(context, R.layout.subtask_list_item, displayArray);
+            this.context = context;
+            this.displayArray = displayArray;
+            this.initStates = states;
+            checkBoxes = new ArrayList<>(states.size());
+        }
+
+        /* Creates one row of ListView, consisting of subtask name and checkbox */
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View row = convertView;
+            LayoutInflater inflater = context.getLayoutInflater();
+
+            if(convertView == null)
+                row = inflater.inflate(R.layout.subtask_list_item, null, true);
+
+            TextView subTaskName = row.findViewById(R.id.subTaskName);
+            checkBoxes.add(row.findViewById(R.id.subTaskCheckbox));
+
+            subTaskName.setText(displayArray.get(position));
+            /* Setting checkbox state and listener */
+            checkBoxes.get(position).setState(initStates.get(position).getValue());
+            checkBoxes.get(position).setOnClickListener(v -> setSaveVisible());
+            return row;
+        }
+
+        public ArrayList<Integer> getCheckBoxStates(){
+            ArrayList<Integer> returnArray = new ArrayList<>(checkBoxes.size());
+            for (CheckBoxTriState checkbox: checkBoxes)
+                returnArray.add(checkbox.getState());
+            return returnArray;
+        }
+
+        private void setSaveVisible(){
+            saveChangesButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private SubTaskList subTaskAdapter;
 
     /* Main On Create Method */
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,20 +106,16 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         FloatingActionButton addSubTaskButton = findViewById(R.id.addSubTaskButton);
         FloatingActionButton workerListButton = findViewById(R.id.workerListButton);
         FloatingActionButton workerSettingsButton = findViewById(R.id.workerSettingsButton);
-
         saveChangesButton = findViewById(R.id.saveSubTaskChangesButton);
+        projectName = findViewById(R.id.taskName);
+
+        projectName.setText(getIntent().getStringExtra("taskName"));
 
         addSubTaskButton.setOnClickListener(v -> showAddPopUp());
         workerListButton.setOnClickListener(v -> showWorkerListPopUp());
         workerSettingsButton.setOnClickListener(v -> showWorkerSettingsPopup());
 
         saveChangesButton.setOnClickListener(v -> saveStateChanges());
-        subTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                saveChangesButton.setVisibility(View.VISIBLE);
-            }
-        });
 
         fetchSubTaskData();
     }
@@ -73,9 +127,8 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                /* do zmiany bo nieobiektowo */
                 snapshot.getValue(Task.class)
-                        .setSubTasksState(SubTasksActivity.this, taskRef, subTaskList.getCheckedItemPositions());
+                        .setSubTasksState(SubTasksActivity.this, taskRef, subTaskAdapter.getCheckBoxStates());
                 saveChangesButton.setVisibility(View.GONE);
             }
 
@@ -96,12 +149,12 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Task task = snapshot.getValue(Task.class);
                 if (task != null && task.getSubTasks() != null) {
-                    subTaskList.setAdapter(new ArrayAdapter<>(SubTasksActivity.this, android.R.layout.simple_list_item_multiple_choice, task.getSubTasksString()));
+                    ArrayList<SubTask.SubTaskState> states = new ArrayList<>();
+                    for (int i = 0; i < task.getSubTasks().size(); i++)
+                        states.add(task.getSubTasks().get(i).getState());
 
-                    for (int i = 0; i < task.getSubTasks().size(); i++) {
-                        boolean state = task.getSubTasks().get(i).getState() == SubTask.SubTaskState.done;
-                        subTaskList.setItemChecked(i, state);
-                    }
+                    subTaskAdapter = new SubTaskList(SubTasksActivity.this, task.getSubTasksString(), states);
+                    subTaskList.setAdapter(subTaskAdapter);
                 }
             }
 

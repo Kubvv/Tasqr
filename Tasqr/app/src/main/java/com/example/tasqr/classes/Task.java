@@ -119,7 +119,7 @@ public class Task{
         taskRef.child("subTasks").setValue(this.subTasks).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
-                Utilities.toastMessage("Successfully added subtask!", context);
+                Utilities.toastMessage("Successfully updated subtasks!", context);
             }
         });
     }
@@ -135,15 +135,10 @@ public class Task{
     }
 
     /* Sets states of subtasks of a given task (taskRef) and saves in the database*/
-    public void setSubTasksState(Activity context, DatabaseReference taskRef, SparseBooleanArray checked)
+    public void setSubTasksState(Activity context, DatabaseReference taskRef, ArrayList<Integer> states)
     {
-        for (int i = 0; i < this.subTasks.size(); i++) {
-            if (checked.get(i)) {
-               this.subTasks.get(i).setState(SubTask.SubTaskState.done);
-            } else {
-                this.subTasks.get(i).setState(SubTask.SubTaskState.pending);
-            }
-        }
+        for (int i = 0; i < this.subTasks.size(); i++)
+            this.subTasks.get(i).setState(SubTask.SubTaskState.values()[states.get(i)]);
 
         updateDatabase(context, taskRef);
     }
