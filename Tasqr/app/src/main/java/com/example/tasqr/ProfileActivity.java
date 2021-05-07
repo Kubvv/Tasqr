@@ -107,12 +107,14 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         avatarRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
+                findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                 avatarUri = uri;
                 Picasso.with(ProfileActivity.this).load(uri).into(avatarImageView);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
+                findViewById(R.id.loadingPanel).setVisibility(View.GONE);
                 avatarImageView.setImageResource(R.drawable.avatar);
             }
         });
