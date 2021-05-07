@@ -13,9 +13,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Tasqr">
         <activity
+            android:name=".UpdateProfileActivity"
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
+        <activity
             android:name=".ChangeOwnershipActivity"
             android:label="@string/title_activity_change_ownership"
-            android:theme="@style/Theme.Tasqr_NoToolBar"/>
+            android:theme="@style/Theme.Tasqr_NoToolBar" />
         <activity
             android:name=".LoginActivity"
             android:theme="@style/Theme.Tasqr_NoToolBar">
@@ -32,9 +35,6 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity
-            android:name=".ChangeAvatarActivity"
-            android:theme="@style/Theme.Tasqr_NoToolBar" />
         <activity
             android:name=".UserListActivity"
             android:theme="@style/Theme.Tasqr_NoToolBar" />
