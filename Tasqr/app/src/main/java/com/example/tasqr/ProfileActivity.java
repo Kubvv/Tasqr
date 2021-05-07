@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -182,6 +183,16 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 avatarUri = Uri.parse(new_avatar);
                 Picasso.with(ProfileActivity.this).load(avatarUri).into(avatarImageView);
             }
+
+            String new_name = data.getStringExtra("new_name");
+            String new_surname = data.getStringExtra("new_surname");
+
+            if (new_name != null)
+                user.setName(new_name);
+            if (new_surname != null)
+                user.setSurname(new_surname);
+
+            setTextViews(user);
         }
     }
 
@@ -197,6 +208,20 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                /* refresh user info */
+                DatabaseReference userRef = database.getReference("Users/" + user.getId());
+                userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        user = snapshot.getValue(User.class);
+                        setTextViews(user);
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
+
+                /* refresh avatar */
                 avatarRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {

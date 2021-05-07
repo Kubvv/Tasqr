@@ -22,8 +22,12 @@ import android.widget.Toast;
 import com.example.tasqr.classes.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -90,16 +94,41 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                 Filechooser();
                 break;
             case R.id.button_save:
-                //if changed username / etc
-                //save info from textfields
-
-                Fileuploader();
+                User newUserData = new User(user);
+                String name = nameEditText.getText().toString();
+                String surname = surnameEditText.getText().toString();
+                String password = passwordEditText.getText().toString();
+                String passwordConfirm = passwordConfirmEditText.getText().toString();
 
                 Intent returnIntent = new Intent();
+
+                if (!password.equals("") || !passwordConfirm.equals("")) {
+                    if (!password.equals(passwordConfirm)) {
+                        Utilities.toastMessage("New password and confirmation password do not match.", UpdateProfileActivity.this);
+                        break;
+                    }
+                    else {
+                        newUserData.setPassword(password);
+                    }
+                }
+
+                if (!name.equals(user.getName())) {
+                    newUserData.setName(name);
+                    returnIntent.putExtra("new_name", name);
+                }
+
+                if (!surname.equals(user.getSurname())) {
+                    newUserData.setSurname(surname);
+                    returnIntent.putExtra("new_surname", surname);
+                }
+
+                usersRef.child(user.getId()).setValue(newUserData);
+
+                /* upload new avatar */
+                Fileuploader();
+
                 if (cropped_uri != null)
                     returnIntent.putExtra("new_avatar_uri", cropped_uri.toString());
-
-                returnIntent.putExtra("logged_mail", user.getMail());       //check if needed ??
 
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
@@ -124,13 +153,13 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
             Ref.putFile(cropped_uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Toast.makeText(UpdateProfileActivity.this, "Image uploaded succesfully", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(UpdateProfileActivity.this, "Image uploaded succesfully", Toast.LENGTH_LONG).show();
                 }
             })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(UpdateProfileActivity.this, "Image upload failed", Toast.LENGTH_LONG).show();
+//                            Toast.makeText(UpdateProfileActivity.this, "Image upload failed", Toast.LENGTH_LONG).show();
                         }
                     });
         }
@@ -168,5 +197,9 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                 .setGuidelines(CropImageView.Guidelines.ON)
                 .setMultiTouchEnabled(true)
                 .start(this);
+    }
+
+    private void onButtonSave() {
+
     }
 }
