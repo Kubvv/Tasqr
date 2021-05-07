@@ -35,6 +35,9 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class UpdateProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "UpdateProfileActivity";
@@ -174,7 +177,13 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
 
         Intent returnIntent = new Intent();
 
+        /* validate passwords */
         if (!password.equals("") || !passwordConfirm.equals("")) {
+            if (password.length() > 40) {
+                Utilities.toastMessage("Password must be at most 40 characters long.", UpdateProfileActivity.this);
+                return null;
+            }
+
             if (!password.equals(passwordConfirm)) {
                 Utilities.toastMessage("New password and confirmation password do not match.", UpdateProfileActivity.this);
                 return null;
@@ -184,12 +193,45 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
             }
         }
 
+        Pattern p = Pattern.compile("[A-Za-z]{1,40}");
+        Matcher m;
+
+        /* validate name */
         if (!name.equals(user.getName())) {
+            if (name.isEmpty()) {
+                Utilities.toastMessage("Name cannot be empty.", UpdateProfileActivity.this);
+                return null;
+            }
+            if (name.length() > 40) {
+                Utilities.toastMessage("Name must be at most 40 letters long.", UpdateProfileActivity.this);
+                return null;
+            }
+            m = p.matcher(name);
+            if (!m.matches()) {
+                Utilities.toastMessage("Name can only contain characters between A-Z and a-z.", UpdateProfileActivity.this);
+                return null;
+            }
+
             newUserData.setName(name);
             returnIntent.putExtra("new_name", name);
         }
 
+        /* validate surname */
         if (!surname.equals(user.getSurname())) {
+            if (surname.isEmpty()) {
+                Utilities.toastMessage("Surame cannot be empty.", UpdateProfileActivity.this);
+                return null;
+            }
+            if (surname.length() > 40) {
+                Utilities.toastMessage("Surname must be at most 40 letters long.", UpdateProfileActivity.this);
+                return null;
+            }
+            m = p.matcher(surname);
+            if (!m.matches()) {
+                Utilities.toastMessage("Surame can only contain characters between A-Z and a-z.", UpdateProfileActivity.this);
+                return null;
+            }
+
             newUserData.setSurname(surname);
             returnIntent.putExtra("new_surname", surname);
         }
