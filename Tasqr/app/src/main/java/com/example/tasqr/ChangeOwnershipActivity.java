@@ -170,8 +170,10 @@ public class ChangeOwnershipActivity extends AppCompatActivity {
         tmp.remove(newOwner.getMail());
         c.setWorkers(tmp);
         tmp = c.getManagers();
-        tmp.remove(newOwner.getMail());
-        c.setManagers(tmp);
+        if (tmp != null) {
+            tmp.remove(newOwner.getMail());
+            c.setManagers(tmp);
+        }
         companiesRef.child(c.getId()).setValue(c);
 
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {

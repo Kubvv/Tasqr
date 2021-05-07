@@ -144,6 +144,26 @@ public class MainActivity extends AppCompatActivity {
         setRefresher();
     }
 
+    /* When coming back to main activity there should be no need
+     * to refresh the activity to get addProjectButton to show
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkIfManager();
+        fetchProjectData();
+    }
+
+    /* Override back button so it doesn't logout user */
+    @Override
+    public void onBackPressed() {
+        Log.d("CDA", "onBackPressed Called");
+        Intent setIntent = new Intent(Intent.ACTION_MAIN);
+        setIntent.addCategory(Intent.CATEGORY_HOME);
+        setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(setIntent);
+    }
+
     /* Sets visibility depending on the type of logged user */
     private void checkIfManager() {
         Query q = usersRef.orderByChild("mail").equalTo(logged_mail);
