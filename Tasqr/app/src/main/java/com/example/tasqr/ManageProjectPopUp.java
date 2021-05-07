@@ -1,10 +1,3 @@
-/*
- *   MANAGE COMPANY POPUP
- *   A dialog fragment which gets user input for managing company
- *   CONTAINS    buttons
- *               EditText form
- * */
-
 package com.example.tasqr;
 
 import android.app.AlertDialog;
@@ -22,20 +15,22 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.tasqr.classes.Company;
+import com.example.tasqr.classes.Project;
 
-public class ManageCompanyPopUp extends DialogFragment {
+public class ManageProjectPopUp extends DialogFragment {
 
-    private static final String TAG = "ManageCompanyPopUp";
+    private static final String TAG = "ManageProjectPopUp";
 
     private Bundle bundle;
 
     private Button addUsersButton;
-    private Button addManagersButton;
-    private Button changeOwnerButton;
-    private Button deleteCompanyButton;
+    private Button addLeadersButton;
+    private Button leaveButton;
 
-    private Company company;
+    private Project project;
     private String logged_mail;
+    private String logged_name;
+    private String logged_surname;
 
     /* Main on create method */
     @NonNull
@@ -45,56 +40,49 @@ public class ManageCompanyPopUp extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.popup_managecompany, null);
+        View view = inflater.inflate(R.layout.popup_manageproject, null);
 
         bundle = getArguments();
         logged_mail = bundle.getString("logged_mail");
-        company = bundle.getParcelable("company");
-        Log.e(TAG, "onCreateDialog: " + company.getName());
+        logged_name = bundle.getString("logged_name");
+        logged_surname = bundle.getString("logged_surname");
+        project = bundle.getParcelable("project");
+        Log.e(TAG, "onCreateDialog: " + project.getName());
 
         addUsersButton = view.findViewById(R.id.addUsersButton);
         addUsersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startAddUsersActivity("manageCompanyUsers");
+                startAddUsersActivity("manageProjectUsers");
             }
         });
-        addManagersButton = view.findViewById(R.id.addLeadersButton);
-        addManagersButton.setOnClickListener(new View.OnClickListener() {
+        addLeadersButton = view.findViewById(R.id.addLeadersButton);
+        addLeadersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (company.getWorkers() == null || company.getWorkers().size() == 0) {
+                if (project.getWorkers().size() == 1) {
                     Utilities.toastMessage("No users to choose from", getActivity());
-                }
-                else {
-                    startAddUsersActivity("manageCompanyManagers");
+                } else {
+                    startAddUsersActivity("manageProjectLeaders");
                 }
             }
         });
 
-        changeOwnerButton = view.findViewById(R.id.leaveButton);
-        changeOwnerButton.setOnClickListener(new View.OnClickListener() {
+        leaveButton = view.findViewById(R.id.leaveButton);
+        leaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (company.getWorkers() == null || company.getWorkers().size() == 0) {
-                    Utilities.toastMessage("No users to choose from", getActivity());
+                if (project.getLeaders().size() == 1 && project.getWorkers().size() != 1) {
+                    Utilities.toastMessage("Choose a new leader before leaving", getActivity());
+                } else {
+                    //TODO delete user from project
+                    startMainActivity();
                 }
-                else {
-                    startChangeOwnershipActivity();
-                }
-            }
-        });
-
-        deleteCompanyButton = view.findViewById(R.id.deleteComapnyButton);
-        deleteCompanyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO delete company
             }
         });
 
         /* Setting listeners */
-        builder.setView(view).setTitle(bundle.getString("company_name"))
+        builder.setView(view).setTitle(project.getName())
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -108,18 +96,24 @@ public class ManageCompanyPopUp extends DialogFragment {
     private void startAddUsersActivity(String previous_activity) {
         Intent intent = new Intent(getContext(), AddUsersActivity.class);
         intent.putExtra("logged_mail", logged_mail);
-        intent.putExtra("company", company);
+        intent.putExtra("logged_name", logged_name);
+        intent.putExtra("logged_surname", logged_surname);
+        intent.putExtra("project", project);
         intent.putExtra("previous_activity", previous_activity);
-        intent.putExtra("company_name", company.getName());
+        intent.putExtra("project_name", project.getName());
+        intent.putExtra("company_name",  bundle.getString("company_name"));
+        intent.putExtra("project_id", bundle.getString("project_id"));
         getDialog().dismiss();
         startActivity(intent);
     }
 
-    private void startChangeOwnershipActivity() {
-        Intent intent = new Intent(getContext(), ChangeOwnershipActivity.class);
+    private void startMainActivity() {
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        Log.e(TAG, "startMainActivity: " + logged_name + " " + logged_surname);
+        intent.putExtra("logged_name", logged_name);
+        intent.putExtra("logged_surname", logged_surname);
         intent.putExtra("logged_mail", logged_mail);
-        intent.putExtra("company", company);
-        intent.putExtra("previous_activity", "manageCompany");
         getDialog().dismiss();
         startActivity(intent);
     }

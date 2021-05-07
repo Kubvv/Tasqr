@@ -1,6 +1,8 @@
 package com.example.tasqr.classes;
 
 import android.app.Activity;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.ContactsContract;
 import android.util.Log;
 
@@ -16,7 +18,7 @@ import java.util.TreeMap;
 
 import static android.content.ContentValues.TAG;
 
-public class Project {
+public class Project implements Parcelable {
 
     private String name;
     private String company;
@@ -31,7 +33,7 @@ public class Project {
 
     public Project() {}
 
-    public Project(String name, String company, String description, String owner, ArrayList<String> workers) {
+    public Project(String name, String company, String description, String owner) {
         this.name = name;
         this.company = company;
         this.description = description;
@@ -39,10 +41,33 @@ public class Project {
         this.owner = owner;
         leaders = new ArrayList<>();
         leaders.add(owner);
-        this.workers = workers;
+        workers = new ArrayList<>();
     }
 
     /* getters */
+
+    protected Project(Parcel in) {
+        name = in.readString();
+        company = in.readString();
+        description = in.readString();
+        customer = in.readString();
+        owner = in.readString();
+        leaders = in.createStringArrayList();
+        workers = in.createStringArrayList();
+        tasks = in.createStringArrayList();
+    }
+
+    public static final Creator<Project> CREATOR = new Creator<Project>() {
+        @Override
+        public Project createFromParcel(Parcel in) {
+            return new Project(in);
+        }
+
+        @Override
+        public Project[] newArray(int size) {
+            return new Project[size];
+        }
+    };
 
     public String getName() {
         return name;
@@ -139,5 +164,22 @@ public class Project {
                 Utilities.toastMessage("Successfully added leaders", context);
             }
         });
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(company);
+        dest.writeString(description);
+        dest.writeString(customer);
+        dest.writeString(owner);
+        dest.writeStringList(leaders);
+        dest.writeStringList(workers);
+        dest.writeStringList(tasks);
     }
 }

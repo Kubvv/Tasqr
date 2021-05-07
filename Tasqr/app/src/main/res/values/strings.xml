@@ -35,6 +35,9 @@
     <string name="changeown">Change owner</string>
     <string name="deletecompany">Delete Company</string>
     <string name="leavecomp">Leave Company</string>
+    <string name="manageworkers">Manage Workers</string>
+    <string name="manageleaders">Manage Leaders</string>
+    <string name="leaveproj">Leave Project</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

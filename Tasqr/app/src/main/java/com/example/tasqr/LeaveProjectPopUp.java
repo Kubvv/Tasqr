@@ -16,7 +16,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.tasqr.R;
 import com.example.tasqr.classes.Company;
+import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,16 +29,18 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class LeaveCompanyPopUp extends DialogFragment {
+public class LeaveProjectPopUp extends DialogFragment {
 
-    private static final String TAG = "LeaveCompanyPopUp";
+    private static final String TAG = "LeaveProjectPopUp";
 
     private Bundle bundle;
 
-    private Button leaveCompanyButton;
+    private Button leaveProjectButton;
 
-    private Company company;
+    private Project project;
     private String logged_mail;
+    private String logged_name;
+    private String logged_surname;
     private String position;
 
     FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
@@ -51,25 +55,27 @@ public class LeaveCompanyPopUp extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.popup_leavecompany, null);
+        View view = inflater.inflate(R.layout.popup_leaveproject, null);
 
         bundle = getArguments();
         logged_mail = bundle.getString("logged_mail");
+        logged_name = bundle.getString("logged_name");
+        logged_surname = bundle.getString("logged_surname");
         position = bundle.getString("position");
-        company = bundle.getParcelable("company");
-        Log.e(TAG, "onCreateDialog: " + company.getName());
+        project = bundle.getParcelable("project");
+        Log.e(TAG, "onCreateDialog: " + project.getName());
 
-        leaveCompanyButton = view.findViewById(R.id.leaveCompanyButton);
-        leaveCompanyButton.setOnClickListener(new View.OnClickListener() {
+        leaveProjectButton = view.findViewById(R.id.leaveProjectButton);
+        leaveProjectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                company.leaveCompany(logged_mail, position);
-                refreshManageCompanies();
+                //project.leaveCompany(logged_mail, position);
+                startMainActivity();
             }
         });
 
         /* Setting listeners */
-        builder.setView(view).setTitle(bundle.getString("company_name"))
+        builder.setView(view).setTitle(project.getName())
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -80,9 +86,11 @@ public class LeaveCompanyPopUp extends DialogFragment {
         return builder.create();
     }
 
-    private void refreshManageCompanies() {
-        Intent intent = new Intent(getContext(), ManageCompanyActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    private void startMainActivity() {
+        Intent intent = new Intent(getActivity(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("logged_name", logged_name);
+        intent.putExtra("logged_surname", logged_surname);
         intent.putExtra("logged_mail", logged_mail);
         getDialog().dismiss();
         startActivity(intent);

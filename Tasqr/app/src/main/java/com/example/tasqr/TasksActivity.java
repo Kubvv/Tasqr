@@ -10,6 +10,7 @@ package com.example.tasqr;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,12 +27,15 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
+import com.example.tasqr.classes.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.Query;
+import com.google.firebase.firestore.core.QueryListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +46,10 @@ import java.util.Objects;
 public class TasksActivity extends AppCompatActivity {
 
     private static final String TAG = "TasksActivity";
+
+    private boolean isLeader = false;
+    private String project_name;
+    private Project currProject;
 
     /* Class for sorting purposes */
     private static class DisplayArrayElement implements Comparable<DisplayArrayElement>{
@@ -152,8 +160,7 @@ public class TasksActivity extends AppCompatActivity {
     }
 
     /* Fetches task list into displayArray for a given project */
-    private void fetchActivityData()
-    {
+    private void fetchActivityData() {
         /* Database fetch */
         DatabaseReference projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
         Log.e(TAG, "projectId is: " + getIntent().getStringExtra("projectId"));
@@ -161,6 +168,13 @@ public class TasksActivity extends AppCompatActivity {
         projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currProject = snapshot.getValue(Project.class);
+                String logged_mail = getIntent().getStringExtra("logged_mail");
+                if (currProject.getLeaders().contains(logged_mail)) {
+                    isLeader = true;
+                }
+                project_name = currProject.getName();
+
                 projectName.setText(snapshot.getValue(Project.class).getName());
                 /* Getting all project tasks */
 
@@ -249,6 +263,22 @@ public class TasksActivity extends AppCompatActivity {
 
     /* Shows popup with team leader activities */
     private void showWorkerSettingsPopup(){
-
+        Bundle bundle = new Bundle();
+        bundle.putString("logged_mail", getIntent().getStringExtra("logged_mail"));
+        bundle.putString("logged_name", getIntent().getStringExtra("logged_name"));
+        bundle.putString("logged_surname", getIntent().getStringExtra("logged_surname"));
+        bundle.putString("company_name", getIntent().getStringExtra("company_name"));
+        bundle.putParcelable("project", currProject);
+        bundle.putString("project_id", getIntent().getStringExtra("projectId"));
+        if (isLeader) {
+            ManageProjectPopUp popUp = new ManageProjectPopUp();
+            popUp.setArguments(bundle);
+            popUp.show(getSupportFragmentManager(), "ManageProjectPopUp");
+        }
+        else {
+            LeaveProjectPopUp popUp = new LeaveProjectPopUp();
+            popUp.setArguments(bundle);
+            popUp.show(getSupportFragmentManager(), "LeaveProjectPopUp");
+        }
     }
 }

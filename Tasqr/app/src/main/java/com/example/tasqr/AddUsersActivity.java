@@ -3,6 +3,7 @@ package com.example.tasqr;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -30,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -57,7 +59,9 @@ public class AddUsersActivity extends AppCompatActivity {
     private String leader;
 
     /* Project we are currently in */
+    private String projid;
     private Project currProject;
+    private User companyOwner;
     private ArrayList<String> projectUsers;
 
     /* Company info */
@@ -68,6 +72,7 @@ public class AddUsersActivity extends AppCompatActivity {
     private ListView listView;
     private ArrayList<User> userArray = new ArrayList<>();
     private ArrayList<String> displayArray = new ArrayList<>();
+    private ArrayList<String> enlisted = new ArrayList<>();
     ArrayAdapter<String> adapter;
 
     private TextView addUsersTitle;
@@ -105,6 +110,8 @@ public class AddUsersActivity extends AppCompatActivity {
         project = bndl.getString("project_name");
         task = bndl.getString("taskName");
         currCompany = bndl.getParcelable("company");
+        currProject = bndl.getParcelable("project");
+        projid = bndl.getString("project_id");
 
         /* Fetch some data before moving on with creating listviews */
         preFetch();
@@ -175,6 +182,12 @@ public class AddUsersActivity extends AppCompatActivity {
                 case "manageCompanyManagers":
                     finishManageCompany(usersMail, "managers");
                     break;
+                case "manageProjectUsers":
+                    correctChecked(usersMail, "workers");
+                    break;
+                case "manageProjectLeaders":
+                    correctChecked(usersMail, "leaders");
+                    break;
             }
         });
 
@@ -227,6 +240,13 @@ public class AddUsersActivity extends AppCompatActivity {
                 addUsersTitle.setText(String.format("Add %s's managers", company));
                 fetchManageCompany("managers");
                 break;
+            case "manageProjectUsers":
+                addUsersTitle.setText(String.format("Add %s's workers", project));
+                break;
+            case "manageProjectLeaders":
+                addUsersTitle.setText(String.format("Add %s's leaders", project));
+                fetchManageProject("leaders");
+                break;
         }
     }
 
@@ -240,13 +260,35 @@ public class AddUsersActivity extends AppCompatActivity {
 
     /* Used to fetch some information from database based on previous activity, before creating listview */
     private void preFetch() {
-        if (previous_activity.equals("Project")) { /* we need to parse company that created this project */
+        if (previous_activity.equals("Project")
+                || previous_activity.equals("manageProjectUsers")) { /* we need to parse company that created this project */
             Query q = companiesRef.orderByChild("name").equalTo(company);
             q.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         currCompany = ds.getValue(Company.class);
+                        if (currCompany.getWorkers() == null || currCompany.getWorkers().size() == 0) {
+                            Utilities.toastMessage("No workers in company", AddUsersActivity.this);
+                            openTasksActivity();
+                        }
+                        else if (previous_activity.equals("manageProjectUsers")) {
+                            Query q = usersRef.orderByChild("mail").equalTo(currCompany.getOwner());
+                            q.addListenerForSingleValueEvent(new ValueEventListener() {
+                                 @Override
+                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                     for (DataSnapshot ds : snapshot.getChildren()) {
+                                         companyOwner = ds.getValue(User.class);
+                                         fetchManageProject("workers");
+                                     }
+                                 }
+
+                                 @Override
+                                 public void onCancelled(@NonNull DatabaseError error) {
+                                     Utilities.toastMessage("error" + error.toString(), AddUsersActivity.this);
+                                 }
+                             });
+                        }
                     }
                 }
 
@@ -452,6 +494,86 @@ public class AddUsersActivity extends AppCompatActivity {
         });
     }
 
+    private void fetchManageProject(String context) {
+        alreadyWorking = currProject.getWorkers();
+        ArrayList<String> checked;
+        if (context.equals("leaders")) {
+            checked = currProject.getLeaders();
+        }
+        else {
+            checked = alreadyWorking;
+        }
+        checked.remove(logged_mail);
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                /* iterate through users and add each to array */
+                if (context.equals("workers")) {
+                    boolean ownerAdded = false;
+                    int i = 0;
+                    ArrayList<String> workers = currCompany.getWorkers();
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        if (workers == null || i == workers.size()) {
+                            if (!ownerAdded && !companyOwner.getMail().equals(logged_mail)) {
+                                userArray.add(companyOwner);
+                                displayArray.add(companyOwner.getName() + " " + companyOwner.getSurname());
+                            }
+                            break;
+                        }
+                        User user = ds.getValue(User.class);
+                        String mail = user.getMail();
+                        if (mail.equals(workers.get(i)) && mail.equals(logged_mail)) {
+                            i++;
+                        }
+                        else if (mail.equals(workers.get(i))) {
+                            userArray.add(user);
+                            displayArray.add(user.getName() + " " + user.getSurname());
+                            i++;
+                        }
+                        else if (mail.equals(companyOwner.getMail()) && !mail.equals(logged_mail)) {
+                            userArray.add(companyOwner);
+                            displayArray.add(companyOwner.getName() + " " + companyOwner.getSurname());
+                            ownerAdded = true;
+                        }
+                    }
+                }
+                else {
+                    int j = 0;
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        if (j == alreadyWorking.size()) { //all workers were found
+                            break;
+                        }
+                        User user = ds.getValue(User.class);
+                        String mail = user.getMail();
+                        if (mail.equals(alreadyWorking.get(j)) && mail.equals(logged_mail)) {
+                            j++;
+                        }
+                        else if (mail.equals(alreadyWorking.get(j))) {
+                            userArray.add(user);
+                            displayArray.add(user.getName() + " " + user.getSurname());
+                            j++;
+                        }
+                    }
+                }
+
+                setUserListAdapter();
+
+                int j = 0;
+                for (int i = 0; i < listView.getCount() && j < checked.size(); i++) {
+                    if (userArray.get(i).getMail().equals(checked.get(j))) {
+                        listView.setItemChecked(i, true);
+                        j++;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Utilities.toastMessage("error " + error, AddUsersActivity.this);
+            }
+        });
+    }
+
     /* create adapter for list view */
     private void setUserListAdapter() {
         adapter = new ArrayAdapter(AddUsersActivity.this, R.layout.user_list_item, displayArray);
@@ -508,25 +630,57 @@ public class AddUsersActivity extends AppCompatActivity {
     private void finishAddingProject (ArrayList<User> projectUsers, ArrayList<String> usersMail) {
         /* Create new project to be added */
         Project project = new Project(
-            bndl.getString("project_name"),
-            bndl.getString("company_name"),
-            bndl.getString("description"),
-            owner.getMail(),
-            usersMail);
+                bndl.getString("project_name"),
+                bndl.getString("company_name"),
+                bndl.getString("description"),
+                owner.getMail());
 
+        enlisted = usersMail;
         DatabaseReference pushedProjectsRef = projectsRef.push();
-        String id = pushedProjectsRef.getKey();
-
-        projectsRef.child(id).setValue(project).addOnSuccessListener(new OnSuccessListener<Void>() {
+        projid = pushedProjectsRef.getKey();
+        projectsRef.child(projid).setValue(project).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 Utilities.toastMessage("Successfully added new project", AddUsersActivity.this);
             }
         });
 
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<String> sorted = new ArrayList<>();
+                int i = 0;
+                boolean ownerAdded = false;
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if (enlisted == null || i == enlisted.size()) {
+                        if (!ownerAdded) {
+                            sorted.add(logged_mail);
+                        }
+                        break;
+                    }
+
+                    User user = ds.getValue(User.class);
+                    if (enlisted.get(i).equals(user.getMail())) {
+                        sorted.add(user.getMail());
+                        i++;
+                    }
+                    else if (logged_mail.equals(user.getMail())) {
+                        sorted.add(user.getMail());
+                        ownerAdded = true;
+                    }
+                }
+                projectsRef.child(projid).child("workers").setValue(sorted);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
         /* add project to owner's projects array, then leave the activity */
         ArrayList<String> tmp = owner.getProjects();
-        tmp.add(id);
+        tmp.add(projid);
         usersRef.child(owner.getId()).child("projects").setValue(tmp).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -534,7 +688,7 @@ public class AddUsersActivity extends AppCompatActivity {
                 if (projectUsers.size() == 1) {
                     openMainActivity();
                 } else {
-                    openAddLeaderActivity(id, projectUsers);
+                    openAddLeaderActivity(projid, projectUsers);
                 }
             }
         });
@@ -542,7 +696,7 @@ public class AddUsersActivity extends AppCompatActivity {
         /* meanwhile add project to all other invited users arrays */
         for (int i = 1; i < projectUsers.size(); i++) {
             tmp = projectUsers.get(i).getProjects();
-            tmp.add(id);
+            tmp.add(projid);
             usersRef.child(projectUsers.get(i).getId()).child("projects").setValue(tmp);
         }
     }
@@ -663,6 +817,121 @@ public class AddUsersActivity extends AppCompatActivity {
         openManageCompanyActivity();
     }
 
+    /* this function places currently editing user in correct usersMail place */
+    private void correctChecked(ArrayList<String> usersMail, String context) {
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                int i = 0;
+                boolean isAdded = false;
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    if (i == usersMail.size()) {
+                        if (!isAdded) {
+                            usersMail.add(logged_mail);
+                            isAdded = true;
+                            finishManageProject(usersMail, context);
+                        }
+                        break;
+                    }
+                    String mail = ds.getValue(User.class).getMail();
+                    if (mail.equals(usersMail.get(i))) {
+                        i++;
+                    }
+                    else if (mail.equals(logged_mail)) {
+                        usersMail.add(i, logged_mail);
+                        isAdded = true;
+                        finishManageProject(usersMail, context);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void finishManageProject(ArrayList<String> usersMail, String context) {
+        /* segregate users that need to be deleted and added */
+        ArrayList<String> toDelete = new ArrayList<>();
+        ArrayList<String> toAdd;
+        projectsRef.child(projid).child(context).setValue(usersMail);
+        if (context.equals("managers")) {
+            alreadyWorking = currProject.getLeaders();
+        }
+        if (usersMail.size() == 0) { //there is no one to add to array
+            toAdd = new ArrayList<>();
+            toDelete = alreadyWorking;
+            toDelete.remove(logged_mail);
+        }
+        else {
+            HashSet<String> newChecked = new HashSet<>(usersMail);
+            for (int i = 0; i < alreadyWorking.size(); i++) {
+                if (!newChecked.contains(alreadyWorking.get(i))) {
+                    toDelete.add(alreadyWorking.get(i));
+                } else {
+                    newChecked.remove(alreadyWorking.get(i));
+                }
+            }
+            toAdd = new ArrayList<>(newChecked);
+        }
+        if (context.equals("workers")) {
+            ArrayList<String> projLeaders = currProject.getLeaders();
+            for (int i = 0; i < toDelete.size(); i++) {
+                projLeaders.remove(toDelete.get(i));
+
+                Query q = usersRef.orderByChild("mail").equalTo(toDelete.get(i));
+                q.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        User user;
+                        ArrayList<String> projects;
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            user = ds.getValue(User.class);
+                            projects = user.getProjects();
+                            projects.remove(projid);
+                            usersRef.child(user.getId()).child("projects").setValue(projects);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Utilities.toastMessage("error " + error, AddUsersActivity.this);
+                    }
+                });
+            }
+
+            projectsRef.child(projid).child("leaders").setValue(projLeaders);
+
+            for (int j = 0; j < toAdd.size(); j++) {
+                if (!toAdd.get(j).equals(logged_mail)) {
+                    Query q = usersRef.orderByChild("mail").equalTo(toAdd.get(j));
+                    q.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            User user;
+                            ArrayList<String> projects;
+                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                user = ds.getValue(User.class);
+                                projects = user.getProjects();
+                                projects.add(projid);
+                                usersRef.child(user.getId()).child("projects").setValue(projects);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Utilities.toastMessage("error " + error, AddUsersActivity.this);
+                        }
+                    });
+                }
+            }
+        }
+
+        openTasksActivity();
+    }
+
     /* Activities openers */
 
     /* Opens main activity and closes activites relating to adding project */
@@ -688,8 +957,16 @@ public class AddUsersActivity extends AppCompatActivity {
     private void openTasksActivity() {
         Intent intent = new Intent(AddUsersActivity.this, TasksActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.putExtra("projectId", getIntent().getStringExtra("projectId"));
+        if (projid != null) {
+            intent.putExtra("projectId", projid);
+        }
+        else {
+            intent.putExtra("projectId", getIntent().getStringExtra("projectId"));
+        }
+        intent.putExtra("company_name", company);
         intent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
+        intent.putExtra("logged_name", getIntent().getStringExtra("logged_name"));
+        intent.putExtra("logged_surname", getIntent().getStringExtra("logged_surname"));
         startActivity(intent);
     }
 

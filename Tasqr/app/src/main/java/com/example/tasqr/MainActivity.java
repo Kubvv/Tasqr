@@ -241,6 +241,9 @@ public class MainActivity extends AppCompatActivity {
                                         Intent tasksIntent = new Intent(MainActivity.this, TasksActivity.class);
                                         tasksIntent.putExtra("projectId", projectIds.get(position));
                                         tasksIntent.putExtra("logged_mail", logged_mail);
+                                        tasksIntent.putExtra("logged_name", logged_name);
+                                        tasksIntent.putExtra("logged_surname", logged_surname);
+                                        tasksIntent.putExtra("company_name", companyNames.get(position));
                                         startActivity(tasksIntent);
                                     }
                                 });
