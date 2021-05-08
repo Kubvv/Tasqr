@@ -38,7 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-
+//TODO nowa kampania nie wyswietla sie przy wyborze nowego projektu
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
