@@ -5,6 +5,7 @@
     <string name="surname">Surname</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
+    <string name="confirmpassword">Confirm password</string>
     <string name="creation">Create new account</string>
     <string name="dont_have">Do not have an account?</string>
     <string name="create_account">Create one</string>

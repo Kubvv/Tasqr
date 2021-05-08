@@ -31,7 +31,7 @@ public class RegisterActivity extends AppCompatActivity {
     /* View elements */
     private Button goToLoginButton;
     private Button registerUserButton;
-    private final EditText[] ets = new EditText[4];
+    private final EditText[] ets = new EditText[5];
 
     /* bundle used in storing elements */
     private final Bundle bundle = new Bundle();
@@ -56,6 +56,7 @@ public class RegisterActivity extends AppCompatActivity {
         ets[1] = findViewById(R.id.surname_textfield);
         ets[2] = findViewById(R.id.email_textfield);
         ets[3] = findViewById(R.id.password_textfield);
+        ets[4] = findViewById(R.id.confirmpassword_textfield);
 
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         usersRef = database.getReference("Users");
@@ -68,6 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
         ets[1].setText(bundle.getString("etSurname"));
         ets[2].setText(bundle.getString("etMail"));
         ets[3].setText(bundle.getString("etPass"));
+        ets[4].setText(bundle.getString("etPassConf"));
         super.onResume();
     }
 
@@ -77,6 +79,7 @@ public class RegisterActivity extends AppCompatActivity {
         bundle.putString("etSurname", ets[1].getText().toString());
         bundle.putString("etMail", ets[2].getText().toString());
         bundle.putString("etPass", ets[3].getText().toString());
+        bundle.putString("etPassConf", ets[4].getText().toString());
         super.onPause();
     }
 
@@ -89,11 +92,12 @@ public class RegisterActivity extends AppCompatActivity {
 
     /* Parses texts that user inputted and goes on to validate them */
     public void registerUser() {
-        String[] data = new String[4];
+        String[] data = new String[5];
         data[0] = ets[0].getText().toString();
         data[1] = ets[1].getText().toString();
         data[2] = ets[2].getText().toString();
         data[3] = ets[3].getText().toString();
+        data[4] = ets[4].getText().toString();
 
         validateInput(data);
     }
@@ -118,7 +122,7 @@ public class RegisterActivity extends AppCompatActivity {
             /* mail is the only excption and does not have upper limit */
             if (data[i].length() > 40 && i != 2) {
                 item = dic.get(i);
-                Utilities.toastMessage(item + "must be at most 40 letters long", RegisterActivity.this);
+                Utilities.toastMessage(item + " must be at most 40 letters long", RegisterActivity.this);
                 return;
             }
         }
@@ -135,6 +139,12 @@ public class RegisterActivity extends AppCompatActivity {
             Utilities.toastMessage("Surname can only contain characters between A-z and a-z", RegisterActivity.this);
             return;
         }
+
+        if (!data[3].equals(data[4])) {
+            Utilities.toastMessage("Passwords are not equal", RegisterActivity.this);
+            return;
+        }
+
         /* Also check mail correctness */
         p = Pattern.compile("@");
         m = p.matcher(data[2]);

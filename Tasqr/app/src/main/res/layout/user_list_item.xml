@@ -5,6 +5,7 @@
     android:layout_height="60dp"
     android:layout_weight="1"
     android:button="@null"
+    android:singleLine="true"
     android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
     android:padding="5dip"
     android:textColor="@color/text_color"

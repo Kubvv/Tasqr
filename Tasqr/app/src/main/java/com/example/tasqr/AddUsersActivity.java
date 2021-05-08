@@ -268,7 +268,8 @@ public class AddUsersActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         currCompany = ds.getValue(Company.class);
-                        if (currCompany.getWorkers() == null || currCompany.getWorkers().size() == 0) {
+                        if (previous_activity.equals("manageProjectUsers") &&
+                                (currCompany.getWorkers() == null || currCompany.getWorkers().size() == 0)) {
                             Utilities.toastMessage("No workers in company", AddUsersActivity.this);
                             openTasksActivity();
                         }
@@ -307,7 +308,7 @@ public class AddUsersActivity extends AppCompatActivity {
                     currProject = snapshot.getValue(Project.class);
                     projectUsers = currProject.getWorkers();
                     leader = logged_mail;
-                    if (projectUsers == null) { /* If there are no workers, create task with only you enlisted */
+                    if (projectUsers == null || projectUsers.size() == 1) { /* If there are no workers, create task with only you enlisted */
                         ArrayList<String> usersMail = new ArrayList<>();
                         usersMail.add(leader);
                         finishAddingTask(usersMail);
@@ -958,9 +959,11 @@ public class AddUsersActivity extends AppCompatActivity {
         Intent intent = new Intent(AddUsersActivity.this, TasksActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (projid != null) {
+            Log.e(TAG, "openTasksActivity:fafs " + projid);
             intent.putExtra("projectId", projid);
         }
         else {
+            Log.e(TAG, "openTasksActivity: kurwa" +  getIntent().getStringExtra("projectId"));
             intent.putExtra("projectId", getIntent().getStringExtra("projectId"));
         }
         intent.putExtra("company_name", company);
