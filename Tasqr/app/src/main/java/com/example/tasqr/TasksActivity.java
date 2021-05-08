@@ -9,6 +9,7 @@ package com.example.tasqr;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -43,7 +44,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 
-public class TasksActivity extends AppCompatActivity {
+public class TasksActivity extends AppCompatActivity implements ConfirmationPopUp.ConfirmationListener{
 
     private static final String TAG = "TasksActivity";
 
@@ -122,13 +123,16 @@ public class TasksActivity extends AppCompatActivity {
             return row;
         }
     }
+    /********END OF INNER CLASSES*********/
 
     private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
     private FloatingActionButton addTaskButton;
     private SwipeRefreshLayout refreshLayout;
     private TextView projectName;
     private ListView taskList;
-    ArrayList<DisplayArrayElement> displayArray = new ArrayList<>();
+    private FloatingActionButton deleteButton;
+    private final ArrayList<DisplayArrayElement> displayArray = new ArrayList<>();
+    private boolean deleteMode = false;
 
     /* Main on create method */
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,12 +145,14 @@ public class TasksActivity extends AppCompatActivity {
         addTaskButton = findViewById(R.id.addTaskButton);
         FloatingActionButton workerListButton = findViewById(R.id.workerListButton);
         FloatingActionButton workerSettingsButton = findViewById(R.id.workerSettingsButton);
+        deleteButton = findViewById(R.id.trashButton);
         refreshLayout = findViewById(R.id.swipe_refresh);
         setRefresher();
 
         addTaskButton.setOnClickListener(v -> openAddTaskActivity());
         workerListButton.setOnClickListener(v -> showWorkerListPopUp());
         workerSettingsButton.setOnClickListener(v -> showWorkerSettingsPopup());
+        deleteButton.setOnClickListener(v -> deleteAction());
 
         taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -163,7 +169,6 @@ public class TasksActivity extends AppCompatActivity {
     private void fetchActivityData() {
         /* Database fetch */
         DatabaseReference projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
-        Log.e(TAG, "projectId is: " + getIntent().getStringExtra("projectId"));
 
         projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -176,7 +181,6 @@ public class TasksActivity extends AppCompatActivity {
                 }
 
                 projectName.setText(snapshot.getValue(Project.class).getName());
-
                 /* Getting all project tasks */
                 if(snapshot.getValue(Project.class).getTasks() != null && snapshot.getValue(Project.class).getTasks().size() != 0) {
                     HashSet<String> taskIds =  new HashSet<>(snapshot.getValue(Project.class).getTasks());
@@ -203,8 +207,8 @@ public class TasksActivity extends AppCompatActivity {
                                 }
                                 displayArray.add(new DisplayArrayElement(task.getId(), task.getTaskName(), found, task.getProgress()));
                             }
-                                Collections.sort(displayArray);
-                                taskList.setAdapter(new TaskList(TasksActivity.this, displayArray));
+                            Collections.sort(displayArray);
+                            taskList.setAdapter(new TaskList(TasksActivity.this, displayArray));
                         }
 
                         @Override
@@ -274,5 +278,63 @@ public class TasksActivity extends AppCompatActivity {
         ManageProjectPopUp popUp = new ManageProjectPopUp();
         popUp.setArguments(bundle);
         popUp.show(getSupportFragmentManager(), "ManageProjectPopUp");
+    }
+
+
+    /* Sets state of activity to delete mode */
+    private void deleteAction(){
+        if (deleteMode)
+            unsetDelete();
+        else
+            setDelete();
+    }
+
+    /* Sets delete mode of activity */
+    private void setDelete(){
+        deleteMode = true;
+        deleteButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.delete_red)));
+        taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ConfirmationPopUp confirmationPopUp = new ConfirmationPopUp(displayArray.get(position).getName(), position);
+                confirmationPopUp.show(getSupportFragmentManager(), "ConfirmationPopUp");
+            }
+        });
+    }
+
+    /* Unsets delete mode of activity */
+    private void unsetDelete(){
+        deleteMode = false;
+        deleteButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.text_color)));
+        taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openSubTaskActivity(position);
+            }
+        });
+    }
+
+    /* After deletion confirmation we delete gien item from database */
+    @Override
+    public void confirmation(int position){
+        unsetDelete();
+        DatabaseReference taskRef = database.getReference("Tasks/" + displayArray.get(position).getId());
+        DatabaseReference projectRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
+
+        projectRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                snapshot.getValue(Project.class).deleteTask(projectRef, displayArray.get(position).getId());
+                taskRef.removeValue();
+                displayArray.remove(position);
+                Collections.sort(displayArray);
+                taskList.setAdapter(new TaskList(TasksActivity.this, displayArray));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Utilities.toastMessage("error" + error.toString(), TasksActivity.this);
+            }
+        });
     }
 }

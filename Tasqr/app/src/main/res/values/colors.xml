@@ -18,4 +18,5 @@
     <color name="tasqr_yellow_opaque">#70FFD900</color>
     <color name="progress">#4DFF00</color>
     <color name="progress_opaque">#704DFF00</color>
+    <color name="delete_red">#FF004D</color>
 </resources>

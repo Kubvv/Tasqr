@@ -7,6 +7,7 @@
 package com.example.tasqr;
 
 import android.app.Activity;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,10 +19,13 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.SubTask;
@@ -34,17 +38,26 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPopUp.AddSubTaskListener {
+public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPopUp.AddSubTaskListener, ConfirmationPopUp.ConfirmationListener {
 
     private static final String TAG = "SubTaskActivity";
 
     private FirebaseDatabase database;
 
     private ListView subTaskList;
-    private Button saveChangesButton;
     private TextView projectName;
-    
+    private SubTaskList subTaskAdapter;
+    private SwipeRefreshLayout refreshLayout;
+    private FloatingActionButton addSubTaskButton;
+    private FloatingActionButton workerListButton ;
+    private FloatingActionButton workerSettingsButton;
+    private FloatingActionButton deleteButton;
+    private FloatingActionButton saveChangesButton;
+
+    private boolean deleteMode;
+
     /* Custom SubTask array adapter */
     private class SubTaskList extends ArrayAdapter{
 
@@ -88,11 +101,15 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         }
 
         private void setSaveVisible(){
-            saveChangesButton.setVisibility(View.VISIBLE);
+            saveChangesButton.setOnClickListener(v -> saveStateChanges());
+            saveChangesButton.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.save));
+        }
+
+        public ArrayList<String> getArray() {
+            return displayArray;
         }
     }
-
-    private SubTaskList subTaskAdapter;
+    /*********END OF INNER CLASS*********/
 
     /* Main On Create Method */
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,19 +120,21 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
         /* Find and set xml items */
         subTaskList = findViewById(R.id.subTaskList);
-        FloatingActionButton addSubTaskButton = findViewById(R.id.addSubTaskButton);
-        FloatingActionButton workerListButton = findViewById(R.id.workerListButton);
-        FloatingActionButton workerSettingsButton = findViewById(R.id.workerSettingsButton);
+        addSubTaskButton = findViewById(R.id.addSubTaskButton);
+        workerListButton = findViewById(R.id.workerListButton);
+        workerSettingsButton = findViewById(R.id.workerSettingsButton);
+        deleteButton = findViewById(R.id.trashButton);
         saveChangesButton = findViewById(R.id.saveSubTaskChangesButton);
         projectName = findViewById(R.id.taskName);
+        refreshLayout = findViewById(R.id.swipe_refresh);
+        setRefresher();
 
         projectName.setText(getIntent().getStringExtra("taskName"));
 
         addSubTaskButton.setOnClickListener(v -> showAddPopUp());
         workerListButton.setOnClickListener(v -> showWorkerListPopUp());
         workerSettingsButton.setOnClickListener(v -> showWorkerSettingsPopup());
-
-        saveChangesButton.setOnClickListener(v -> saveStateChanges());
+        deleteButton.setOnClickListener(v -> deleteAction());
 
         fetchSubTaskData();
     }
@@ -129,7 +148,8 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 snapshot.getValue(Task.class)
                         .setSubTasksState(SubTasksActivity.this, taskRef, subTaskAdapter.getCheckBoxStates());
-                saveChangesButton.setVisibility(View.GONE);
+                saveChangesButton.setOnClickListener(null);
+                saveChangesButton.setImageDrawable(ContextCompat.getDrawable(SubTasksActivity.this, R.drawable.check));
             }
 
             @Override
@@ -191,6 +211,17 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         });
     }
 
+    /* Refreshes activity with recent data */
+    private void setRefresher() {
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                fetchSubTaskData();
+                refreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
     /* Shows popup with list of workers */
     private void showWorkerListPopUp() {
         WorkerListPopUp popUp = new WorkerListPopUp(database.getReference("Tasks/" + getIntent().getStringExtra("taskId") + "/workers/"));
@@ -200,5 +231,36 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
     /* Shows popup with team leader activities */
     private void showWorkerSettingsPopup(){
 
+    }
+
+    /* Sets state of activity to delete mode */
+    private void deleteAction(){
+        if (deleteMode)
+            unsetDelete();
+        else
+            setDelete();
+    }
+
+    private void setDelete(){
+        deleteMode = true;
+        deleteButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.delete_red)));
+        subTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ConfirmationPopUp confirmationPopUp = new ConfirmationPopUp(subTaskAdapter.getArray().get(position), 0);
+                confirmationPopUp.show(getSupportFragmentManager(), "ConfirmationPopUp");
+            }
+        });
+    }
+
+    private void unsetDelete(){
+        deleteMode = false;
+        deleteButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.text_color)));
+        subTaskList.setOnItemClickListener(null);
+    }
+
+    @Override
+    public void confirmation(int position){
+        unsetDelete();
     }
 }

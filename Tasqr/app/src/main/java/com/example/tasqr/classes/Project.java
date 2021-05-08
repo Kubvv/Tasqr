@@ -155,6 +155,11 @@ public class Project implements Parcelable {
     });
     }
 
+    public void deleteTask(DatabaseReference projectRef, String id){
+        this.tasks.remove(id);
+        projectRef.child("tasks").setValue(this.tasks);
+    }
+
     /* Add leaders to current project object and push it to database */
     public void addLeaders(Activity context, DatabaseReference projectRef, ArrayList<String> toAdd) {
         this.leaders.addAll(toAdd);

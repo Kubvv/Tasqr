@@ -1,81 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipe_refresh"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/backgroundlogin">
+    android:background="@drawable/backgroundlogin"
+    android:orientation="vertical">
 
    <TextView
        android:id="@+id/taskName"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_centerHorizontal="true"
+       android:text="SAMPLE TEXT"
+       android:textColor="@color/tasqr_yellow"
+       android:textSize="30dp"
+       android:layout_marginTop="10dp"
+       android:layout_marginBottom="10dp"
+       android:textAlignment="center"/>
+
+   <com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:id="@+id/workerSettingsButton"
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
-       android:textSize="30dp"
-       android:textColor="@color/tasqr_yellow"
-       android:text="SAMPLE TEXT"
-       android:layout_centerHorizontal="true"
-       android:layout_marginTop="10dp"/>
+       android:layout_marginStart="10dp"
+       android:layout_marginEnd="10dp"
+       android:layout_marginBottom="20dp"
+       app:backgroundTint="@color/text_color"
+       app:rippleColor="@color/tasqr_yellow"
+       app:srcCompat="@drawable/ic_baseline_settings_24"
+       android:layout_alignParentBottom="true"/>
+
+   <com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:id="@+id/workerListButton"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_marginStart="10dp"
+       android:layout_marginEnd="10dp"
+       android:layout_marginBottom="20dp"
+       app:backgroundTint="@color/text_color"
+       app:rippleColor="@color/tasqr_yellow"
+       app:srcCompat="@drawable/people"
+       android:layout_alignParentBottom="true"
+       android:layout_toRightOf="@id/workerSettingsButton"/>
+
+   <com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:id="@+id/trashButton"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentBottom="true"
+       android:layout_marginStart="10dp"
+       android:layout_marginEnd="10dp"
+       android:layout_marginBottom="20dp"
+       android:layout_toRightOf="@id/saveSubTaskChangesButton"
+       app:backgroundTint="@color/text_color"
+       app:rippleColor="@color/tasqr_yellow"
+       app:srcCompat="@drawable/delete" />
+
+   <com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:id="@+id/addSubTaskButton"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_marginBottom="20dp"
+       android:layout_marginStart="10dp"
+       android:layout_marginEnd="10dp"
+       app:srcCompat="@drawable/addprojectbutton"
+       app:backgroundTint="@color/text_color"
+       app:rippleColor="@color/tasqr_yellow"
+       android:layout_alignParentBottom="true"
+       android:layout_toRightOf="@id/trashButton"/>
+
+   <com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:id="@+id/saveSubTaskChangesButton"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentBottom="true"
+       android:layout_marginStart="10dp"
+       android:layout_marginEnd="10dp"
+       android:layout_marginBottom="20dp"
+       android:layout_toRightOf="@id/workerListButton"
+       android:backgroundTint="@color/tasqr_yellow"
+       android:textColor="@color/tasqr_purple"
+       app:srcCompat="@drawable/check" />
 
    <ListView
        android:id="@+id/subTaskList"
        android:layout_width="match_parent"
        android:layout_height="match_parent"
        android:choiceMode="multipleChoice"
-       android:layout_below="@id/taskName"/>
-
-   <androidx.constraintlayout.widget.ConstraintLayout
-       android:layout_width="match_parent"
-       android:layout_height="match_parent">
-
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-          android:id="@+id/addSubTaskButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginEnd="20dp"
-          android:layout_marginBottom="20dp"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:srcCompat="@drawable/addprojectbutton"
-          app:backgroundTint="@color/text_color"
-          app:rippleColor="@color/tasqr_yellow"/>
-
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-          android:id="@+id/workerListButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="20dp"
-          android:layout_marginBottom="20dp"
-          app:backgroundTint="@color/text_color"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          app:rippleColor="@color/tasqr_yellow"
-          app:srcCompat="@drawable/people" />
-
-      <com.google.android.material.floatingactionbutton.FloatingActionButton
-          android:id="@+id/workerSettingsButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginStart="20dp"
-          android:layout_marginBottom="20dp"
-          app:backgroundTint="@color/text_color"
-          app:layout_constraintBottom_toTopOf="@id/workerListButton"
-          app:layout_constraintStart_toStartOf="parent"
-          app:rippleColor="@color/tasqr_yellow"
-          app:srcCompat="@drawable/ic_baseline_settings_24" />
-
-      <Button
-          android:id="@+id/saveSubTaskChangesButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_marginBottom="20dp"
-          android:backgroundTint="@color/tasqr_yellow"
-          android:text="SAVE CHANGES"
-          android:textColor="@color/tasqr_purple"
-          app:layout_constraintBottom_toBottomOf="parent"
-          app:layout_constraintEnd_toEndOf="parent"
-          app:layout_constraintStart_toStartOf="parent"
-          android:visibility="gone"/>
-
-   </androidx.constraintlayout.widget.ConstraintLayout>
+       android:layout_below="@id/taskName"
+       android:layout_above="@id/saveSubTaskChangesButton"
+       />
 
 </RelativeLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,6 +1,7 @@
 package com.example.tasqr.classes;
 
 import android.app.Activity;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 
 import com.example.tasqr.SubTasksActivity;
@@ -10,6 +11,8 @@ import com.google.firebase.database.DatabaseReference;
 
 import java.util.ArrayList;
 import java.util.Date;
+
+import static android.content.ContentValues.TAG;
 
 public class Task{
 
@@ -137,7 +140,7 @@ public class Task{
     /* Sets states of subtasks of a given task (taskRef) and saves in the database*/
     public void setSubTasksState(Activity context, DatabaseReference taskRef, ArrayList<Integer> states)
     {
-        for (int i = 0; i < this.subTasks.size(); i++)
+        for (int i = 0; i < states.size(); i++)
             this.subTasks.get(i).setState(SubTask.SubTaskState.values()[states.get(i)]);
 
         updateDatabase(context, taskRef);
