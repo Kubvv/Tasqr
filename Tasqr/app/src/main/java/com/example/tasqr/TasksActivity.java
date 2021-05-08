@@ -283,6 +283,9 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
 
     /* Sets state of activity to delete mode */
     private void deleteAction(){
+        if (!isLeader)
+            return;
+        
         if (deleteMode)
             unsetDelete();
         else
