@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        onResumeFirstTime = new Boolean(Boolean.TRUE);
+        onResumeFirstTime = Boolean.TRUE;
 
         /* Database fetch */
         database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");

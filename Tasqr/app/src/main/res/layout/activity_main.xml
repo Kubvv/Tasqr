@@ -26,25 +26,33 @@
         <TextView
             android:textColor="@color/tasqr_blue"
             android:id="@+id/surname"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Brzęczyszczykiewicz"
+            android:singleLine="true"
+            android:ellipsize="marquee"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/name"
             app:layout_constraintTop_toBottomOf="@+id/name"
-            android:textSize="20dp"/>
+            app:layout_constraintWidth_max="wrap"
+            app:layout_constraintWidth_percent="0.65"
+            android:textSize="20sp"/>
 
         <TextView
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:textColor="@color/tasqr_blue"
             android:id="@+id/name"
-            android:layout_width="wrap_content"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:text="Johnatan"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_max="wrap"
+            app:layout_constraintWidth_percent="0.65" />
 
         <Button
             android:id="@+id/profileButton"
