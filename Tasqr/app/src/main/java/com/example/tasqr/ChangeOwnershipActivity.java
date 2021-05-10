@@ -27,7 +27,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-public class ChangeOwnershipActivity extends AppCompatActivity {
+public class ChangeOwnershipActivity extends AppCompatActivity implements ConfirmationPopUp.ConfirmationListener {
 
     private Bundle bndl;
 
@@ -57,6 +57,7 @@ public class ChangeOwnershipActivity extends AppCompatActivity {
     private Project currProject;
 
     private User oldOwner;
+    private User clickedUser;
 
 
     @Override
@@ -97,8 +98,7 @@ public class ChangeOwnershipActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 /* get user's mail from userArray by index since we know displayArray index that was clicked on
                 * and both arrays share indices */
-                User clickedUser = userArray.get(position);
-                showPopUp(clickedUser);
+                showPopUp(position);
             }
         });
 
@@ -152,36 +152,39 @@ public class ChangeOwnershipActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
-    private void showPopUp(User clickedUser) {
-        ChangeOwnershipPopUp popUp = new ChangeOwnershipPopUp();
+    private void showPopUp(int position) {
+        ConfirmationPopUp popUp = new ConfirmationPopUp("changeOwner", position);
+        User clickedUser = userArray.get(position);
         Bundle bundle = new Bundle();
         bundle.putString("logged_mail", logged_mail);
-        bundle.putParcelable("user", clickedUser);
         bundle.putParcelable("company", currCompany);
+        String text = String.format("Are you sure you want to pass ownership to %s? You'll be degraded to regular worker.",
+                clickedUser.getName() + " " + clickedUser.getSurname());
+        bundle.putString("text", text);
         popUp.setArguments(bundle);
-        popUp.show(getSupportFragmentManager(), "ManageCompanyPopUp");
+        popUp.show(getSupportFragmentManager(), "ConfirmationPopUp");
     }
 
-    public void changeOwner(Company c, User newOwner) {
+    public void changeOwner(User newOwner) {
         /* company changes */
-        String oldOwnerMail = c.getOwner();
-        c.setOwner(newOwner.getMail());
-        ArrayList<String> tmp = c.getWorkers();
+        String oldOwnerMail = currCompany.getOwner();
+        currCompany.setOwner(newOwner.getMail());
+        ArrayList<String> tmp = currCompany.getWorkers();
         tmp.remove(newOwner.getMail());
-        c.setWorkers(tmp);
-        tmp = c.getManagers();
+        currCompany.setWorkers(tmp);
+        tmp = currCompany.getManagers();
         if (tmp != null) {
             tmp.remove(newOwner.getMail());
-            c.setManagers(tmp);
+            currCompany.setManagers(tmp);
         }
-        companiesRef.child(c.getId()).setValue(c);
+        companiesRef.child(currCompany.getId()).setValue(currCompany);
 
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User u;
                 int i = 0;
-                ArrayList<String> workersTmp = c.getWorkers();
+                ArrayList<String> workersTmp = currCompany.getWorkers();
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     if (i == workersTmp.size()) {
                         workersTmp.add(oldOwnerMail);
@@ -196,7 +199,7 @@ public class ChangeOwnershipActivity extends AppCompatActivity {
                         i++;
                     }
                 }
-                companiesRef.child(c.getId()).child("workers").setValue(workersTmp);
+                companiesRef.child(currCompany.getId()).child("workers").setValue(workersTmp);
             }
 
             @Override
@@ -215,7 +218,7 @@ public class ChangeOwnershipActivity extends AppCompatActivity {
                     oldOwner = ds.getValue(User.class);
                 }
                 ownerTmp = oldOwner.getManagedCompanies();
-                ownerTmp.remove(c.getName());
+                ownerTmp.remove(currCompany.getName());
                 usersRef.child(oldOwner.getId()).child("managedCompanies").setValue(ownerTmp);
             }
 
@@ -226,8 +229,8 @@ public class ChangeOwnershipActivity extends AppCompatActivity {
         });
 
         tmp = newOwner.getManagedCompanies();
-        if (!tmp.contains(c.getName())) {
-            tmp.add(c.getName());
+        if (!tmp.contains(currCompany.getName())) {
+            tmp.add(currCompany.getName());
         }
         usersRef.child(newOwner.getId()).child("managedCompanies").setValue(tmp);
 
@@ -239,5 +242,10 @@ public class ChangeOwnershipActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("logged_mail", logged_mail);
         startActivity(intent);
+    }
+
+    @Override
+    public void confirmation(int position) {
+        changeOwner(userArray.get(position));
     }
 }

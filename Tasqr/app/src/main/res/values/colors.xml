@@ -20,4 +20,5 @@
     <color name="progress">#4DFF00</color>
     <color name="progress_opaque">#704DFF00</color>
     <color name="delete_red">#FF004D</color>
+    <color name="tasqr_splash">#5A2969</color>
 </resources>

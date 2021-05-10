@@ -18,6 +18,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.Project;
+import com.example.tasqr.classes.User;
 
 public class ConfirmationPopUp extends DialogFragment {
 
@@ -25,11 +26,17 @@ public class ConfirmationPopUp extends DialogFragment {
     private final String name;
     private final int position;
     private TextView text;
+    private Bundle bundle;
     private ConfirmationListener listener;
 
     public ConfirmationPopUp(String name, int position){
         this.name = name;
         this.position = position;
+    }
+
+    public ConfirmationPopUp(String name) {
+        this.name = name;
+        this.position = -1;
     }
 
     /* Main on create method */
@@ -42,8 +49,10 @@ public class ConfirmationPopUp extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.popup_confirmation, null);
 
+        bundle = getArguments();
+
         text = view.findViewById(R.id.conftext);
-        text.setText("ARE YOU SURE YOU WANT TO DELETE " + name + "?");
+        text.setText(bundle.getString("text"));
 
         /* Setting listeners */
         builder.setView(view).setTitle("CONFIRM ACTION")
@@ -74,7 +83,6 @@ public class ConfirmationPopUp extends DialogFragment {
         }
     }
 
-    /* Listener interface for add subtask activity to override for it to get subtask name*/
     public interface ConfirmationListener
     {
         void confirmation(int position);

@@ -15,7 +15,7 @@
         <activity
             android:name=".SplashActivity"
             android:label="SplashActivity"
-            android:theme="@style/Theme.Tasqr_NoToolBar">
+            android:theme="@style/Theme.Tasqr_Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
