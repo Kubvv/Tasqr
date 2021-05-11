@@ -247,7 +247,10 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         subTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ConfirmationPopUp confirmationPopUp = new ConfirmationPopUp(subTaskAdapter.getArray().get(position), 0);
+                Bundle bndl = new Bundle();
+                bndl.putString("text", "ARE YOU SURE YOU WANT TO DELETE " + subTaskAdapter.getArray().get(position));
+                ConfirmationPopUp confirmationPopUp = new ConfirmationPopUp(subTaskAdapter.getArray().get(position), position);
+                confirmationPopUp.setArguments(bndl);
                 confirmationPopUp.show(getSupportFragmentManager(), "ConfirmationPopUp");
             }
         });

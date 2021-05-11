@@ -74,7 +74,7 @@
         app:backgroundTint="@color/text_color"
         app:rippleColor="@color/tasqr_yellow"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/trashButton"/>
+        android:layout_toRightOf="@id/trashButton" />
 
     <Button
         android:id="@+id/saveSubTaskChangesButton"

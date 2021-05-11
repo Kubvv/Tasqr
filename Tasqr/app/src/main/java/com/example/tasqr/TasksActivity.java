@@ -175,10 +175,10 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 currProject = snapshot.getValue(Project.class);
                 String logged_mail = getIntent().getStringExtra("logged_mail");
-                if (currProject.getLeaders().contains(logged_mail)) {
+                if (currProject.getLeaders().contains(logged_mail))
                     isLeader = true;
-                    addTaskButton.setVisibility(View.VISIBLE);
-                }
+                else
+                    addTaskButton.setOnClickListener(null);
 
                 projectName.setText(snapshot.getValue(Project.class).getName());
                 /* Getting all project tasks */
@@ -285,7 +285,7 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
     private void deleteAction(){
         if (!isLeader)
             return;
-        
+
         if (deleteMode)
             unsetDelete();
         else
@@ -299,7 +299,10 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
         taskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Bundle bndl = new Bundle();
+                bndl.putString("text", "ARE YOU SURE YOU WANT TO DELETE " + displayArray.get(position).getName());
                 ConfirmationPopUp confirmationPopUp = new ConfirmationPopUp(displayArray.get(position).getName(), position);
+                confirmationPopUp.setArguments(bndl);
                 confirmationPopUp.show(getSupportFragmentManager(), "ConfirmationPopUp");
             }
         });

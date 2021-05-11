@@ -75,6 +75,20 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
 
         bndl = getIntent().getExtras();
         user = bndl.getParcelable("user");
+        //FIXME <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        DatabaseReference userRef = database.getReference("Users/" + user.getId());
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                user = snapshot.getValue(User.class);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Utilities.toastMessage("error", UpdateProfileActivity.this);
+            }
+        });
+
         if (bndl.getString("uri") != null)
             avatarUri = Uri.parse(bndl.getString("uri"));
 
