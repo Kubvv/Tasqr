@@ -8,9 +8,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,8 +38,13 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import io.grpc.Compressor;
 
 public class UpdateProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -53,7 +61,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
     private StorageReference avatarRef;
     private StorageReference mStorageRef = FirebaseStorage.getInstance().getReference("Images");;
 
-    private ImageView avatarImageView;
+    private ImageView avatarImageView, addAvatarImageView;
     private EditText nameEditText, surnameEditText, passwordEditText, passwordConfirmEditText;
     private Button buttonSave;
     private Uri avatarUri, uri, cropped_uri;
@@ -63,19 +71,21 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_profile);
 
-        avatarImageView = (ImageView) findViewById(R.id.user_avatar);
+        addAvatarImageView = findViewById(R.id.imageViewAddAvatar);
+        avatarImageView = findViewById(R.id.user_avatar);
         nameEditText = findViewById(R.id.editTextName);
         surnameEditText = findViewById(R.id.editTextSurname);
         passwordEditText = findViewById(R.id.editTextPassword);
         passwordConfirmEditText = findViewById(R.id.editTextPasswordConfirm);
         buttonSave = findViewById(R.id.button_save);
 
+        addAvatarImageView.setOnClickListener(this);
         avatarImageView.setOnClickListener(this);
         buttonSave.setOnClickListener(this);
 
         bndl = getIntent().getExtras();
         user = bndl.getParcelable("user");
-        //FIXME <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
         DatabaseReference userRef = database.getReference("Users/" + user.getId());
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -109,6 +119,9 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
             case R.id.user_avatar:
                 Filechooser();
                 break;
+            case R.id.imageViewAddAvatar:
+                Filechooser();
+                break;
             case R.id.button_save:
                 Intent returnIntent = onButtonSave();
                 if (returnIntent == null)
@@ -131,6 +144,8 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
 
     /* uploads a file to database */
     private void Fileuploader() {
+        cropped_uri = compressFile(cropped_uri);
+
         StorageReference Ref = mStorageRef.child(user.getMail());
         if (cropped_uri != null) {
             Ref.putFile(cropped_uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -259,5 +274,31 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
             returnIntent.putExtra("new_avatar_uri", cropped_uri.toString());
 
         return returnIntent;
+    }
+
+    private Uri compressFile(Uri uri) {
+        Bitmap bitmap, newBitmap;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+
+            newBitmap = Bitmap.createScaledBitmap(bitmap, 300, 300, true);
+
+            File tempFile = File.createTempFile(user.getMail(), ".jpg", null);
+
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+            byte[] bitmapData = bytes.toByteArray();
+
+            FileOutputStream fos = new FileOutputStream(tempFile);
+            fos.write(bitmapData);
+            fos.flush();
+            fos.close();
+
+            return Uri.fromFile(tempFile);
+        }
+        catch (Exception e) {
+            Log.d(TAG, "compressFile: exception -> " + e);
+            return uri;
+        }
     }
 }

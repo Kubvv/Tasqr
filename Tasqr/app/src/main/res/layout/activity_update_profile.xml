@@ -107,6 +107,14 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/editTextName" />
 
+            <ImageView
+                android:id="@+id/imageViewAddAvatar"
+                android:layout_width="100px"
+                android:layout_height="100px"
+                app:layout_constraintBottom_toBottomOf="@+id/user_avatar"
+                app:layout_constraintEnd_toEndOf="@+id/user_avatar"
+                app:srcCompat="@drawable/addprojectbutton" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
