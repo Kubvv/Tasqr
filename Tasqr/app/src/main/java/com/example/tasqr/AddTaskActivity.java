@@ -37,6 +37,8 @@ public class AddTaskActivity extends AppCompatActivity {
                 addPeopleIntent.putExtra("previous_activity", "Task");
                 addPeopleIntent.putExtra("taskName", taskName.getText().toString());
                 addPeopleIntent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
+                addPeopleIntent.putExtra("logged_name", getIntent().getStringExtra("logged_name"));
+                addPeopleIntent.putExtra("logged_surname", getIntent().getStringExtra("logged_surname"));
                 startActivity(addPeopleIntent);
             }
         });

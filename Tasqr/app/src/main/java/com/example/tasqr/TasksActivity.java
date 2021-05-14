@@ -130,7 +130,7 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
     private SwipeRefreshLayout refreshLayout;
     private TextView projectName;
     private ListView taskList;
-    private FloatingActionButton deleteButton;
+    private FloatingActionButton deleteButton, workerListButton, workerSettingsButton;
     private final ArrayList<DisplayArrayElement> displayArray = new ArrayList<>();
     private boolean deleteMode = false;
 
@@ -143,8 +143,8 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
         projectName = findViewById(R.id.projectNametsk);
         taskList = findViewById(R.id.taskList);
         addTaskButton = findViewById(R.id.addTaskButton);
-        FloatingActionButton workerListButton = findViewById(R.id.workerListButton);
-        FloatingActionButton workerSettingsButton = findViewById(R.id.workerSettingsButton);
+        workerListButton = findViewById(R.id.workerListButton);
+        workerSettingsButton = findViewById(R.id.workerSettingsButton);
         deleteButton = findViewById(R.id.trashButton);
         refreshLayout = findViewById(R.id.swipe_refresh);
         setRefresher();
@@ -231,6 +231,8 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
         Intent addTaskIntent = new Intent(TasksActivity.this, AddTaskActivity.class);
         addTaskIntent.putExtra("projectId", getIntent().getStringExtra("projectId"));
         addTaskIntent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
+        addTaskIntent.putExtra("logged_name", getIntent().getStringExtra("logged_name"));
+        addTaskIntent.putExtra("logged_surname", getIntent().getStringExtra("logged_surname"));
         startActivity(addTaskIntent);
     }
 

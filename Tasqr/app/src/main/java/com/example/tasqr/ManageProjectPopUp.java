@@ -16,6 +16,17 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.Project;
+import com.example.tasqr.classes.Task;
+import com.example.tasqr.classes.User;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ManageProjectPopUp extends DialogFragment {
 
@@ -23,10 +34,15 @@ public class ManageProjectPopUp extends DialogFragment {
 
     private Bundle bundle;
 
-    private Project project;
     private String logged_mail;
     private String logged_name;
     private String logged_surname;
+
+    private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+    private DatabaseReference rootRef = database.getReference();
+
+    private User user;
+    private Project project;
 
     /* Main on create method */
     @NonNull
@@ -75,12 +91,27 @@ public class ManageProjectPopUp extends DialogFragment {
         leaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (project.getLeaders().size() == 1 && project.getWorkers().size() != 1) {
-                    Utilities.toastMessage("Choose a new leader before leaving", getActivity());
-                } else {
-                    //TODO delete user from project
-                    startMainActivity();
-                }
+
+                /* fetch user and project to have up to date data */
+                readUser(new FirebaseUserCallback() {
+                    @Override
+                    public void onUserCallback(User usr) {
+                        user = usr;
+
+                        readProject(new FirebaseProjectCallback() {
+                            @Override
+                            public void onProjectCallback(Project prj) {
+                                project = prj;
+
+                                /* actual leave project function */
+                                if (leaveProject())
+                                    startMainActivity();
+                            }
+                        }, project.getId());
+
+                    }
+                }, logged_mail);
+
             }
         });
 
@@ -120,4 +151,125 @@ public class ManageProjectPopUp extends DialogFragment {
         getDialog().dismiss();
         startActivity(intent);
     }
+
+    private boolean leaveProject() {
+        if (project.getLeaders().size() == 1 && project.getLeaders().get(0).equals(logged_mail) && project.getWorkers().size() != 1) {
+            Utilities.toastMessage("Choose a new leader before leaving", getActivity());
+            return false;
+        }
+
+        deleteProjectFromUser();
+        deleteUserFromLeadersAndWorkers();
+        deleteUserFromProjectTasks();
+
+        return true;
+    }
+
+    private void deleteProjectFromUser() {
+        user.getProjects().remove(project.getId());
+        rootRef.child("Users").child(user.getId()).setValue(user);
+    }
+
+    private void deleteUserFromLeadersAndWorkers() {
+        project.getLeaders().remove(user.getMail());
+        project.getWorkers().remove(user.getMail());
+        rootRef.child("Projects").child(project.getId()).setValue(project);
+    }
+
+    public interface FirebaseTaskCallback {
+        void onTaskCallback(Task task);
+    }
+
+    public interface FirebaseUserCallback {
+        void onUserCallback(User user);
+    }
+
+    public interface FirebaseProjectCallback {
+        void onProjectCallback(Project project);
+    }
+
+    public void readTask(FirebaseTaskCallback firebaseCallback, String task_id) {
+        rootRef.child("Tasks").child(task_id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Task task = dataSnapshot.getValue(Task.class);
+                firebaseCallback.onTaskCallback(task);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
+
+    public void readUser(FirebaseUserCallback firebaseCallback, String user_mail) {
+        rootRef.child("Users").orderByChild("mail").equalTo(user_mail).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    User user = ds.getValue(User.class);
+                    firebaseCallback.onUserCallback(user);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
+
+    public void readProject(FirebaseProjectCallback firebaseCallback, String project_id) {
+        rootRef.child("Projects").child(project_id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Project project = dataSnapshot.getValue(Project.class);
+                firebaseCallback.onProjectCallback(project);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
+
+    private void deleteUserFromProjectTasks() {
+        ArrayList<Task> projectTasks = new ArrayList<>();
+        AtomicInteger atomic = new AtomicInteger(0);
+
+        if (project.getTasks() == null)
+            return;
+
+        for (String taskId : project.getTasks()) {
+            readTask(new FirebaseTaskCallback() {
+                @Override
+                public void onTaskCallback(Task task) {
+                    projectTasks.add(task);
+                    if (atomic.incrementAndGet() == project.getTasks().size())
+                        deleteUserFromProjectTasksContinue(projectTasks);
+                }
+            }, taskId);
+        }
+    }
+
+    private void deleteUserFromProjectTasksContinue(ArrayList<Task> projectTasks) {
+        for (Task task : projectTasks) {
+            if (task.getLeader().equals(user.getMail()) && task.getWorkers().size() > 1) {
+                String newLeader = project.getWorkers().get(0);
+                if (newLeader.equals(user.getMail()))
+                    newLeader = project.getWorkers().get(1);
+
+                task.setLeader(newLeader);
+            }
+
+            task.getWorkers().remove(user.getMail());
+
+            if (task.getWorkers().isEmpty()) {
+                project.getTasks().remove(task.getId());
+                rootRef.child("Tasks").child(task.getId()).removeValue();
+            }
+            else {
+                rootRef.child("Tasks").child(task.getId()).setValue(task);
+            }
+        }
+
+        rootRef.child("Projects").child(project.getId()).setValue(project);
+    }
+
 }

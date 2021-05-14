@@ -20,11 +20,11 @@ import static android.content.ContentValues.TAG;
 
 public class Project implements Parcelable {
 
+    private String id;
     private String name;
     private String company;
     private String description;
     private String customer;
-    private String owner;
     private ArrayList<String> leaders;
     private ArrayList<String> workers;
     private ArrayList<String> tasks;
@@ -33,12 +33,12 @@ public class Project implements Parcelable {
 
     public Project() {}
 
-    public Project(String name, String company, String description, String owner) {
+    public Project(String id, String name, String company, String description, String owner) {
+        this.id = id;
         this.name = name;
         this.company = company;
         this.description = description;
         this.customer = "";
-        this.owner = owner;
         leaders = new ArrayList<>();
         leaders.add(owner);
         workers = new ArrayList<>();
@@ -47,11 +47,11 @@ public class Project implements Parcelable {
     /* getters */
 
     protected Project(Parcel in) {
+        id = in.readString();
         name = in.readString();
         company = in.readString();
         description = in.readString();
         customer = in.readString();
-        owner = in.readString();
         leaders = in.createStringArrayList();
         workers = in.createStringArrayList();
         tasks = in.createStringArrayList();
@@ -69,6 +69,8 @@ public class Project implements Parcelable {
         }
     };
 
+    public String getId() { return id; }
+
     public String getName() {
         return name;
     }
@@ -85,10 +87,6 @@ public class Project implements Parcelable {
         return customer;
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
     public ArrayList<String> getLeaders() {
         return leaders;
     }
@@ -102,6 +100,8 @@ public class Project implements Parcelable {
     }
 
     /* setters */
+
+    public void setId(String id) { this.id = id; }
 
     public void setName(String name) {
         this.name = name;
@@ -117,10 +117,6 @@ public class Project implements Parcelable {
 
     public void setCustomer(String customer) {
         this.customer = customer;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
     }
 
     public void setLeaders(ArrayList<String> leaders) {
@@ -178,11 +174,11 @@ public class Project implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(name);
         dest.writeString(company);
         dest.writeString(description);
         dest.writeString(customer);
-        dest.writeString(owner);
         dest.writeStringList(leaders);
         dest.writeStringList(workers);
         dest.writeStringList(tasks);

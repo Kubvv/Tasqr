@@ -629,16 +629,22 @@ public class AddUsersActivity extends AppCompatActivity {
      * Also updates all added user's projects arrays.
      * If succesful, goes to MainActivity and closes all previous activities.*/
     private void finishAddingProject (ArrayList<User> projectUsers, ArrayList<String> usersMail) {
+        /* deletion of owner field in project fix */
+        usersMail.add(logged_mail);
+
+        DatabaseReference pushedProjectsRef = projectsRef.push();
+        projid = pushedProjectsRef.getKey();
+
         /* Create new project to be added */
+        Log.d(TAG, "finishAddingProject: PROJID: " + projid);
         Project project = new Project(
+                projid,
                 bndl.getString("project_name"),
                 bndl.getString("company_name"),
                 bndl.getString("description"),
                 owner.getMail());
 
         enlisted = usersMail;
-        DatabaseReference pushedProjectsRef = projectsRef.push();
-        projid = pushedProjectsRef.getKey();
         projectsRef.child(projid).setValue(project).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
