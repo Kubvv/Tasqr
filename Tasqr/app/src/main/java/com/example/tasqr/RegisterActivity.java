@@ -40,7 +40,8 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference usersRef;
 
-    /* Lifecycle functions */
+    public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
+            Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     /* Initialize view objects */
     @Override
@@ -146,12 +147,21 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         /* Also check mail correctness */
+
+        /* old matching, to delete TODO */
         p = Pattern.compile("@");
         m = p.matcher(data[2]);
         if (!m.find()) {
             Utilities.toastMessage("Not a valid mail", RegisterActivity.this);
             return;
         }
+
+        /* new matching, to uncomment TODO */
+//        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(data[2]);
+//        if (!matcher.find()) {
+//            Utilities.toastMessage("Not a valid mail", RegisterActivity.this);
+//            return;
+//        }
 
         /* Check if parsed mail is already in the database. If not, go on to registering user*/
         Query q = usersRef.orderByChild("mail").equalTo(data[2]);

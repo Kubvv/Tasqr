@@ -652,6 +652,24 @@ public class AddUsersActivity extends AppCompatActivity {
             }
         });
 
+        /* Add project id to company's projectsId field */
+        rootRef.child("Companies").orderByChild("name").equalTo(project.getCompany()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot ds : snapshot.getChildren()) {
+                    currCompany = ds.getValue(Company.class);
+                }
+
+                currCompany.getProjectsId().add(projid);
+                
+                rootRef.child("Companies").child(currCompany.getId()).setValue(currCompany);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
