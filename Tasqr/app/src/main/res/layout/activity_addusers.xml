@@ -13,11 +13,11 @@
         android:layout_height="0dp"
         android:choiceMode="multipleChoice"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.75"
-        app:layout_constraintWidth_percent="1"
+        app:layout_constraintHeight_percent="0.65"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextOwnership"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.25"
+        app:layout_constraintWidth_percent="1" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
@@ -68,5 +68,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.13999999" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/checkAllButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="50dp"
+        android:tint="@color/tasqr_yellow"
+        app:backgroundTint="@color/text_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/uncheckAllButton"
+        app:layout_constraintTop_toBottomOf="@+id/companylist"
+        app:srcCompat="@drawable/square_with_verification_sign" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/uncheckAllButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:tint="@color/tasqr_yellow"
+        app:backgroundTint="@color/text_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/companylist"
+        app:srcCompat="@drawable/unchecked_sign" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

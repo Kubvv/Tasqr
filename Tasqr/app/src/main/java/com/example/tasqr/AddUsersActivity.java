@@ -24,6 +24,7 @@ import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -94,6 +95,9 @@ public class AddUsersActivity extends AppCompatActivity {
     private Integer[] avatars = {R.drawable.avatar, R.drawable.avatar2};
     private int currentPhoto = 0;
 
+    private FloatingActionButton checkAll;
+    private FloatingActionButton uncheckAll;
+
     /* links appropriate view items, initializes listview, sets some attributes */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +139,16 @@ public class AddUsersActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
 
             }
+        });
+
+        checkAll = findViewById(R.id.checkAllButton);
+        checkAll.setOnClickListener(v -> {
+            checkUsers(true);
+        });
+
+        uncheckAll = findViewById(R.id.uncheckAllButton);
+        uncheckAll.setOnClickListener(v -> {
+            checkUsers(false);
         });
 
         tmpImg = findViewById(R.id.snickers);
@@ -216,6 +230,8 @@ public class AddUsersActivity extends AppCompatActivity {
         /* Fetch required data from database based on previous activity */
         switch (previous_activity) {
             case "Company":
+                checkAll.setVisibility(View.INVISIBLE);
+                uncheckAll.setVisibility(View.INVISIBLE);
                 addUsersTitle.setText(String.format(res.getString(R.string.adduserscompany), company));
                 fetchCompany();
                 break;
@@ -233,6 +249,8 @@ public class AddUsersActivity extends AppCompatActivity {
                 fetchProjUsers(checked);
                 break;
             case "manageCompanyUsers":
+                checkAll.setVisibility(View.INVISIBLE);
+                uncheckAll.setVisibility(View.INVISIBLE);
                 addUsersTitle.setText(String.format("Add %s's employees", company));
                 fetchManageCompany("workers");
                 break;
@@ -255,6 +273,12 @@ public class AddUsersActivity extends AppCompatActivity {
         super.onDestroy();
         if (previous_activity.equals("addProjUsers")) { /* TO DO Zmienic miejsce dodanie projektu */
             openMainActivity();
+        }
+    }
+
+    private void checkUsers(boolean isCheck) {
+        for (int i = 0; i < listView.getCount(); i++) {
+            listView.setItemChecked(i, isCheck);
         }
     }
 
@@ -311,7 +335,11 @@ public class AddUsersActivity extends AppCompatActivity {
                     if (projectUsers == null || projectUsers.size() == 1) { /* If there are no workers, create task with only you enlisted */
                         ArrayList<String> usersMail = new ArrayList<>();
                         usersMail.add(leader);
-                        finishAddingTask(usersMail);
+                        if (previous_activity.equals("Task")) {
+                            finishAddingTask(usersMail);
+                        } else {
+                            openMainActivity();
+                        }
                     }
                     if (previous_activity.equals("addProjUsers")) {
                         /* add title to activity */
@@ -378,7 +406,6 @@ public class AddUsersActivity extends AppCompatActivity {
                 if (currCompany.getWorkers() == null) { /* If there are no workers, create project with only you enlisted */
                     ArrayList<String> usersMail = new ArrayList<>();
                     ArrayList<User> projUsers = new ArrayList<>();
-                    projUsers.add(owner);
                     finishAddingProject(projUsers, usersMail);
                 }
 
@@ -677,7 +704,7 @@ public class AddUsersActivity extends AppCompatActivity {
                 int i = 0;
                 boolean ownerAdded = false;
                 for (DataSnapshot ds : snapshot.getChildren()) {
-                    if (enlisted == null || i == enlisted.size()) {
+                    if (enlisted == null || i == enlisted.size() || usersMail.size() == 1) {
                         if (!ownerAdded) {
                             sorted.add(logged_mail);
                         }

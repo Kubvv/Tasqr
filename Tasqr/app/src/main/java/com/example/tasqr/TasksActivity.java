@@ -322,7 +322,7 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
         });
     }
 
-    /* After deletion confirmation we delete gien item from database */
+    /* After deletion confirmation we delete given item from database */
     @Override
     public void confirmation(int position){
         unsetDelete();

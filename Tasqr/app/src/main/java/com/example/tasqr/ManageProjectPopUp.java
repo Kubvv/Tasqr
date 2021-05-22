@@ -159,8 +159,14 @@ public class ManageProjectPopUp extends DialogFragment {
         }
 
         deleteProjectFromUser();
-        deleteUserFromLeadersAndWorkers();
-        deleteUserFromProjectTasks();
+
+        Log.e(TAG, "leaveProject: " + project.getWorkers().size());
+        if (project.getWorkers() == null || project.getWorkers().size() == 0) {
+            deleteProject();
+        } else {
+            deleteUserFromLeadersAndWorkers();
+            deleteUserFromProjectTasks();
+        }
 
         return true;
     }
@@ -174,6 +180,13 @@ public class ManageProjectPopUp extends DialogFragment {
         project.getLeaders().remove(user.getMail());
         project.getWorkers().remove(user.getMail());
         rootRef.child("Projects").child(project.getId()).setValue(project);
+    }
+
+    private void deleteProject() {
+        for (int i = 0; i < project.getTasks().size(); i++) {
+            rootRef.child("Tasks").child(project.getTasks().get(i)).removeValue();
+        }
+        rootRef.child("Projects").child(project.getId()).removeValue();
     }
 
     public interface FirebaseTaskCallback {

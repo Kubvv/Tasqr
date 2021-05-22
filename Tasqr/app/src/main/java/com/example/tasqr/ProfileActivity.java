@@ -19,6 +19,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -251,6 +252,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     /* logs user out of an account and opens login activity */
     private void logout() {
+        SharedPreferences preferences = getSharedPreferences("autoLogin", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("isLogged", "false");
+        editor.apply();
+
         Intent logoutIntent = new Intent(this, LoginActivity.class);
         logoutIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(logoutIntent);
