@@ -148,7 +148,7 @@ public class ManageCompanyActivity extends AppCompatActivity {
                     else if (user.getCompanies().contains(c.getId())) {
                         companyArray.add(c);
                         nameArray.add(c.getName());
-                        if (user.getManagedCompanies().contains(c.getName())) {
+                        if (c.getManagers() != null && c.getManagers().contains(user.getMail())) {
                             positionArray.add("manager");
                         }
                         else {
@@ -172,18 +172,22 @@ public class ManageCompanyActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putString("logged_mail", logged_mail);
         bundle.putString("company_name", name);
+        bundle.putString("position", position);
         bundle.putParcelable("company", c);
         if (position.equals("owner")) {
-            ManageCompanyPopUp popUp = new ManageCompanyPopUp();
-            popUp.setArguments(bundle);
-            popUp.show(getSupportFragmentManager(), "ManageCompanyPopUp");
+            bundle.putBoolean("isOwner", true);
+        }
+        else if (position.equals("manager")) {
+            bundle.putBoolean("isOwner", false);
+            bundle.putBoolean("isManager", true);
         }
         else {
-            LeaveCompanyPopUp popUp = new LeaveCompanyPopUp();
-            bundle.putString("position", position);
-            popUp.setArguments(bundle);
-            popUp.show(getSupportFragmentManager(), "LeaveCompanyPopUp");
+            bundle.putBoolean("isOwner", false);
+            bundle.putBoolean("isManager", false);
         }
+        ManageCompanyPopUp popUp = new ManageCompanyPopUp();
+        popUp.setArguments(bundle);
+        popUp.show(getSupportFragmentManager(), "ManageCompanyPopUp");
     }
 
     private void startCreateCompany() {

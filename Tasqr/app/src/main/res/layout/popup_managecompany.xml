@@ -13,6 +13,7 @@
         android:text="@string/manemployees"
         android:textColor="@color/tasqr_purple"
         android:textSize="16sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,13 +29,14 @@
         android:text="@string/manmanagers"
         android:textColor="@color/tasqr_purple"
         android:textSize="16sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addUsersButton"
         app:layout_constraintWidth_percent="0.6" />
 
     <Button
-        android:id="@+id/leaveButton"
+        android:id="@+id/changeOwnerButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintWidth_percent="0.6"
@@ -42,6 +44,7 @@
         android:text="@string/changeown"
         android:textColor="@color/tasqr_purple"
         android:textSize="16sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addLeadersButton" />
@@ -54,8 +57,23 @@
         android:text="@string/deletecompany"
         android:textColor="@color/tasqr_purple"
         android:textSize="16sp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/leaveButton"
+        app:layout_constraintTop_toBottomOf="@+id/changeOwnerButton"
+        app:layout_constraintWidth_percent="0.6" />
+
+    <Button
+        android:id="@+id/leaveCompanyButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/leavecomp"
+        android:textColor="@color/tasqr_purple"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/deleteComapnyButton"
         app:layout_constraintWidth_percent="0.6" />
 </androidx.constraintlayout.widget.ConstraintLayout>

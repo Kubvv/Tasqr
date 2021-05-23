@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
@@ -22,7 +21,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -87,7 +85,7 @@ public class ManageProjectPopUp extends DialogFragment {
             addLeadersButton.setVisibility(View.VISIBLE);
         }
         
-        Button leaveButton = view.findViewById(R.id.leaveButton);
+        Button leaveButton = view.findViewById(R.id.changeOwnerButton);
         leaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

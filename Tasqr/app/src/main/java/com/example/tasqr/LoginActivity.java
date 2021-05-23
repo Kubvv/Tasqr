@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -16,6 +17,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import java.security.NoSuchAlgorithmException;
+
+import io.grpc.okhttp.internal.Util;
 
 
 /* Login activity is mainly used for logging users into the proper part of application.
@@ -99,7 +104,22 @@ public class LoginActivity extends AppCompatActivity {
                 if (snapshot.getChildrenCount() == 1) {
                     for (DataSnapshot childSnapshot: snapshot.getChildren()) {
                         User u = childSnapshot.getValue(User.class);
-                        if (u.getPassword().equals(pass)) {
+                        /* TODO Uncomment me plis
+                        byte[] salt = Utilities.hexToBytes(u.getSalt());
+                        String hashedPassword;
+
+                        try {
+                            Log.e(TAG, "onDataChange: " + pass);
+                            hashedPassword = Utilities.generateHash(pass, salt);
+                        } catch (NoSuchAlgorithmException e) {
+                            Utilities.toastMessage("Error " + e, LoginActivity.this);
+                            return;
+                        } */
+
+                        /* TODO wyjebongo me plis */
+                        String hashedPassword = pass;
+
+                        if (u.getPassword().equals(hashedPassword)) {
                             loginUser(u.getName(), u.getSurname(), u.getMail());
                         }
                         else {

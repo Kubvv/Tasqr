@@ -33,9 +33,13 @@ public class ManageCompanyPopUp extends DialogFragment {
     private Button addManagersButton;
     private Button changeOwnerButton;
     private Button deleteCompanyButton;
+    private Button leaveCompanyButton;
 
     private Company company;
+    private String position;
     private String logged_mail;
+    private boolean isOwner;
+    private boolean isManager;
 
     /* Main on create method */
     @NonNull
@@ -50,7 +54,9 @@ public class ManageCompanyPopUp extends DialogFragment {
         bundle = getArguments();
         logged_mail = bundle.getString("logged_mail");
         company = bundle.getParcelable("company");
-        Log.e(TAG, "onCreateDialog: " + company.getName());
+        position = bundle.getString("position");
+        isOwner = bundle.getBoolean("isOwner");
+        isManager = bundle.getBoolean("isManager");
 
         addUsersButton = view.findViewById(R.id.addUsersButton);
         addUsersButton.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +78,7 @@ public class ManageCompanyPopUp extends DialogFragment {
             }
         });
 
-        changeOwnerButton = view.findViewById(R.id.leaveButton);
+        changeOwnerButton = view.findViewById(R.id.changeOwnerButton);
         changeOwnerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,6 +98,29 @@ public class ManageCompanyPopUp extends DialogFragment {
                 //TODO delete company
             }
         });
+
+        leaveCompanyButton = view.findViewById(R.id.leaveCompanyButton);
+        leaveCompanyButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                company.leaveCompany(logged_mail, position);
+                refreshManageCompanies();
+            }
+        });
+
+        if (isOwner) {
+            addUsersButton.setVisibility(View.VISIBLE);
+            addManagersButton.setVisibility(View.VISIBLE);
+            changeOwnerButton.setVisibility(View.VISIBLE);
+            deleteCompanyButton.setVisibility(View.VISIBLE);
+        }
+        else if (isManager) {
+            addUsersButton.setVisibility(View.VISIBLE);
+            leaveCompanyButton.setVisibility(View.VISIBLE);
+        }
+        else {
+            leaveCompanyButton.setVisibility(View.VISIBLE);
+        }
 
         /* Setting listeners */
         builder.setView(view).setTitle(bundle.getString("company_name"))
@@ -120,6 +149,14 @@ public class ManageCompanyPopUp extends DialogFragment {
         intent.putExtra("logged_mail", logged_mail);
         intent.putExtra("company", company);
         intent.putExtra("previous_activity", "manageCompany");
+        getDialog().dismiss();
+        startActivity(intent);
+    }
+
+    private void refreshManageCompanies() {
+        Intent intent = new Intent(getContext(), ManageCompanyActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra("logged_mail", logged_mail);
         getDialog().dismiss();
         startActivity(intent);
     }

@@ -218,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
                         owned_companies = managed;
                         owned_companies.remove(0);
                         addProjectButton.setVisibility(View.VISIBLE);
-                        Log.e(TAG, "onDataChange: " + managed.size());
                     }
 
                 }

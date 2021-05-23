@@ -1,5 +1,8 @@
 package com.example.tasqr;
 
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.regex.*;
 
@@ -7,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -191,7 +195,24 @@ public class RegisterActivity extends AppCompatActivity {
 
         DatabaseReference pushedUsersRef = usersRef.push();
         String id = pushedUsersRef.getKey();
-        User user = new User(id, data[0], data[1], data[2], data[3]);
+        String hashedPassword;
+        /* TODO uncomment me plis
+        byte[] salt = createSalt();
+
+        try {
+            hashedPassword = Utilities.generateHash(data[3], salt);
+        } catch (NoSuchAlgorithmException e) {
+            Utilities.toastMessage("Error " + e, RegisterActivity.this);
+            return;
+        }
+        String strSalt = Utilities.bytesToHex(salt);
+        Log.e(TAG, "addUser: " + hashedPassword + " " + strSalt);*/
+
+        /* TODO wyjebongo me plis */
+        hashedPassword = data[3];
+        String strSalt = "";
+
+        User user = new User(id, data[0], data[1], data[2], hashedPassword, strSalt);
         usersRef.child(id).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -200,5 +221,12 @@ public class RegisterActivity extends AppCompatActivity {
                 openLoginActivity();
             }
         });
+    }
+
+    private byte[] createSalt() {
+        byte[] bytes = new byte[20];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(bytes);
+        return bytes;
     }
 }

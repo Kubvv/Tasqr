@@ -14,20 +14,22 @@ public class User implements Parcelable {
     private String surname;
     private String mail;
     private String password;
+    private String salt;
     private ArrayList<String> projects;
     private ArrayList<String> companies;
     private ArrayList<String> managedCompanies;
 
-     /*constructors */
+     /* constructors */
 
     public User() {}
 
-    public User(String id, String name, String surname, String mail, String password) {
+    public User(String id, String name, String surname, String mail, String password, String salt) {
         this.id = id;
         this.name = name;
         this.surname = surname;
         this.mail = mail;
         this.password = password;
+        this.salt = salt;
         projects = new ArrayList<>();
         projects.add("root");
         companies = new ArrayList<>();
@@ -43,6 +45,7 @@ public class User implements Parcelable {
         this.surname = user.surname;
         this.mail = user.mail;
         this.password = user.password;
+        this.salt = user.salt;
         this.projects = user.projects;
         this.companies = user.companies;
         this.managedCompanies = user.managedCompanies;
@@ -54,6 +57,7 @@ public class User implements Parcelable {
         surname = in.readString();
         mail = in.readString();
         password = in.readString();
+        salt = in.readString();
         projects = in.createStringArrayList();
         companies = in.createStringArrayList();
         managedCompanies = in.createStringArrayList();
@@ -85,6 +89,7 @@ public class User implements Parcelable {
         dest.writeString(this.surname);
         dest.writeString(this.mail);
         dest.writeString(this.password);
+        dest.writeString(this.salt);
         dest.writeStringList(this.projects);
         dest.writeStringList(this.companies);
         dest.writeStringList(this.managedCompanies);
@@ -106,6 +111,10 @@ public class User implements Parcelable {
 
     public String getMail() {
         return mail;
+    }
+
+    public String getSalt() {
+        return salt;
     }
 
     public String getPassword() {
@@ -138,6 +147,10 @@ public class User implements Parcelable {
 
     public void setMail(String mail) {
         this.mail = mail;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 
     public void setPassword(String password) {

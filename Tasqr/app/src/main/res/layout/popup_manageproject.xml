@@ -35,7 +35,7 @@
         android:visibility="gone"/>
 
     <Button
-        android:id="@+id/leaveButton"
+        android:id="@+id/changeOwnerButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
