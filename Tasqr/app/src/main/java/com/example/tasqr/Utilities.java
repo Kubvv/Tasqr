@@ -7,12 +7,26 @@ import android.widget.Toast;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /* Class for static methods that repeat themselves in project */
 public class Utilities {
 
     private static final String TAG = "Utilities";
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+    private final static ArrayList<String> skillSet = new ArrayList<>(Arrays.asList (
+            "Assembly", "C", "C#",
+            "C++", "Django", "Elixir",
+            "Go", "Groovy", "Html/css",
+            "Java", "Js", "Kotlin",
+            "Node.js", "Objective-C", "Perl",
+            "PHP", "Python", "R",
+            "React", "Ruby", "Rust",
+            "Scala", "Sql", "Swift"
+    ));
+
 
     /* Messages user with long toast message in activity a */
     public static void toastMessage(String message, Activity a) {
@@ -46,4 +60,10 @@ public class Utilities {
         }
         return bytes;
     }
+
+    public static ArrayList<String> getSkillSet() {
+        return skillSet;
+    }
+
+    public static int getSkillSize() { return skillSet.size(); }
 }

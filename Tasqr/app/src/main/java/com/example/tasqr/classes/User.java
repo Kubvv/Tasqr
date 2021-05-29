@@ -18,6 +18,7 @@ public class User implements Parcelable {
     private ArrayList<String> projects;
     private ArrayList<String> companies;
     private ArrayList<String> managedCompanies;
+    private ArrayList<String> skills;
 
      /* constructors */
 
@@ -36,6 +37,7 @@ public class User implements Parcelable {
         companies.add("root");
         managedCompanies = new ArrayList<>();
         managedCompanies.add("root");
+        skills = new ArrayList<>();
     }
 
     /* copy constructor */
@@ -49,6 +51,7 @@ public class User implements Parcelable {
         this.projects = user.projects;
         this.companies = user.companies;
         this.managedCompanies = user.managedCompanies;
+        this.skills = user.skills;
     }
 
     protected User(Parcel in) {
@@ -61,6 +64,7 @@ public class User implements Parcelable {
         projects = in.createStringArrayList();
         companies = in.createStringArrayList();
         managedCompanies = in.createStringArrayList();
+        skills = in.createStringArrayList();
     }
 
     /* Parcelable part of code */
@@ -93,6 +97,7 @@ public class User implements Parcelable {
         dest.writeStringList(this.projects);
         dest.writeStringList(this.companies);
         dest.writeStringList(this.managedCompanies);
+        dest.writeStringList(this.skills);
     }
 
     /* getters */
@@ -127,6 +132,8 @@ public class User implements Parcelable {
 
     public ArrayList<String> getManagedCompanies() { return managedCompanies; }
 
+    public ArrayList<String> getSkills() { return skills; }
+
     /* setters */
 
     public void setId(String id) {
@@ -160,4 +167,6 @@ public class User implements Parcelable {
     public void setCompanies(ArrayList<String> companies) { this.companies = companies; }
 
     public void setManagedCompanies(ArrayList<String> managedCompanies) { this.managedCompanies = managedCompanies; }
+
+    public void setSkills(ArrayList<String> skills) { this.skills = skills; }
 }

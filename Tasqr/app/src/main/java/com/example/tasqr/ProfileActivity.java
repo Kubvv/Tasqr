@@ -14,6 +14,9 @@ package com.example.tasqr;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
@@ -43,8 +46,10 @@ import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.util.ArrayList;
+
 /* Profile activity has two functionalities, depending if you are inspecting your own profile or someone else's */
-public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
+public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, RecyclerViewAdapter.OnSkillListener {
 
     private static final String TAG = "ProfileActivity";
 
@@ -56,6 +61,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     private Bundle bndl = new Bundle();
 
+    private RecyclerView recyclerView;
+
     /* Firebase database */
     private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
     private DatabaseReference rootRef = database.getReference();
@@ -66,11 +73,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     /* View items */
     private ImageView avatarImageView;
     private TextView emailTextView, nameTextView, surnameTextView;
-    private Button buttonSettings, buttonLogout, buttonCreateCompany, buttonUpdateProfile;
+    private Button buttonSettings, buttonLogout, buttonCreateCompany, buttonUpdateProfile, skillButton;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Uri avatarUri;
 
     private final int LAUNCH_UPDATE_PROFILE_ACTIVITY = 1;
+    private final int LAUNCH_SKILLS_ACTIVITY = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,11 +94,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonCreateCompany = findViewById(R.id.button_manage_company);
         buttonUpdateProfile = findViewById(R.id.button_update_profile);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        skillButton = findViewById(R.id.skill_button);
 
         buttonLogout.setOnClickListener(this);
         buttonSettings.setOnClickListener(this);
         buttonCreateCompany.setOnClickListener(this);
         buttonUpdateProfile.setOnClickListener(this);
+        skillButton.setOnClickListener(this);
 
         bndl = getIntent().getExtras();
 
@@ -132,6 +142,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
                 /* need to call this function here to overcome multithreading */
                 setTextViews(user);
+                initRecyclerView(user);
             }
 
             @Override
@@ -173,6 +184,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 updateProfileIntent.putExtras(bundle);
                 startActivityForResult(updateProfileIntent, LAUNCH_UPDATE_PROFILE_ACTIVITY);
                 break;
+            case R.id.skill_button:
+                Intent updateSkillIntent = new Intent(this, SkillsActivity.class);
+                Bundle skillbundle = new Bundle();
+                skillbundle.putParcelable("user", user);
+                updateSkillIntent.putExtras(skillbundle);
+                startActivityForResult(updateSkillIntent, LAUNCH_SKILLS_ACTIVITY);
+                break;
         }
     }
 
@@ -196,6 +214,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 user.setSurname(new_surname);
 
             setTextViews(user);
+        }
+        else if (requestCode == LAUNCH_SKILLS_ACTIVITY && resultCode == Activity.RESULT_OK) {
+            ArrayList<String> skills = data.getStringArrayListExtra("skills");
+            user.setSkills(skills);
+            usersRef.child(user.getId()).child("skills").setValue(skills);
+            initRecyclerView(user);
         }
     }
 
@@ -250,6 +274,24 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonUpdateProfile.setVisibility(View.INVISIBLE);
     }
 
+    private void initRecyclerView(User user) {
+        ArrayList<String> userSkills = new ArrayList<>();
+        if (user.getSkills() == null || user.getSkills().size() == 0) {
+            skillButton.setText("No skills yet :(");
+        } else {
+            skillButton.setText("My skills:");
+            for (int i = 0; i < 3 && i < user.getSkills().size(); i++) {
+                userSkills.add(user.getSkills().get(i));
+            }
+        }
+
+        recyclerView = findViewById(R.id.skillsList);
+        boolean[] selected = new boolean[] {true, true, true};
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(userSkills, this, this, selected, false);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+    }
+
     /* logs user out of an account and opens login activity */
     private void logout() {
         SharedPreferences preferences = getSharedPreferences("autoLogin", MODE_PRIVATE);
@@ -266,4 +308,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         //TODO
     }
 
+    @Override
+    public void onSkillClick(int position) {
+        //pass
+    }
 }

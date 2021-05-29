@@ -5,25 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/backgroundlogin"
-    tools:context=".ManageCompanyActivity">
-
-    <ListView
-        android:id="@+id/companylist"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:choiceMode="multipleChoice"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.6"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/changeOwnershipTitle"
-        app:layout_constraintVertical_bias="0.184"
-        app:layout_constraintWidth_percent="1" />
+    tools:context=".SkillsActivity">
 
     <TextView
-        android:id="@+id/changeOwnershipTitle"
+        android:id="@+id/skillTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/manageComp"
+        android:text="@string/selectskill"
         android:textColor="@color/text_color"
         android:textColorHighlight="@color/text_color"
         android:textSize="28sp"
@@ -33,17 +21,31 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.07999998" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/skillsList"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.7"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/skillTitle"
+        app:layout_constraintVertical_bias="0.36"
+        app:layout_constraintWidth_percent="1"
+        app:spanCount="3" />
+
     <Button
-        android:id="@+id/createCompanyButton"
+        android:id="@+id/confirmButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/tasqr_yellow"
         android:color="@color/tasqr_yellow"
-        android:text="@string/createc"
+        android:text="@string/confirmskill"
         android:textColor="@color/tasqr_purple"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/companylist" />
+        app:layout_constraintTop_toBottomOf="@+id/skillsList" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

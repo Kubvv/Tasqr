@@ -115,7 +115,7 @@
                 android:id="@+id/button_logout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="24dp"
                 android:background="@color/tasqr_yellow"
                 android:color="@color/tasqr_yellow"
                 android:text="@string/logout"
@@ -149,6 +149,31 @@
                 app:layout_constraintBottom_toTopOf="@+id/button_manage_company"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/skillsList"
+                android:layout_width="0dp"
+                android:layout_height="100dp"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/skill_button"
+                app:layout_constraintWidth_percent="1"
+                app:spanCount="3" />
+
+            <Button
+                android:id="@+id/skill_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@android:color/transparent"
+                android:text="Example"
+                android:textColor="@color/text_color"
+                android:textSize="28sp"
+                android:textAllCaps="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/user_email" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
