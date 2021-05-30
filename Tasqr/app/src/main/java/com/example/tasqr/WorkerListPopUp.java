@@ -11,9 +11,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -36,6 +38,8 @@ public class WorkerListPopUp extends DialogFragment {
 
     private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
     private final DatabaseReference itemReference;
+
+    private ArrayList<String> usersMail = new ArrayList<>();
 
     public WorkerListPopUp(DatabaseReference itemReference){
         super();
@@ -71,8 +75,10 @@ public class WorkerListPopUp extends DialogFragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         for (DataSnapshot user : snapshot.getChildren())
-                            if (items.contains(user.getValue(User.class).getMail()))
+                            if (items.contains(user.getValue(User.class).getMail())) {
                                 displayArray.add(user.getValue(User.class).getName() + " " + user.getValue(User.class).getSurname());
+                                usersMail.add(user.getValue(User.class).getMail());
+                            }
 
                         workerList.setAdapter(new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, displayArray));
                     }
@@ -96,6 +102,18 @@ public class WorkerListPopUp extends DialogFragment {
 
                     }
                 });
+
+        workerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent profileIntent = new Intent(getContext(), ProfileActivity.class);
+
+                profileIntent.putExtra("clicked_mail", usersMail.get(position));
+                profileIntent.putExtra("logged_mail", "");
+
+                startActivity(profileIntent);
+            }
+        });
 
         return builder.create();
     }

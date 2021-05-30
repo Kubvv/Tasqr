@@ -140,7 +140,7 @@ public class Task{
     /* Sets states of subtasks of a given task (taskRef) and saves in the database*/
     public void setSubTasksState(Activity context, DatabaseReference taskRef, ArrayList<Integer> states)
     {
-        for (int i = 0; i < states.size(); i++)
+        for (int i = 0; i < states.size() && i < subTasks.size(); i++)
             this.subTasks.get(i).setState(SubTask.SubTaskState.values()[states.get(i)]);
 
         updateDatabase(context, taskRef);

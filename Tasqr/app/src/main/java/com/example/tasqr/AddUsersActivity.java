@@ -9,12 +9,14 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -54,7 +56,7 @@ public class AddUsersActivity extends AppCompatActivity {
     private String project;
     private String task;
 
-    /* Owner of currently creating project [not in userArray!]*/
+    /* Owner of currently created project [not in userArray!]*/
     private User owner;
     /* Mail of the task leader */
     private String leader;
@@ -206,16 +208,11 @@ public class AddUsersActivity extends AppCompatActivity {
         });
 
         listView = (ListView) findViewById(R.id.companylist);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemLongClickListener(new OnItemLongClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                /* get user's mail from userArray by index since we know displayArray index that was clicked on and both arrays share indices */
-                /*Intent profileIntent = new Intent(AddUsersActivity.this, ProfileActivity.class);
-                //TODO chcialem dac tu przekierowanie do profilu ale nie dziala to za dobrze, do zmiany
-                profileIntent.putExtra("clicked_mail", userArray.get(position).getMail());
-                profileIntent.putExtra("logged_mail", "logged_mail");
-
-                startActivity(profileIntent);*/
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.e(TAG, "onItemLongClick: " + position);
+                return false;
             }
         });
 

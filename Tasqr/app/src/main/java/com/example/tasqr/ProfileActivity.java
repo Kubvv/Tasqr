@@ -14,6 +14,7 @@ package com.example.tasqr;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -47,6 +48,7 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /* Profile activity has two functionalities, depending if you are inspecting your own profile or someone else's */
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, RecyclerViewAdapter.OnSkillListener {
@@ -95,6 +97,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonUpdateProfile = findViewById(R.id.button_update_profile);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
         skillButton = findViewById(R.id.skill_button);
+        recyclerView = findViewById(R.id.skillsList);
 
         buttonLogout.setOnClickListener(this);
         buttonSettings.setOnClickListener(this);
@@ -130,7 +133,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-
         /* get user of clicked mail from database */
         Query query = usersRef.orderByChild("mail").equalTo(clicked_mail);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -154,9 +156,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         /* hide buttons if clicked on profile was not equal to logged user */
         if (!clicked_mail.equals(logged_mail)) {
             hideButtons();
+            swipeRefreshLayout.setEnabled(false);
         }
-
-        setRefresher();
+        else {
+            setRefresher();
+        }
     }
 
     /* Basic method for determining clicked button */
@@ -272,21 +276,31 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonLogout.setVisibility(View.INVISIBLE);
         buttonCreateCompany.setVisibility(View.INVISIBLE);
         buttonUpdateProfile.setVisibility(View.INVISIBLE);
+        skillButton.setClickable(false);
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) recyclerView.getLayoutParams();
+        params.height = 600;
+        recyclerView.setLayoutParams(params);
     }
 
     private void initRecyclerView(User user) {
         ArrayList<String> userSkills = new ArrayList<>();
+        int recyclerSize = 3;
+
         if (user.getSkills() == null || user.getSkills().size() == 0) {
             skillButton.setText("No skills yet :(");
-        } else {
+        }
+        else {
+            if (!clicked_mail.equals(logged_mail)) {
+                recyclerSize = user.getSkills().size();
+            }
             skillButton.setText("My skills:");
-            for (int i = 0; i < 3 && i < user.getSkills().size(); i++) {
+            for (int i = 0; i < recyclerSize && i < user.getSkills().size(); i++) {
                 userSkills.add(user.getSkills().get(i));
             }
         }
 
-        recyclerView = findViewById(R.id.skillsList);
-        boolean[] selected = new boolean[] {true, true, true};
+        boolean[] selected = new boolean[recyclerSize];
+        Arrays.fill(selected, true);
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(userSkills, this, this, selected, false);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
