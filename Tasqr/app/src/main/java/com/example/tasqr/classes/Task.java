@@ -21,14 +21,14 @@ public class Task{
     private String leader;
     private String parentProject;
     private ArrayList<String> workers;
-    private Date deadline;
+    private Deadline deadline;
     private ArrayList<SubTask> subTasks;
     private int progress;
 
     public Task(){
     }
 
-    public Task(String taskName, String leader, String parentProject, ArrayList<String> workers, Date deadline, int progress) {
+    public Task(String taskName, String leader, String parentProject, ArrayList<String> workers, Deadline deadline, int progress) {
         this.id = "Default";
         this.taskName = taskName;
         this.leader = leader;
@@ -57,7 +57,7 @@ public class Task{
         return subTasks;
     }
 
-    public Date getDeadline() {
+    public Deadline getDeadline() {
         return deadline;
     }
 
@@ -88,7 +88,7 @@ public class Task{
         this.id = id;
     }
 
-    public void setDeadline(Date deadline) {
+    public void setDeadline(Deadline deadline) {
         this.deadline = deadline;
     }
 

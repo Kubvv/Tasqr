@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.tasqr.classes.Company;
+import com.example.tasqr.classes.Deadline;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
@@ -754,7 +755,8 @@ public class AddUsersActivity extends AppCompatActivity {
     private void finishAddingTask(ArrayList<String> usersMail) {
         projectsRef = database.getReference("Projects/" + getIntent().getStringExtra("projectId"));
         /* Create new task to be added */
-        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, getIntent().getStringExtra("projectId"), usersMail, new Date(), 0);
+        Deadline deadline = new Deadline(bndl.getInt("year"), bndl.getInt("month") + 1, bndl.getInt("day"));
+        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, getIntent().getStringExtra("projectId"), usersMail, deadline, 0);
         currProject.addTask(AddUsersActivity.this, database,  projectRef, newTask);
 
         openTasksActivity();

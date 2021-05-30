@@ -16,6 +16,7 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.tasqr.classes.Deadline;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
@@ -27,7 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
-
+/* TODO to do smietnika chyba leci */
 public class AddTaskUsersActivity extends AppCompatActivity {
 
     private static final String TAG = "AddTaskUsersActivity";
@@ -129,7 +130,7 @@ public class AddTaskUsersActivity extends AppCompatActivity {
                 taskUsers.add(userArray.get(i));
 
         /* Create new task to be added */
-        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, getIntent().getStringExtra("projectId"), taskUsers, new Date(), 0);
+        Task newTask = new Task(getIntent().getStringExtra("taskName"), leader, getIntent().getStringExtra("projectId"), taskUsers, new Deadline(2021, 6, 8), 0);
         currProject.addTask(AddTaskUsersActivity.this, database, projectRef, newTask);
 
         openTasksActivity();
