@@ -47,6 +47,7 @@ import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -74,13 +75,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     /* View items */
     private ImageView avatarImageView;
-    private TextView emailTextView, nameTextView, surnameTextView;
-    private Button buttonSettings, buttonLogout, buttonCreateCompany, buttonUpdateProfile, skillButton;
+    private TextView emailTextView, nameTextView, surnameTextView, skillText;
+    private Button buttonSettings, buttonLogout, buttonCreateCompany, buttonUpdateProfile;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Uri avatarUri;
 
     private final int LAUNCH_UPDATE_PROFILE_ACTIVITY = 1;
-    private final int LAUNCH_SKILLS_ACTIVITY = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,14 +96,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonCreateCompany = findViewById(R.id.button_manage_company);
         buttonUpdateProfile = findViewById(R.id.button_update_profile);
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
-        skillButton = findViewById(R.id.skill_button);
+        skillText = findViewById(R.id.skill_text);
         recyclerView = findViewById(R.id.skillsList);
 
         buttonLogout.setOnClickListener(this);
         buttonSettings.setOnClickListener(this);
         buttonCreateCompany.setOnClickListener(this);
         buttonUpdateProfile.setOnClickListener(this);
-        skillButton.setOnClickListener(this);
 
         bndl = getIntent().getExtras();
 
@@ -188,13 +187,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 updateProfileIntent.putExtras(bundle);
                 startActivityForResult(updateProfileIntent, LAUNCH_UPDATE_PROFILE_ACTIVITY);
                 break;
-            case R.id.skill_button:
-                Intent updateSkillIntent = new Intent(this, SkillsActivity.class);
-                Bundle skillbundle = new Bundle();
-                skillbundle.putParcelable("user", user);
-                updateSkillIntent.putExtras(skillbundle);
-                startActivityForResult(updateSkillIntent, LAUNCH_SKILLS_ACTIVITY);
-                break;
         }
     }
 
@@ -211,18 +203,16 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
             String new_name = data.getStringExtra("new_name");
             String new_surname = data.getStringExtra("new_surname");
+            ArrayList<String> new_skills = data.getStringArrayListExtra("new_skills");
 
             if (new_name != null)
                 user.setName(new_name);
             if (new_surname != null)
                 user.setSurname(new_surname);
+            if (new_skills != null)
+                user.setSkills(new_skills);
 
             setTextViews(user);
-        }
-        else if (requestCode == LAUNCH_SKILLS_ACTIVITY && resultCode == Activity.RESULT_OK) {
-            ArrayList<String> skills = data.getStringArrayListExtra("skills");
-            user.setSkills(skills);
-            usersRef.child(user.getId()).child("skills").setValue(skills);
             initRecyclerView(user);
         }
     }
@@ -276,7 +266,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonLogout.setVisibility(View.INVISIBLE);
         buttonCreateCompany.setVisibility(View.INVISIBLE);
         buttonUpdateProfile.setVisibility(View.INVISIBLE);
-        skillButton.setClickable(false);
         ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) recyclerView.getLayoutParams();
         params.height = 600;
         recyclerView.setLayoutParams(params);
@@ -287,13 +276,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         int recyclerSize = 3;
 
         if (user.getSkills() == null || user.getSkills().size() == 0) {
-            skillButton.setText("No skills yet :(");
+            skillText.setText("No skills yet :(");
         }
         else {
             if (!clicked_mail.equals(logged_mail)) {
                 recyclerSize = user.getSkills().size();
             }
-            skillButton.setText("My skills:");
+            skillText.setText("My skills:");
             for (int i = 0; i < recyclerSize && i < user.getSkills().size(); i++) {
                 userSkills.add(user.getSkills().get(i));
             }

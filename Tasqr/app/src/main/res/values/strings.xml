@@ -41,6 +41,7 @@
     <string name="leaveproj">Leave Project</string>
     <string name="selectskill">Select your skills</string>
     <string name="confirmskill">Confirm skills</string>
+    <string name="customskill">Customize skills</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

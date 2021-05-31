@@ -41,6 +41,7 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,6 +52,9 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
     private static final String TAG = "UpdateProfileActivity";
 
     private User user;
+
+    ArrayList<String> skills = new ArrayList<>();
+    boolean areSkillsChanged;
 
     private Bundle bndl = new Bundle();
 
@@ -63,8 +67,10 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
 
     private ImageView avatarImageView, addAvatarImageView;
     private EditText nameEditText, surnameEditText, passwordEditText, passwordConfirmEditText;
-    private Button buttonSave;
+    private Button buttonSave, buttonSkills;
     private Uri avatarUri, uri, cropped_uri;
+
+    private final int LAUNCH_SKILLS_ACTIVITY = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,10 +84,12 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
         passwordEditText = findViewById(R.id.editTextPassword);
         passwordConfirmEditText = findViewById(R.id.editTextPasswordConfirm);
         buttonSave = findViewById(R.id.button_save);
+        buttonSkills = findViewById(R.id.skill_button);
 
         addAvatarImageView.setOnClickListener(this);
         avatarImageView.setOnClickListener(this);
         buttonSave.setOnClickListener(this);
+        buttonSkills.setOnClickListener(this);
 
         bndl = getIntent().getExtras();
         user = bndl.getParcelable("user");
@@ -98,6 +106,8 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                 Utilities.toastMessage("error", UpdateProfileActivity.this);
             }
         });
+
+        areSkillsChanged = false;
 
         if (bndl.getString("uri") != null)
             avatarUri = Uri.parse(bndl.getString("uri"));
@@ -128,6 +138,13 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                     break;
                 setResult(Activity.RESULT_OK, returnIntent);
                 finish();
+                break;
+            case R.id.skill_button:
+                Intent updateSkillIntent = new Intent(this, SkillsActivity.class);
+                Bundle skillbundle = new Bundle();
+                skillbundle.putParcelable("user", user);
+                updateSkillIntent.putExtras(skillbundle);
+                startActivityForResult(updateSkillIntent, LAUNCH_SKILLS_ACTIVITY);
                 break;
         }
     }
@@ -185,6 +202,10 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                 avatarImageView.setImageURI(result.getUri());
                 cropped_uri = result.getUri();
             }
+        }
+        else if (requestCode == LAUNCH_SKILLS_ACTIVITY && resultCode == Activity.RESULT_OK) {
+            skills = data.getStringArrayListExtra("skills");
+            areSkillsChanged = true;
         }
     }
 
@@ -248,7 +269,7 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
         /* validate surname */
         if (!surname.equals(user.getSurname())) {
             if (surname.isEmpty()) {
-                Utilities.toastMessage("Surame cannot be empty.", UpdateProfileActivity.this);
+                Utilities.toastMessage("Surname cannot be empty.", UpdateProfileActivity.this);
                 return null;
             }
             if (surname.length() > 40) {
@@ -257,12 +278,17 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
             }
             m = p.matcher(surname);
             if (!m.matches()) {
-                Utilities.toastMessage("Surame can only contain characters between A-Z and a-z.", UpdateProfileActivity.this);
+                Utilities.toastMessage("Surname can only contain characters between A-Z and a-z.", UpdateProfileActivity.this);
                 return null;
             }
 
             newUserData.setSurname(surname);
             returnIntent.putExtra("new_surname", surname);
+        }
+
+        if (areSkillsChanged) {
+            returnIntent.putExtra("new_skills", skills);
+            newUserData.setSkills(skills);
         }
 
         usersRef.child(user.getId()).setValue(newUserData);

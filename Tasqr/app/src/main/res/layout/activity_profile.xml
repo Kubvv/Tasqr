@@ -157,12 +157,12 @@
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/skill_button"
+                app:layout_constraintTop_toBottomOf="@+id/skill_text"
                 app:layout_constraintWidth_percent="1"
                 app:spanCount="3" />
 
-            <Button
-                android:id="@+id/skill_button"
+            <TextView
+                android:id="@+id/skill_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
