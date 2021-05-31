@@ -185,6 +185,9 @@ public class ManageCompanyActivity extends AppCompatActivity {
             bundle.putBoolean("isOwner", false);
             bundle.putBoolean("isManager", false);
         }
+
+        bundle.putParcelable("user", user);
+
         ManageCompanyPopUp popUp = new ManageCompanyPopUp();
         popUp.setArguments(bundle);
         popUp.show(getSupportFragmentManager(), "ManageCompanyPopUp");

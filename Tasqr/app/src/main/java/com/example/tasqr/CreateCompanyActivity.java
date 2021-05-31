@@ -93,7 +93,7 @@ public class CreateCompanyActivity extends AppCompatActivity {
 
     public void openAddUsersActivity() {
         String name = companyName.getText().toString();
-        String desc = companyName.getText().toString();
+        String desc = description.getText().toString();
         if (name.length() == 0) {
             Utilities.toastMessage("Company name cannot be empty", CreateCompanyActivity.this);
             return;

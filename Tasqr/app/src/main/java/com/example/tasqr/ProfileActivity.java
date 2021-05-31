@@ -319,7 +319,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void deleteAccout() {
-        //TODO
+        //pass
     }
 
     @Override

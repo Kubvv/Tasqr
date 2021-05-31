@@ -652,7 +652,7 @@ public class AddUsersActivity extends AppCompatActivity {
 
     /* Adds project and all it's workers to database.
      * Also updates all added user's projects arrays.
-     * If succesful, goes to MainActivity and closes all previous activities.*/
+     * If successful, goes to MainActivity and closes all previous activities.*/
     private void finishAddingProject (ArrayList<User> projectUsers, ArrayList<String> usersMail) {
         /* deletion of owner field in project fix */
         usersMail.add(logged_mail);

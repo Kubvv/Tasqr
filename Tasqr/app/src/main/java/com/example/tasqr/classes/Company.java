@@ -134,45 +134,4 @@ public class Company implements Parcelable {
         dest.writeStringList(managers);
         dest.writeStringList(projectsId);
     }
-
-    public void leaveCompany(String logged_mail, String position) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-        DatabaseReference rootRef = database.getReference();
-        DatabaseReference usersRef = rootRef.child("Users");
-        DatabaseReference companiesRef = rootRef.child("Companies");
-
-        Query q = usersRef.orderByChild("mail").equalTo(logged_mail);
-        q.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user;
-                ArrayList<String> tmp;
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    user = ds.getValue(User.class);
-                    tmp = user.getCompanies();
-                    tmp.remove(id);
-                    user.setCompanies(tmp);
-                    usersRef.child(user.getId()).child("companies").setValue(tmp);
-                    workers.remove(user.getMail());
-                    if (position.equals("manager")) {
-                        tmp = user.getManagedCompanies();
-                        tmp.remove(name);
-                        usersRef.child(user.getId()).child("managedCompanies").setValue(tmp);
-                        managers.remove(user.getMail());
-                    }
-
-                    companiesRef.child(id).setValue(Company.this);
-                }
-
-                for (String project : projectsId) {
-                    //TODO usuwanie z projektow
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
 }
