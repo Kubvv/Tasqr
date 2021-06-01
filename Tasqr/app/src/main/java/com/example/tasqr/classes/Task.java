@@ -122,7 +122,7 @@ public class Task{
         taskRef.child("subTasks").setValue(this.subTasks).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
-                Utilities.toastMessage("Successfully updated subtasks!", context);
+//                Utilities.toastMessage("Successfully updated subtasks!", context);
             }
         });
     }

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -20,6 +21,7 @@ import com.example.tasqr.classes.Deadline;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -48,9 +50,7 @@ public class AddTaskUsersActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference projectRef;
 
-    private ImageButton tmpImg;
-    private final Integer[] avatars = {R.drawable.avatar, R.drawable.avatar2};
-    private int currentPhoto = 0;
+    private FloatingActionButton nextButton;
 
     /* Main on create method */
     @Override
@@ -58,10 +58,9 @@ public class AddTaskUsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addtaskusersactivity);
 
-        tmpImg = findViewById(R.id.snickerstsk);
-        tmpImg.setImageResource(avatars[currentPhoto]);
+        nextButton = findViewById(R.id.nextButton);
 
-        tmpImg.setOnClickListener(v -> finishAddingTask());
+        nextButton.setOnClickListener(v -> finishAddingTask());
 
         listView = (ListView)findViewById(R.id.userlisttsk);
 
@@ -118,9 +117,6 @@ public class AddTaskUsersActivity extends AppCompatActivity {
 
     /* Add new task with all checked people tied to it */
     private void finishAddingTask () {
-        currentPhoto = (currentPhoto + 1) % 2;
-        tmpImg.setImageResource(avatars[currentPhoto]);
-
         ArrayList<String> taskUsers = new ArrayList<>();
         taskUsers.add(leader);
 
@@ -134,10 +130,9 @@ public class AddTaskUsersActivity extends AppCompatActivity {
         currProject.addTask(AddTaskUsersActivity.this, database, projectRef, newTask);
 
         openTasksActivity();
-
     }
 
-    /* Opens main activity and closes activites relating to adding project */
+    /* Opens main activity and closes activities relating to adding project */
     private void openTasksActivity() {
         Intent intent = new Intent(AddTaskUsersActivity.this, TasksActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
