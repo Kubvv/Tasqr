@@ -57,6 +57,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
     private FloatingActionButton saveChangesButton;
 
     private boolean deleteMode;
+    private boolean isLeader;
 
     /* Custom SubTask array adapter */
     private class SubTaskList extends ArrayAdapter{
@@ -82,6 +83,17 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
             if(convertView == null)
                 row = inflater.inflate(R.layout.subtask_list_item, null, true);
+
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Bundle bndl = new Bundle();
+                    bndl.putString("text", "ARE YOU SURE YOU WANT TO DELETE " + subTaskAdapter.getArray().get(position));
+                    ConfirmationPopUp confirmationPopUp = new ConfirmationPopUp(subTaskAdapter.getArray().get(position), position);
+                    confirmationPopUp.setArguments(bndl);
+                    confirmationPopUp.show(getSupportFragmentManager(), "ConfirmationPopUp");
+                }
+            });
 
             TextView subTaskName = row.findViewById(R.id.subTaskName);
             checkBoxes.add(row.findViewById(R.id.subTaskCheckbox));
@@ -159,6 +171,23 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         });
     }
 
+    private void noDataChangeFetch(Task task)
+    {
+        if (task.getLeader().contains(getIntent().getStringExtra("logged_mail")))
+            isLeader = true;
+        else
+            addSubTaskButton.setOnClickListener(null);
+
+        if (task != null && task.getSubTasks() != null) {
+            ArrayList<SubTask.SubTaskState> states = new ArrayList<>();
+            for (int i = 0; i < task.getSubTasks().size(); i++)
+                states.add(task.getSubTasks().get(i).getState());
+
+            subTaskAdapter = new SubTaskList(SubTasksActivity.this, task.getSubTasksString(), states);
+            subTaskList.setAdapter(subTaskAdapter);
+        }
+    }
+
     /* Data fetcher for subtask list inside subtask activity */
     private void fetchSubTaskData() {
         DatabaseReference taskRef = database.getReference("Tasks/" + getIntent().getStringExtra("taskId"));
@@ -168,14 +197,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Task task = snapshot.getValue(Task.class);
-                if (task != null && task.getSubTasks() != null) {
-                    ArrayList<SubTask.SubTaskState> states = new ArrayList<>();
-                    for (int i = 0; i < task.getSubTasks().size(); i++)
-                        states.add(task.getSubTasks().get(i).getState());
-
-                    subTaskAdapter = new SubTaskList(SubTasksActivity.this, task.getSubTasksString(), states);
-                    subTaskList.setAdapter(subTaskAdapter);
-                }
+                noDataChangeFetch(task);
             }
 
             @Override
@@ -230,7 +252,6 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
     /* Shows popup with team leader activities */
     private void showWorkerSettingsPopup(){
-
     }
 
     /* Sets state of activity to delete mode */
@@ -244,16 +265,6 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
     private void setDelete(){
         deleteMode = true;
         deleteButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.delete_red)));
-        subTaskList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Bundle bndl = new Bundle();
-                bndl.putString("text", "ARE YOU SURE YOU WANT TO DELETE " + subTaskAdapter.getArray().get(position));
-                ConfirmationPopUp confirmationPopUp = new ConfirmationPopUp(subTaskAdapter.getArray().get(position), position);
-                confirmationPopUp.setArguments(bndl);
-                confirmationPopUp.show(getSupportFragmentManager(), "ConfirmationPopUp");
-            }
-        });
     }
 
     private void unsetDelete(){
@@ -265,5 +276,20 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
     @Override
     public void confirmation(int position){
         unsetDelete();
+        DatabaseReference taskRef = database.getReference("Tasks/" + getIntent().getStringExtra("taskId"));
+        taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Task task = snapshot.getValue(Task.class);
+                task.deleteSubTask(SubTasksActivity.this, taskRef, position);
+                noDataChangeFetch(task);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+
     }
+
 }

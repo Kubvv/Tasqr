@@ -137,6 +137,13 @@ public class Task{
        updateDatabase(context, taskRef);
     }
 
+    public void deleteSubTask(Activity context, DatabaseReference taskRef, int position)
+    {
+        this.subTasks.remove(position);
+
+        updateDatabase(context, taskRef);
+    }
+
     /* Sets states of subtasks of a given task (taskRef) and saves in the database*/
     public void setSubTasksState(Activity context, DatabaseReference taskRef, ArrayList<Integer> states)
     {

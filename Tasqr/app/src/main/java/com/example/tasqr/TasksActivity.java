@@ -244,6 +244,7 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
         Intent subTaskIntent = new Intent(TasksActivity.this, SubTasksActivity.class);
         subTaskIntent.putExtra("taskId", displayArray.get(position).getId());
         subTaskIntent.putExtra("taskName", displayArray.get(position).getName());
+        subTaskIntent.putExtra("logged_mail", getIntent().getStringExtra("logged_mail"));
         startActivity(subTaskIntent);
     }
 
