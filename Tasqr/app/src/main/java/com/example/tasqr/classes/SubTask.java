@@ -3,7 +3,7 @@ package com.example.tasqr.classes;
 public class SubTask {
 
     public enum SubTaskState{
-        pending(0), done(1), abandoned(2);
+        pending(0), reviewing(1), done(2), abandoned(3);
 
         private final int value;
         private SubTaskState(int value) {

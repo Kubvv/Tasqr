@@ -287,6 +287,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                Utilities.toastMessage("error " + error.toString(), SubTasksActivity.this);
             }
         });
 

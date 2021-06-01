@@ -11,8 +11,9 @@ import android.widget.CompoundButton;
 
 public class CheckBoxTriState extends androidx.appcompat.widget.AppCompatCheckBox {
     static private final int PENDING = 0;
-    static private final int DONE = 1;
-    static private final int ABANDONED = 2;
+    static private final int REVIEW = 1;
+    static private final int DONE = 2;
+    static private final int ABANDONED = 3;
     private int state;
 
     public CheckBoxTriState(Context context) {
@@ -41,6 +42,9 @@ public class CheckBoxTriState extends androidx.appcompat.widget.AppCompatCheckBo
                 switch (state) {
                     default:
                     case PENDING:
+                        state = REVIEW;
+                        break;
+                    case REVIEW:
                         state = DONE;
                         break;
                     case DONE:
@@ -68,6 +72,8 @@ public class CheckBoxTriState extends androidx.appcompat.widget.AppCompatCheckBo
             case ABANDONED:
                 btnDrawable = R.drawable.notok;
                 break;
+            case REVIEW:
+                btnDrawable = R.drawable.reviewing;
         }
 
         setButtonDrawable(btnDrawable);
