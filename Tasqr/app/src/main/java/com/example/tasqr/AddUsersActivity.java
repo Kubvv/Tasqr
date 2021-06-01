@@ -94,10 +94,7 @@ public class AddUsersActivity extends AppCompatActivity {
     private DatabaseReference projectRef;
     private DatabaseReference companiesRef = rootRef.child("Companies");
 
-    private ImageButton tmpImg;
-    private Integer[] avatars = {R.drawable.avatar, R.drawable.avatar2};
-    private int currentPhoto = 0;
-
+    private FloatingActionButton nextButton;
     private FloatingActionButton checkAll;
     private FloatingActionButton uncheckAll;
 
@@ -154,12 +151,8 @@ public class AddUsersActivity extends AppCompatActivity {
             checkUsers(false);
         });
 
-        tmpImg = findViewById(R.id.snickers);
-        tmpImg.setImageResource(avatars[currentPhoto]);
-        tmpImg.setOnClickListener(v -> {
-
-            currentPhoto = (currentPhoto + 1) % 2;
-            tmpImg.setImageResource(avatars[currentPhoto]);
+        nextButton = findViewById(R.id.nextButton2);
+        nextButton.setOnClickListener(v -> {
 
             /* Fetch all of the selected users */
             ArrayList<User> checkedUsers = new ArrayList<>();
@@ -625,7 +618,7 @@ public class AddUsersActivity extends AppCompatActivity {
         companiesRef.child(id).setValue(company).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Utilities.toastMessage("Successfully added new Company", AddUsersActivity.this);
+//                Utilities.toastMessage("Successfully added new Company", AddUsersActivity.this);
             }
         });
 
@@ -673,7 +666,7 @@ public class AddUsersActivity extends AppCompatActivity {
         projectsRef.child(projid).setValue(project).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Utilities.toastMessage("Successfully added new project", AddUsersActivity.this);
+//                Utilities.toastMessage("Successfully added new project", AddUsersActivity.this);
             }
         });
 

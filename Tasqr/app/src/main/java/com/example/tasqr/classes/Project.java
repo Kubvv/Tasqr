@@ -146,7 +146,7 @@ public class Project implements Parcelable {
         projectRef.child("tasks").setValue(this.tasks).addOnSuccessListener(new OnSuccessListener<Void>() {
         @Override
         public void onSuccess(Void aVoid) {
-            Utilities.toastMessage("Successfully added new task", context);
+//            Utilities.toastMessage("Successfully added new task", context);
         }
     });
     }
@@ -162,7 +162,7 @@ public class Project implements Parcelable {
         projectRef.child("leaders").setValue(this.leaders).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Utilities.toastMessage("Successfully added leaders", context);
+//                Utilities.toastMessage("Successfully added leaders", context);
             }
         });
     }
