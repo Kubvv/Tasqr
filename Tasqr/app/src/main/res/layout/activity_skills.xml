@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/backgroundlogin"
-    tools:context=".SkillsActivity">
+    tools:context=".SkillsActivity"
+    android:layout_gravity="center_horizontal">
 
     <TextView
         android:id="@+id/skillTitle"
@@ -15,37 +17,31 @@
         android:textColor="@color/text_color"
         android:textColorHighlight="@color/text_color"
         android:textSize="28sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.07999998" />
+        android:layout_centerHorizontal="true"
+        android:padding="50dp"
+        />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <com.example.tasqr.AutoFitRecyclerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/skillsList"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.7"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/skillTitle"
-        app:layout_constraintVertical_bias="0.36"
-        app:layout_constraintWidth_percent="1"
-        app:spanCount="3" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/skillTitle"
+        android:layout_above="@id/confirmButton"
+        android:columnWidth="95dp"
+        android:clipToPadding="false"/>
 
     <Button
         android:id="@+id/confirmButton"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/tasqr_yellow"
         android:color="@color/tasqr_yellow"
         android:text="@string/confirmskill"
         android:textColor="@color/tasqr_purple"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/skillsList" />
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

@@ -42,4 +42,14 @@
         app:layout_constraintTop_toTopOf="@+id/taskProg"
         app:layout_constraintWidth_percent="0.90"/>
 
+    <TextView
+        android:paddingEnd="5dp"
+        android:textStyle="bold"
+        android:textColor="@color/tasqr_blue"
+        android:id="@+id/deadline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="21/05/2000"
+        app:layout_constraintBottom_toBottomOf="@+id/taskProg"
+        app:layout_constraintEnd_toEndOf="@+id/taskProg" />
 </androidx.constraintlayout.widget.ConstraintLayout>

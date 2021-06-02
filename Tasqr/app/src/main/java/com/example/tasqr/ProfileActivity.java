@@ -18,6 +18,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.Manifest;
@@ -273,7 +274,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     private void initRecyclerView(User user) {
         ArrayList<String> userSkills = new ArrayList<>();
-        int recyclerSize = 3;
+        int recyclerSize = 8;
 
         if (user.getSkills() == null || user.getSkills().size() == 0) {
             skillText.setText("No skills yet :(");
@@ -292,7 +293,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         Arrays.fill(selected, true);
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(userSkills, this, this, selected, false);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
     /* logs user out of an account and opens login activity */

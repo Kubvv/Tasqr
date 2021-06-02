@@ -4,40 +4,46 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="15dp"
+    android:paddingVertical="5dp"
     android:theme="@style/Theme.Tasqr_NoToolBar"
-    android:id="@+id/parent_layout">
-
-    <ImageView
-        android:id="@+id/skillImage"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/tag"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+    android:id="@+id/parent_layout"
+    android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/skillName"
+        android:id="@+id/skill_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_columnWeight="1"
-        android:padding="10dp"
-        android:shadowColor="@color/black"
-        android:shadowDx="-4"
-        android:shadowDy="2"
-        android:shadowRadius="0.01"
+        android:layout_marginHorizontal="5dp"
+        android:background="@drawable/round_rect"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="2dp"
         android:text="SAMPLE TEXT"
-        android:textColor="@color/tasqr_purple"
-        android:textSize="19sp"
+        android:visibility="visible"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/skillImage"
-        app:layout_constraintEnd_toEndOf="@+id/skillImage"
-        app:layout_constraintHorizontal_bias="0.11"
-        app:layout_constraintStart_toStartOf="@+id/skillImage"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    </TextView>
 
+    <TextView
+        android:id="@+id/skill_text_active"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="5dp"
+        android:background="@drawable/round_rect_active"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="2dp"
+        android:text="SAMPLE TEXT"
+        android:visibility="gone"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    </TextView>
 </androidx.constraintlayout.widget.ConstraintLayout>

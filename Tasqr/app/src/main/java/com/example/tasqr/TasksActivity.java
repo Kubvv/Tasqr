@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.tasqr.classes.Deadline;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
@@ -38,8 +39,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.Query;
 import com.google.firebase.firestore.core.QueryListener;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
@@ -57,12 +61,14 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
         private final String name;
         private final boolean visible;
         private final int progress;
+        private final String deadline;
 
-        private DisplayArrayElement(String id, String name, boolean visible, int progress) {
+        private DisplayArrayElement(String id, String name, boolean visible, int progress, String deadline) {
             this.id = id;
             this.name = name;
             this.visible = visible;
             this.progress = progress;
+            this.deadline = deadline;
         }
 
         @Override
@@ -89,6 +95,11 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
         public int getProgress() {
             return progress;
         }
+
+        public String getDeadline()
+        {
+            return deadline;
+        }
     }
 
     /*  Custom Array Adapter */
@@ -110,15 +121,21 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
             View row = convertView;
             LayoutInflater inflater = context.getLayoutInflater();
 
-            if(convertView == null && displayArray.get(position).isVisible())
+            TextView deadline;
+            if(convertView == null && displayArray.get(position).isVisible()) {
                 row = inflater.inflate(R.layout.task_list_item_visible, null, true);
+                deadline = row.findViewById(R.id.deadline);
+                deadline.setText(displayArray.get(position).getDeadline());
+            }
             else if (convertView == null)
                 row = inflater.inflate(R.layout.task_list_item_invisible, null, true);
 
             TextView taskName = row.findViewById(R.id.taskNameList);
+
             ProgressBar progressBar = row.findViewById(R.id.taskProg);
 
             taskName.setText(displayArray.get(position).getName());
+
             progressBar.setProgress(displayArray.get(position).getProgress());
             return row;
         }
@@ -205,7 +222,7 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
                                         break;
                                     }
                                 }
-                                displayArray.add(new DisplayArrayElement(task.getId(), task.getTaskName(), found, task.getProgress()));
+                                displayArray.add(new DisplayArrayElement(task.getId(), task.getTaskName(), found, task.getProgress(), makeDate(task.getDeadline())));
                             }
                             Collections.sort(displayArray);
                             taskList.setAdapter(new TaskList(TasksActivity.this, displayArray));
@@ -224,6 +241,11 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
                 Utilities.toastMessage("error" + error.toString(), TasksActivity.this);
             }
         });
+    }
+
+    private String makeDate(Deadline deadline) {
+        DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        return df.format(deadline.getDate());
     }
 
     /* Opens activity for adding new task */

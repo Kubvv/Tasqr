@@ -150,17 +150,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/skillsList"
-                android:layout_width="0dp"
-                android:layout_height="100dp"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/skill_text"
-                app:layout_constraintWidth_percent="1"
-                app:spanCount="3" />
-
             <TextView
                 android:id="@+id/skill_text"
                 android:layout_width="wrap_content"
@@ -175,6 +164,14 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/user_email" />
 
+            <com.example.tasqr.AutoFitRecyclerView
+                android:id="@+id/skillsList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:columnWidth="95dp"
+                app:layout_constraintBottom_toTopOf="@+id/button_update_profile"
+                app:layout_constraintTop_toBottomOf="@+id/skill_text" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -1,5 +1,8 @@
 package com.example.tasqr.classes;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class Deadline {
     private int year;
     private int month;
@@ -35,5 +38,11 @@ public class Deadline {
 
     public void setDay(int day) {
         this.day = day;
+    }
+
+    public Date getDate(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(year, month - 1, day);
+        return calendar.getTime();
     }
 }

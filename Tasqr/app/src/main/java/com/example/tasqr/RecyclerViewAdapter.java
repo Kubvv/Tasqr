@@ -13,6 +13,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -21,11 +22,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private static final String TAG = "RecyclerViewAdapter";
 
     private ArrayList<String> skills = new ArrayList<>();
-    private OnSkillListener onSkillListener;
-    private Context context;
-    private boolean[] selected;
-    private ArrayList<View>itemViewList = new ArrayList<>();
-    private boolean isEditable;
+    private final OnSkillListener onSkillListener;
+    private final Context context;
+    private final boolean[] selected;
+    private final ArrayList<View>itemViewList = new ArrayList<>();
+    private final boolean isEditable;
 
     public RecyclerViewAdapter(ArrayList<String> skills, Context context, OnSkillListener onSkillListener, boolean[] selected, boolean isEditable) {
         Log.e(TAG, "onCreate: " + skills.size());
@@ -47,10 +48,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(@NonNull @org.jetbrains.annotations.NotNull RecyclerViewAdapter.ViewHolder holder, int position) {
         holder.skill.setText(skills.get(position));
-
-        if (selected[position]) {
-            ImageView tag = holder.itemView.findViewById(R.id.skillImage);
-            tag.setImageResource(R.drawable.tagmarked);
+        holder.skillActive.setText(skills.get(position));
+        if(selected[position] && isEditable)
+        {
+            holder.skill.setVisibility(View.GONE);
+            holder.skillActive.setVisibility(View.VISIBLE);
         }
     }
 
@@ -72,13 +74,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView skill;
+        TextView skillActive;
         ConstraintLayout parentLayout;
         OnSkillListener onSkillListener;
         boolean isEditable;
 
         public ViewHolder(View itemView, OnSkillListener onSkillListener, boolean isEditable) {
             super(itemView);
-            skill = itemView.findViewById(R.id.skillName);
+            skill = itemView.findViewById(R.id.skill_text);
+            skillActive = itemView.findViewById(R.id.skill_text_active);
             parentLayout = itemView.findViewById(R.id.parent_layout);
             this.onSkillListener = onSkillListener;
             this.isEditable = isEditable;
@@ -92,11 +96,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public void onClick(View v) {
             if (isEditable) {
                 int pos = getAdapterPosition();
-                ImageView tag = v.findViewById(R.id.skillImage);
+                TextView tag = v.findViewById(R.id.skill_text);
+                TextView tagActive = v.findViewById(R.id.skill_text_active);
                 if (selected[pos]) {
-                    tag.setImageResource(R.drawable.tag);
+                    tag.setVisibility(View.VISIBLE);
+                    tagActive.setVisibility(View.GONE);
                 } else {
-                    tag.setImageResource(R.drawable.tagmarked);
+                    tag.setVisibility(View.GONE);
+                    tagActive.setVisibility(View.VISIBLE);
                 }
                 selected[pos] = !selected[pos];
                 onSkillListener.onSkillClick(pos);

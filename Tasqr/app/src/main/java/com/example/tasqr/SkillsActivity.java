@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -90,7 +91,6 @@ public class SkillsActivity extends AppCompatActivity implements RecyclerViewAda
         recyclerView = findViewById(R.id.skillsList);
         RecyclerViewAdapter adapter = new RecyclerViewAdapter(skillNames, this, this, isClicked, true);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
     @Override

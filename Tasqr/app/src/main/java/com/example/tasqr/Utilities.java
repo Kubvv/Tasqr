@@ -17,14 +17,28 @@ public class Utilities {
     private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     private final static ArrayList<String> skillSet = new ArrayList<>(Arrays.asList (
-            "Assembly", "C", "C#",
-            "C++", "Django", "Elixir",
-            "Go", "Groovy", "Html/css",
-            "Java", "Js", "Kotlin",
-            "Node.js", "Objective-C", "Perl",
-            "PHP", "Python", "R",
-            "React", "Ruby", "Rust",
-            "Scala", "Sql", "Swift"
+            ".NET",
+            "Ada", "Android", "Angular.js","Assembly",
+            "Bash", "BASIC",
+            "C", "C#", "C++", "COBOL",
+            "Django",
+            "Elixir",
+            "F#", "Flask", "Fortran",
+            "Go", "Groovy",
+            "Html/css", "Haskell",
+            "Java", "JavaScript", "jQuery",
+            "Kotlin",
+            "Lisp", "Low Level", "Lua",
+            "Matlab",
+            "Node.js",
+            "Objective-C", "Ocaml",
+            "Pascal", "Perl", "PHP", "Python",
+            "R", "Rails", "React", "Ruby","Rust",
+            "Scala", "Spring", "Sql", "Swift",
+            "Unity", "Unreal",
+            "Wordpress",
+            "Vue",
+            "Xamarin"
     ));
 
 

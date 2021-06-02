@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +30,9 @@ public class ConfirmationPopUp extends DialogFragment {
     private Bundle bundle;
     private ConfirmationListener listener;
 
+    Button dismiss;
+    Button ok;
+
     public ConfirmationPopUp(String name, int position){
         this.name = name;
         this.position = position;
@@ -44,29 +48,46 @@ public class ConfirmationPopUp extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         /* Creating layout dependencies */
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        ContextThemeWrapper context = new ContextThemeWrapper(getActivity(), R.style.AppDialogTheme);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.popup_confirmation, null);
-
         bundle = getArguments();
 
         text = view.findViewById(R.id.conftext);
+        dismiss = view.findViewById(R.id.dismiss);
+        ok = view.findViewById(R.id.ok);
+
         text.setText(bundle.getString("text"));
-
-        /* Setting listeners */
-        builder.setView(view).setTitle("CONFIRM ACTION")
-                .setNegativeButton("IM NOT", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                }).setPositiveButton("YES, I AM", new DialogInterface.OnClickListener() {
+        dismiss.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                listener.confirmation(position);
+            public void onClick(View v) {
+                dismiss();
             }
         });
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.confirmation(position);
+                dismiss();
+            }
+        });
+
+        builder.setView(view);
+        /* Setting listeners */
+//        builder.setView(view).setTitle("CONFIRM ACTION")
+//                .setNegativeButton("IM NOT", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                    }
+//                }).setPositiveButton("YES, I AM", new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                listener.confirmation(position);
+//            }
+//        });
 
         return builder.create();
     }

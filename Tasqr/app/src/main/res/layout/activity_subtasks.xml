@@ -34,7 +34,7 @@
        android:layout_marginBottom="20dp"
        app:backgroundTint="@color/text_color"
        app:rippleColor="@color/tasqr_yellow"
-       app:srcCompat="@drawable/ic_baseline_settings_24"
+       app:srcCompat="@drawable/settings"
        android:layout_alignParentBottom="true"/>
 
    <com.google.android.material.floatingactionbutton.FloatingActionButton
