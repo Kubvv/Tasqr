@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -41,6 +42,8 @@ public class WorkerListPopUp extends DialogFragment {
 
     private ArrayList<String> usersMail = new ArrayList<>();
 
+    private Button dismiss;
+
     public WorkerListPopUp(DatabaseReference itemReference){
         super();
         this.itemReference = itemReference;
@@ -57,7 +60,7 @@ public class WorkerListPopUp extends DialogFragment {
         View view = inflater.inflate(R.layout.popup_worker_list, null);
 
         ListView workerList = view.findViewById(R.id.workerList);
-
+        dismiss = view.findViewById(R.id.dismiss);
         /* Getting item list from reference */
         itemReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -80,7 +83,7 @@ public class WorkerListPopUp extends DialogFragment {
                                 usersMail.add(user.getValue(User.class).getMail());
                             }
 
-                        workerList.setAdapter(new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, displayArray));
+                        workerList.setAdapter(new ArrayAdapter(getActivity(), R.layout.user_list_popup_item, displayArray));
                     }
 
                     @Override
@@ -94,14 +97,6 @@ public class WorkerListPopUp extends DialogFragment {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
-        /* Setting listeners */
-        builder.setView(view).setTitle("Team")
-                .setNegativeButton("return", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
 
         workerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -114,6 +109,15 @@ public class WorkerListPopUp extends DialogFragment {
                 startActivity(profileIntent);
             }
         });
+
+        dismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+
+        builder.setView(view);
 
         return builder.create();
     }

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -42,6 +43,9 @@ public class ManageProjectPopUp extends DialogFragment {
     private User user;
     private Project project;
 
+    private Button dismiss;
+    private TextView title;
+
     /* Main on create method */
     @NonNull
     @Override
@@ -60,6 +64,16 @@ public class ManageProjectPopUp extends DialogFragment {
         boolean isLeader = bundle.getBoolean("isLeader");
 
         Log.e(TAG, "onCreateDialog: " + project.getName());
+
+        dismiss = view.findViewById(R.id.dismiss);
+        dismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+        title = view.findViewById(R.id.title);
+        title.setText(project.getName());
 
         Button addUsersButton = view.findViewById(R.id.addUsersButton);
         addUsersButton.setOnClickListener(new View.OnClickListener() {
@@ -113,14 +127,7 @@ public class ManageProjectPopUp extends DialogFragment {
             }
         });
 
-        /* Setting listeners */
-        builder.setView(view).setTitle(project.getName())
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
+        builder.setView(view);
 
         return builder.create();
     }

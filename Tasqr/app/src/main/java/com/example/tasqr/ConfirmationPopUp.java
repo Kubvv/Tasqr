@@ -30,8 +30,8 @@ public class ConfirmationPopUp extends DialogFragment {
     private Bundle bundle;
     private ConfirmationListener listener;
 
-    Button dismiss;
-    Button ok;
+    private Button dismiss;
+    private Button ok;
 
     public ConfirmationPopUp(String name, int position){
         this.name = name;
@@ -75,19 +75,6 @@ public class ConfirmationPopUp extends DialogFragment {
         });
 
         builder.setView(view);
-        /* Setting listeners */
-//        builder.setView(view).setTitle("CONFIRM ACTION")
-//                .setNegativeButton("IM NOT", new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//
-//                    }
-//                }).setPositiveButton("YES, I AM", new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                listener.confirmation(position);
-//            }
-//        });
 
         return builder.create();
     }

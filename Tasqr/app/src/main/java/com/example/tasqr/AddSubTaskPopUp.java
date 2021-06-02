@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -25,6 +26,8 @@ public class AddSubTaskPopUp extends DialogFragment {
     private EditText subTaskName;
     private AddSubTaskListener listener;
 
+    private Button dismiss;
+    private Button ok;
     /* Main on create method */
     @NonNull
     @Override
@@ -36,20 +39,24 @@ public class AddSubTaskPopUp extends DialogFragment {
         View view = inflater.inflate(R.layout.popup_addsubtask, null);
 
         subTaskName = view.findViewById(R.id.subtask_nameadd);
+        dismiss = view.findViewById(R.id.dismiss);
+        ok = view.findViewById(R.id.ok);
 
-        /* Setting listeners */
-        builder.setView(view).setTitle("Add Sub Task")
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+        dismiss.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-            }
-        }).setPositiveButton("add", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                listener.sendSubTaskName(subTaskName.getText().toString());
+            public void onClick(View v) {
+                dismiss();
             }
         });
+        ok.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.sendSubTaskName(subTaskName.getText().toString());
+                dismiss();
+            }
+        });
+
+        builder.setView(view);
 
         return builder.create();
     }

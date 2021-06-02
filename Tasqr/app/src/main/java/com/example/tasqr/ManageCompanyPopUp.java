@@ -56,6 +56,8 @@ public class ManageCompanyPopUp extends DialogFragment {
     private boolean isOwner;
     private boolean isManager;
 
+    private Button dismiss;
+
     /* Main on create method */
     @NonNull
     @Override
@@ -91,6 +93,14 @@ public class ManageCompanyPopUp extends DialogFragment {
                 else {
                     startAddUsersActivity("manageCompanyManagers");
                 }
+            }
+        });
+
+        dismiss = view.findViewById(R.id.dismiss);
+        dismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
             }
         });
 
@@ -148,15 +158,7 @@ public class ManageCompanyPopUp extends DialogFragment {
             addUsersButton.setVisibility(View.VISIBLE);
         }
 
-        /* Setting listeners */
-        builder.setView(view).setTitle(bundle.getString("company_name"))
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-
+        builder.setView(view);
         return builder.create();
     }
 

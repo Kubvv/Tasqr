@@ -3,19 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:background="@color/tasqr_purple">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SAMPLE TEXT"
+        android:textColor="@color/text_color"
+        android:layout_marginTop="10dp"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:layout_marginTop="10dp"
         android:id="@+id/addUsersButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/manemployees"
         android:textColor="@color/tasqr_purple"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title"
         app:layout_constraintVertical_bias="0.100000024"
         app:layout_constraintWidth_percent="0.6"
         android:visibility="gone"/>
@@ -39,12 +53,27 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="0dp"
         android:text="@string/leaveproj"
         android:textColor="@color/tasqr_purple"
         android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@id/dismiss"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addLeadersButton"
         app:layout_constraintWidth_percent="0.6" />
+
+    <Button
+        android:id="@+id/dismiss"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/tasqr_yellow"
+        android:backgroundTint="@color/tasqr_yellow"
+        android:text="CANCEL"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/tasqr_purple"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/changeOwnerButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
