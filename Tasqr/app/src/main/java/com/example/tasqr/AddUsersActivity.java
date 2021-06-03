@@ -1,5 +1,6 @@
 package com.example.tasqr;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -8,18 +9,27 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemLongClickListener;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.TaskStackBuilder;
 
 import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.Deadline;
@@ -38,6 +48,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 
 /* AddUsers Activity is an activity that creates list of users based on context, which is usually
@@ -45,6 +56,208 @@ import java.util.HashSet;
 *  click, checked users are then added to appropriate objects in database, thus adding them to
 * projects, companies etc..  */
 public class AddUsersActivity extends AppCompatActivity {
+
+    private class UserListItem{
+        private CheckedTextView checkBox;
+        private String name;
+        private String skill1;
+        private String skill2;
+        private String skill3;
+
+        public UserListItem(UserListItem item){
+
+            this.checkBox = item.checkBox;
+            this.name = item.name;
+            this.skill1 = item.skill1;
+            this.skill2 = item.skill2;
+            this.skill3 = item.skill3;
+        }
+
+        public UserListItem(String name, String skill1, String skill2, String skill3){
+            this.name = name;
+            this.skill1 = skill1;
+            this.skill2 = skill2;
+            this.skill3 = skill3;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getSkill1() {
+            return skill1;
+        }
+
+        public String getSkill2() {
+            return skill2;
+        }
+
+        public String getSkill3() {
+            return skill3;
+        }
+
+        public CheckedTextView getCheckBox(){
+            return checkBox;
+        }
+
+        public void setCheckBox(CheckedTextView view){
+            this.checkBox = view;
+        }
+
+        public void setCheckBoxChecked(boolean toCheck){
+            if(checkBox != null) {
+                Log.e(TAG, "setCheckBoxChecked: changing to " + toCheck);
+                checkBox.setChecked(toCheck);
+            }
+        }
+    }
+
+    private class UserListAdapter extends ArrayAdapter implements Filterable {
+
+        private final Activity context;
+        private SparseBooleanArray checkedItems;
+        private ArrayList<UserListItem> displayArray;
+        private ArrayList<UserListItem> filterArray;
+        private HashMap<Integer, Integer> filterToDisplay;
+
+        public UserListAdapter(Activity context, ArrayList<UserListItem> displayArray) {
+            super(context, R.layout.project_list_item, displayArray);
+            this.context = context;
+            this.displayArray = displayArray;
+            this.filterArray = displayArray;
+            checkedItems = new SparseBooleanArray(displayArray.size());
+            filterToDisplay = new HashMap<>();
+            for(int i = 0; i < displayArray.size(); i++)
+                filterToDisplay.put(i, i);
+        }
+
+        @Override
+        public int getCount() {
+            return filterArray.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return position;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        /* Creates one row of ListView, consisting of task name */
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View row = convertView;
+            LayoutInflater inflater = context.getLayoutInflater();
+
+            row = inflater.inflate(R.layout.user_list_item, null, true);
+
+            filterArray.get(position).setCheckBox(row.findViewById(R.id.checkedTextView));
+            displayArray.get(filterToDisplay.get(position)).setCheckBox(row.findViewById(R.id.checkedTextView));
+
+            TextView skill1 = row.findViewById(R.id.skill1);
+            TextView skill2 = row.findViewById(R.id.skill2);
+            TextView skill3 = row.findViewById(R.id.skill3);
+
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    filterArray.get(position).getCheckBox().toggle();
+                    checkedItems.put(filterToDisplay.get(position), filterArray.get(position).getCheckBox().isChecked());
+                    Log.e(TAG, "onClick: " + filterArray.get(position).getCheckBox().isChecked() + " " + checkedItems.get(filterToDisplay.get(position)));
+                }
+            });
+
+            filterArray.get(position).getCheckBox().setText(filterArray.get(position).getName());
+
+            skill1.setText(filterArray.get(position).getSkill1());
+            skill2.setText(filterArray.get(position).getSkill2());
+            skill3.setText(filterArray.get(position).getSkill3());
+
+            if (checkedItems.get(filterToDisplay.get(position))) {
+                filterArray.get(position).setCheckBoxChecked(true);
+                displayArray.get(filterToDisplay.get(position)).setCheckBoxChecked(true);
+            }
+
+            return row;
+        }
+
+        public SparseBooleanArray getChecked()
+        {
+            return checkedItems;
+        }
+
+        public void setChecked(int position, boolean toCheck){
+            Log.e(TAG, "setChecked: " + position);
+            checkedItems.put(position, toCheck);
+            filterArray.get(position).setCheckBoxChecked(toCheck);
+        }
+
+        public int getSize(){
+            return displayArray.size();
+        }
+
+        @NonNull
+        @Override
+        public Filter getFilter() {
+            Filter filter = new Filter() {
+
+                @SuppressWarnings("unchecked")
+                @Override
+                protected void publishResults(CharSequence constraint,FilterResults results) {
+                    filterArray = (ArrayList<UserListItem>) results.values; // has the filtered values
+                    notifyDataSetChanged();  // notifies the data with new filtered values
+                }
+
+                @Override
+                protected FilterResults performFiltering(CharSequence constraint) {
+                    FilterResults results = new FilterResults();        // Holds the results of a filtering operation in values
+                    ArrayList<UserListItem> FilteredArrList = new ArrayList<UserListItem>();
+
+                    if (displayArray == null) {
+                        displayArray = new ArrayList<UserListItem>(filterArray); // saves the original data in mOriginalValues
+                    }
+
+                    /********
+                     *
+                     *  If constraint(CharSequence that is received) is null returns the mOriginalValues(Original) values
+                     *  else does the Filtering and returns FilteredArrList(Filtered)
+                     *
+                     ********/
+                    if (constraint == null || constraint.length() == 0) {
+                        // set the Original result to return
+                        results.count = displayArray.size();
+                        results.values = displayArray;
+                        for(int i = 0; i < displayArray.size(); i++)
+                            filterToDisplay.put(i, i);
+
+                    } else {
+                        constraint = constraint.toString().toLowerCase();
+                        int counter = 0;
+                        for (int i = 0; i < displayArray.size(); i++) {
+                            String data = displayArray.get(i).getName();
+                            if (data.toLowerCase().startsWith(constraint.toString())) {
+                                FilteredArrList.add(new UserListItem(displayArray.get(i)));
+                                filterToDisplay.put(counter, i);
+                                counter++;
+                            }
+                        }
+                        // set the Filtered result to return
+                        results.count = FilteredArrList.size();
+                        results.values = FilteredArrList;
+                    }
+                    return results;
+                }
+            };
+            return filter;
+        }
+
+    }
+
+    /************END OF INNER CLASSES*****************/
 
     private static final String TAG = "AddUsersActivity";
 
@@ -75,9 +288,9 @@ public class AddUsersActivity extends AppCompatActivity {
     /* Arraylists used for creating user listView */
     private ListView listView;
     private ArrayList<User> userArray = new ArrayList<>();
-    private ArrayList<String> displayArray = new ArrayList<>();
+    private ArrayList<UserListItem> displayArray = new ArrayList<>();
     private ArrayList<String> enlisted = new ArrayList<>();
-    ArrayAdapter<String> adapter;
+    private UserListAdapter adapter;
 
     private TextView addUsersTitle;
     private EditText searchUsers;
@@ -165,8 +378,8 @@ public class AddUsersActivity extends AppCompatActivity {
             else if (previous_activity.equals("Task")) {
                 usersMail.add(leader);
             }
-            SparseBooleanArray checked = listView.getCheckedItemPositions();
-            for (int i = 0; i < listView.getCount(); i++) {
+            SparseBooleanArray checked = adapter.getChecked();
+            for (int i = 0; i < adapter.getSize(); i++) {
                 if (checked.get(i)) {
                     checkedUsers.add(userArray.get(i));
                     usersMail.add(userArray.get(i).getMail());
@@ -268,8 +481,8 @@ public class AddUsersActivity extends AppCompatActivity {
     }
 
     private void checkUsers(boolean isCheck) {
-        for (int i = 0; i < listView.getCount(); i++) {
-            listView.setItemChecked(i, isCheck);
+        for (int i = 0; i < adapter.getSize(); i++) {
+            adapter.setChecked(i, isCheck);
         }
     }
 
@@ -360,7 +573,7 @@ public class AddUsersActivity extends AppCompatActivity {
                     /* If user is not the owner show him on the list of users that can be added */
                     if (!user.getMail().equals(logged_mail)) {
                         userArray.add(user);
-                        displayArray.add(user.getName() + " " + user.getSurname());
+                        addToDisplayArray(user);
                     } else {
                         owner = user;
                     }
@@ -388,7 +601,7 @@ public class AddUsersActivity extends AppCompatActivity {
                     /* If user is not the owner show him on the list of users that can be added */
                     if (!user.getMail().equals(logged_mail) && user.getCompanies().contains(currCompany.getId())) {
                         userArray.add(user);
-                        displayArray.add(user.getName() + " " + user.getSurname());
+                        addToDisplayArray(user);
                     } else if (user.getMail().equals(logged_mail)) {
                         owner = user;
                     }
@@ -424,7 +637,7 @@ public class AddUsersActivity extends AppCompatActivity {
                     if (user.getMail().equals(projectUsers.get(i))) {
                         if (!user.getMail().equals(logged_mail)) {
                             userArray.add(user);
-                            displayArray.add(user.getName() + " " + user.getSurname());
+                            addToDisplayArray(user);
                         }
                         i++;
                     }
@@ -445,7 +658,7 @@ public class AddUsersActivity extends AppCompatActivity {
         /* fetching project users in order to show them in a listview */
         for (int i = 1; i < checked.size(); i++) {
             userArray.add(checked.get(i));
-            displayArray.add(checked.get(i).getName() + " " + checked.get(i).getSurname());
+            addToDisplayArray(checked.get(i));
         }
 
         setUserListAdapter();
@@ -472,7 +685,7 @@ public class AddUsersActivity extends AppCompatActivity {
                         String mail = user.getMail();
                         if (!mail.equals(currCompany.getOwner())) {
                             userArray.add(user);
-                            displayArray.add(user.getName() + " " + user.getSurname());
+                            addToDisplayArray(user);
                         }
                     }
                 }
@@ -486,7 +699,7 @@ public class AddUsersActivity extends AppCompatActivity {
                         String mail = user.getMail();
                         if (mail.equals(alreadyWorking.get(j))) {
                             userArray.add(user);
-                            displayArray.add(user.getName() + " " + user.getSurname());
+                            addToDisplayArray(user);
                             j++;
                         }
                     }
@@ -498,9 +711,9 @@ public class AddUsersActivity extends AppCompatActivity {
                 }
 
                 int j = 0;
-                for (int i = 0; i < listView.getCount() && j < checked.size(); i++) {
+                for (int i = 0; i < adapter.getSize() && j < checked.size(); i++) {
                      if (userArray.get(i).getMail().equals(checked.get(j))) {
-                         listView.setItemChecked(i, true);
+                         adapter.setChecked(i, true);
                          j++;
                      }
                 }
@@ -535,7 +748,7 @@ public class AddUsersActivity extends AppCompatActivity {
                         if (workers == null || i == workers.size()) {
                             if (!ownerAdded && !companyOwner.getMail().equals(logged_mail)) {
                                 userArray.add(companyOwner);
-                                displayArray.add(companyOwner.getName() + " " + companyOwner.getSurname());
+                                addToDisplayArray(companyOwner);
                             }
                             break;
                         }
@@ -546,12 +759,12 @@ public class AddUsersActivity extends AppCompatActivity {
                         }
                         else if (mail.equals(workers.get(i))) {
                             userArray.add(user);
-                            displayArray.add(user.getName() + " " + user.getSurname());
+                            addToDisplayArray(user);
                             i++;
                         }
                         else if (mail.equals(companyOwner.getMail()) && !mail.equals(logged_mail)) {
                             userArray.add(companyOwner);
-                            displayArray.add(companyOwner.getName() + " " + companyOwner.getSurname());
+                            addToDisplayArray(user);
                             ownerAdded = true;
                         }
                     }
@@ -569,7 +782,7 @@ public class AddUsersActivity extends AppCompatActivity {
                         }
                         else if (mail.equals(alreadyWorking.get(j))) {
                             userArray.add(user);
-                            displayArray.add(user.getName() + " " + user.getSurname());
+                            addToDisplayArray(user);
                             j++;
                         }
                     }
@@ -578,9 +791,9 @@ public class AddUsersActivity extends AppCompatActivity {
                 setUserListAdapter();
 
                 int j = 0;
-                for (int i = 0; i < listView.getCount() && j < checked.size(); i++) {
+                for (int i = 0; i < adapter.getSize() && j < checked.size(); i++) {
                     if (userArray.get(i).getMail().equals(checked.get(j))) {
-                        listView.setItemChecked(i, true);
+                        adapter.setChecked(i, true);
                         j++;
                     }
                 }
@@ -595,13 +808,13 @@ public class AddUsersActivity extends AppCompatActivity {
 
     /* create adapter for list view */
     private void setUserListAdapter() {
-        adapter = new ArrayAdapter(AddUsersActivity.this, R.layout.user_list_item, displayArray);
+        adapter = new UserListAdapter(AddUsersActivity.this, displayArray);
         listView.setAdapter(adapter);
     }
 
     /* Adds company and all it's workers to database.
      * Also updates all added user's companies arrays.
-     * If succesful, goes to ProfileActivity and closes all previous activities.*/
+     * If successful, goes to ProfileActivity and closes all previous activities.*/
     private void finishAddingCompany (ArrayList<User> companyUsers, ArrayList<String> usersMail) {
         /* Create new company to be added */
         DatabaseReference pushedCompaniesRef = companiesRef.push();
@@ -1028,5 +1241,17 @@ public class AddUsersActivity extends AppCompatActivity {
         intent.putExtra("projectId", projectId);
         intent.putParcelableArrayListExtra("checked_users", checked);
         startActivity(intent);
+    }
+
+    private void addToDisplayArray(User user)
+    {
+        String[] skills = {"-", "-", "-"};
+        if(user.getSkills() != null) {
+            int size = Math.min(3, user.getSkills().size());
+
+            for (int i = 0; i < size; i++)
+                skills[i] = user.getSkills().get(i);
+        }
+        displayArray.add(new UserListItem(user.getName() + " " + user.getSurname(), skills[0], skills[1], skills[2]));
     }
 }
