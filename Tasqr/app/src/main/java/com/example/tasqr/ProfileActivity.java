@@ -263,26 +263,23 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     /* used for setting buttons' visibility for when the profile we are on are not our's */
     private void hideButtons() {
-        buttonSettings.setVisibility(View.INVISIBLE);
-        buttonLogout.setVisibility(View.INVISIBLE);
-        buttonCreateCompany.setVisibility(View.INVISIBLE);
-        buttonUpdateProfile.setVisibility(View.INVISIBLE);
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) recyclerView.getLayoutParams();
-        params.height = 600;
-        recyclerView.setLayoutParams(params);
+        buttonSettings.setVisibility(View.GONE);
+        buttonLogout.setVisibility(View.GONE);
+        buttonCreateCompany.setVisibility(View.GONE);
+        buttonUpdateProfile.setVisibility(View.GONE);
+
+
     }
 
     private void initRecyclerView(User user) {
         ArrayList<String> userSkills = new ArrayList<>();
-        int recyclerSize = 8;
+        int recyclerSize = !clicked_mail.equals(logged_mail) ? 16 : 8;
+
 
         if (user.getSkills() == null || user.getSkills().size() == 0) {
             skillText.setText("No skills yet :(");
         }
         else {
-            if (!clicked_mail.equals(logged_mail)) {
-                recyclerSize = user.getSkills().size();
-            }
             skillText.setText("My skills:");
             for (int i = 0; i < recyclerSize && i < user.getSkills().size(); i++) {
                 userSkills.add(user.getSkills().get(i));

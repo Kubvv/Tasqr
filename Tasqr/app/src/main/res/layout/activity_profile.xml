@@ -169,7 +169,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
-                android:columnWidth="95dp"
+                android:columnWidth="90dp"
                 app:layout_constraintBottom_toTopOf="@+id/button_update_profile"
                 app:layout_constraintTop_toBottomOf="@+id/skill_text" />
         </androidx.constraintlayout.widget.ConstraintLayout>
