@@ -90,9 +90,12 @@
                 android:text=""
                 android:textColor="@color/text_color"
                 android:textSize="30sp"
+                android:textAlignment="center"
+                android:paddingHorizontal="30dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/user_surname" />
+
 
             <Button
                 android:id="@+id/button_settings"
@@ -156,7 +159,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:background="@android:color/transparent"
-                android:text="Example"
+                android:text=""
                 android:textColor="@color/text_color"
                 android:textSize="28sp"
                 android:textAllCaps="false"
