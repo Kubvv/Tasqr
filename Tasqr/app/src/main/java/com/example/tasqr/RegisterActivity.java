@@ -133,7 +133,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         /* Using regex check if name and surname consists of only letters */
-        Pattern p = Pattern.compile("[A-Za-z]{1,40}");
+        Pattern p = Pattern.compile("[A-Za-zążźłóęćńśĄŻŹŁÓĘĆŃŚ]{1,40}");
         Matcher m = p.matcher(data[0]);
         if (!m.matches()) {
             Utilities.toastMessage("Name can only contain characters between A-Z and a-z", RegisterActivity.this);
@@ -152,20 +152,11 @@ public class RegisterActivity extends AppCompatActivity {
 
         /* Also check mail correctness */
 
-        /* old matching, to delete TODO */
-        p = Pattern.compile("@");
-        m = p.matcher(data[2]);
-        if (!m.find()) {
+        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(data[2]);
+        if (!matcher.find()) {
             Utilities.toastMessage("Not a valid mail", RegisterActivity.this);
             return;
         }
-
-        /* new matching, to uncomment TODO */
-//        Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(data[2]);
-//        if (!matcher.find()) {
-//            Utilities.toastMessage("Not a valid mail", RegisterActivity.this);
-//            return;
-//        }
 
         /* Check if parsed mail is already in the database. If not, go on to registering user*/
         Query q = usersRef.orderByChild("mail").equalTo(data[2]);
@@ -196,7 +187,7 @@ public class RegisterActivity extends AppCompatActivity {
         DatabaseReference pushedUsersRef = usersRef.push();
         String id = pushedUsersRef.getKey();
         String hashedPassword;
-        /* TODO uncomment me plis
+
         byte[] salt = createSalt();
 
         try {
@@ -206,11 +197,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
         String strSalt = Utilities.bytesToHex(salt);
-        Log.e(TAG, "addUser: " + hashedPassword + " " + strSalt);*/
-
-        /* TODO wyjebongo me plis */
-        hashedPassword = data[3];
-        String strSalt = "";
+        Log.e(TAG, "addUser: " + hashedPassword + " " + strSalt);
 
         User user = new User(id, data[0], data[1], data[2], hashedPassword, strSalt);
         usersRef.child(id).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {

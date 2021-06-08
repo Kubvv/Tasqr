@@ -41,6 +41,8 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -239,11 +241,23 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                 return null;
             }
             else {
-                newUserData.setPassword(password);
+                String hashedPassword = new String();
+
+                byte[] salt = new byte[20];
+                SecureRandom random = new SecureRandom();
+                random.nextBytes(salt);
+
+                try {
+                    hashedPassword = Utilities.generateHash(password, salt);
+                } catch (NoSuchAlgorithmException e) {
+                }
+
+                newUserData.setPassword(hashedPassword);
+                newUserData.setSalt(Utilities.bytesToHex(salt));
             }
         }
 
-        Pattern p = Pattern.compile("[A-Za-z]{1,40}");
+        Pattern p = Pattern.compile("[A-Za-zążźłóęćńśĄŻŹŁÓĘĆŃŚ]{1,40}");
         Matcher m;
 
         /* validate name */

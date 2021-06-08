@@ -104,7 +104,6 @@ public class LoginActivity extends AppCompatActivity {
                 if (snapshot.getChildrenCount() == 1) {
                     for (DataSnapshot childSnapshot: snapshot.getChildren()) {
                         User u = childSnapshot.getValue(User.class);
-                        /* TODO Uncomment me plis
                         byte[] salt = Utilities.hexToBytes(u.getSalt());
                         String hashedPassword;
 
@@ -114,10 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                         } catch (NoSuchAlgorithmException e) {
                             Utilities.toastMessage("Error " + e, LoginActivity.this);
                             return;
-                        } */
-
-                        /* TODO wyjebongo me plis */
-                        String hashedPassword = pass;
+                        }
 
                         if (u.getPassword().equals(hashedPassword)) {
                             loginUser(u.getName(), u.getSurname(), u.getMail());
