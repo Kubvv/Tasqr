@@ -1,15 +1,13 @@
 /*
  *   MANAGE COMPANY POPUP
  *   A dialog fragment which gets user input for managing company
- *   CONTAINS    buttons
- *               EditText form
+ *   CONTAINS    Button add, change, leave
  * */
 
-package com.example.tasqr;
+package com.example.tasqr.PopUps;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +19,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.tasqr.AddUsersActivity;
+import com.example.tasqr.ChangeOwnershipActivity;
+import com.example.tasqr.ManageCompanyActivity;
+import com.example.tasqr.R;
+import com.example.tasqr.Utilities;
 import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
@@ -36,29 +39,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ManageCompanyPopUp extends DialogFragment {
 
-    private static final String TAG = "ManageCompanyPopUp";
-
-    private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-    private DatabaseReference rootRef = database.getReference();
-
-    private Bundle bundle;
-
-    private Button addUsersButton;
-    private Button addManagersButton;
-    private Button changeOwnerButton;
-    private Button leaveCompanyButton;
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+    private final DatabaseReference rootRef = database.getReference();
 
     private User user;
     private Project project;
     private Company company;
-    private String position;
     private String logged_mail;
     private boolean isOwner;
     private boolean isManager;
 
-    private Button dismiss;
+    private View view;
+    private Button addUsersButton;
+    private Button addManagersButton;
+    private Button changeOwnerButton;
 
-    /* Main on create method */
+    /* MAIN ON CREATE METHOD */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -66,16 +62,38 @@ public class ManageCompanyPopUp extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.popup_managecompany, null);
+        view = inflater.inflate(R.layout.popup_managecompany, null);
 
-        bundle = getArguments();
+        /* Bundle get */
+        fetchBundle();
+
+        /* Setting up behaviour, style and finding views */
+        setBehaviour();
+
+        if (isOwner) {
+            addUsersButton.setVisibility(View.VISIBLE);
+            addManagersButton.setVisibility(View.VISIBLE);
+            changeOwnerButton.setVisibility(View.VISIBLE);
+        }
+        else if (isManager)
+            addUsersButton.setVisibility(View.VISIBLE);
+
+        builder.setView(view);
+        return builder.create();
+    }
+
+    /* FETCHING INFO FROM BUNDLE */
+    private void fetchBundle(){
+        Bundle bundle = getArguments();
         logged_mail = bundle.getString("logged_mail");
         company = bundle.getParcelable("company");
-        position = bundle.getString("position");
         isOwner = bundle.getBoolean("isOwner");
         isManager = bundle.getBoolean("isManager");
         user = bundle.getParcelable("user");
+    }
 
+    /* FINDING VIEWS AND SETTING LISTENERS FOR THEM */
+    private void setBehaviour(){
         addUsersButton = view.findViewById(R.id.addUsersButton);
         addUsersButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,24 +101,15 @@ public class ManageCompanyPopUp extends DialogFragment {
                 startAddUsersActivity("manageCompanyUsers");
             }
         });
+
         addManagersButton = view.findViewById(R.id.addLeadersButton);
         addManagersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (company.getWorkers() == null || company.getWorkers().size() == 0) {
+                if (company.getWorkers() == null || company.getWorkers().size() == 0)
                     Utilities.toastMessage("No users to choose from", getActivity());
-                }
-                else {
+                else
                     startAddUsersActivity("manageCompanyManagers");
-                }
-            }
-        });
-
-        dismiss = view.findViewById(R.id.dismiss);
-        dismiss.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
             }
         });
 
@@ -108,24 +117,28 @@ public class ManageCompanyPopUp extends DialogFragment {
         changeOwnerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (company.getWorkers() == null || company.getWorkers().size() == 0) {
+                if (company.getWorkers() == null || company.getWorkers().size() == 0)
                     Utilities.toastMessage("No users to choose from", getActivity());
-                }
-                else {
+                else
                     startChangeOwnershipActivity();
-                }
             }
         });
 
-        leaveCompanyButton = view.findViewById(R.id.leaveCompanyButton);
+        Button dismiss = view.findViewById(R.id.dismiss);
+        dismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+
+        Button leaveCompanyButton = view.findViewById(R.id.leaveCompanyButton);
         leaveCompanyButton.setVisibility(View.VISIBLE);
-
-
         leaveCompanyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                /* fetch user and project to have up to date data */
+                /* Fetch user and project to have up to date data */
                 readUser(new ManageCompanyPopUp.FirebaseUserCallback() {
                     @Override
                     public void onUserCallback(User usr) {
@@ -136,7 +149,7 @@ public class ManageCompanyPopUp extends DialogFragment {
                             public void onCompanyCallback(Company cmp) {
                                 company = cmp;
 
-                                /* actual leave company function */
+                                /* Actual leave company function */
                                 if (leaveCompany())
                                     refreshManageCompanies();
                             }
@@ -147,21 +160,9 @@ public class ManageCompanyPopUp extends DialogFragment {
 
             }
         });
-
-
-        if (isOwner) {
-            addUsersButton.setVisibility(View.VISIBLE);
-            addManagersButton.setVisibility(View.VISIBLE);
-            changeOwnerButton.setVisibility(View.VISIBLE);
-        }
-        else if (isManager) {
-            addUsersButton.setVisibility(View.VISIBLE);
-        }
-
-        builder.setView(view);
-        return builder.create();
     }
 
+    /* ADD USERS INTENT STARTER */
     private void startAddUsersActivity(String previous_activity) {
         Intent intent = new Intent(getContext(), AddUsersActivity.class);
         intent.putExtra("logged_mail", logged_mail);
@@ -172,6 +173,7 @@ public class ManageCompanyPopUp extends DialogFragment {
         startActivity(intent);
     }
 
+    /* CHANGE OWNER INTENT STARTER */
     private void startChangeOwnershipActivity() {
         Intent intent = new Intent(getContext(), ChangeOwnershipActivity.class);
         intent.putExtra("logged_mail", logged_mail);
@@ -181,6 +183,7 @@ public class ManageCompanyPopUp extends DialogFragment {
         startActivity(intent);
     }
 
+    /* MANAGE COMPANY INTENT STARTER */
     private void refreshManageCompanies() {
         Intent intent = new Intent(getContext(), ManageCompanyActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -271,9 +274,9 @@ public class ManageCompanyPopUp extends DialogFragment {
 
         deleteCompanyFromUser();
 
-        if (company.getWorkers() == null || company.getWorkers().isEmpty()) {
+        if (company.getWorkers() == null || company.getWorkers().isEmpty())
             deleteCompany();
-        } else {
+        else {
             deleteUserFromManagersAndWorkers();
             deleteUserFromCompanyProjects();
         }
@@ -282,18 +285,17 @@ public class ManageCompanyPopUp extends DialogFragment {
     }
 
     private void deleteCompanyFromUser() {
-        if (isOwner || isManager) {
+        if (isOwner || isManager)
             user.getManagedCompanies().remove(company.getName());
-        }
 
         user.getCompanies().remove(company.getId());
         rootRef.child("Users").child(user.getId()).setValue(user);
     }
 
     public void deleteCompany() {
-        for (int i = 0; i < company.getProjectsId().size(); i++) {
+        for (int i = 0; i < company.getProjectsId().size(); i++)
             rootRef.child("Projects").child(company.getProjectsId().get(i)).removeValue();
-        }
+
         rootRef.child("Companies").child(company.getId()).removeValue();
     }
 
@@ -325,10 +327,6 @@ public class ManageCompanyPopUp extends DialogFragment {
 
     private void deleteUserFromCompanyProjectsContinue(ArrayList<Project> companyProjects) {
         for (Project prj : companyProjects) {
-            Log.d(TAG, "deleteUserFromCompanyProjectsContinue: " + prj);
-        }
-        Log.d(TAG, "deleteUserFromCompanyProjectsContinue: end");
-        for (Project prj : companyProjects) {
             project = prj;
             leaveProject();
         }
@@ -340,8 +338,8 @@ public class ManageCompanyPopUp extends DialogFragment {
 
     private boolean leaveProject() {
         if (project.getLeaders().size() == 1 && project.getLeaders().get(0).equals(logged_mail) && project.getWorkers().size() != 1) {
-            /* if user is the only leader, add first worker to leaders */
-            String newLeader = new String();
+            /* If user is the only leader, add first worker to leaders */
+            String newLeader = "";
             if (project.getWorkers().get(0).equals(user.getMail()))
                 newLeader = project.getWorkers().get(1);
             else
@@ -352,9 +350,9 @@ public class ManageCompanyPopUp extends DialogFragment {
 
         deleteProjectFromUser();
 
-        if (project.getWorkers() == null || project.getWorkers().size() == 0) {
+        if (project.getWorkers() == null || project.getWorkers().size() == 0)
             deleteProject();
-        } else {
+        else {
             deleteUserFromLeadersAndWorkers();
             deleteUserFromProjectTasks();
         }
@@ -374,9 +372,9 @@ public class ManageCompanyPopUp extends DialogFragment {
     }
 
     private void deleteProject() {
-        for (int i = 0; i < project.getTasks().size(); i++) {
+        for (int i = 0; i < project.getTasks().size(); i++)
             rootRef.child("Tasks").child(project.getTasks().get(i)).removeValue();
-        }
+
         rootRef.child("Projects").child(project.getId()).removeValue();
     }
 
@@ -415,9 +413,8 @@ public class ManageCompanyPopUp extends DialogFragment {
                 project.getTasks().remove(task.getId());
                 rootRef.child("Tasks").child(task.getId()).removeValue();
             }
-            else {
+            else
                 rootRef.child("Tasks").child(task.getId()).setValue(task);
-            }
         }
 
         rootRef.child("Projects").child(project.getId()).setValue(project);

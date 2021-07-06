@@ -167,7 +167,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/user_email" />
 
-            <com.example.tasqr.AutoFitRecyclerView
+            <com.example.tasqr.Styling.AutoFitRecyclerView
                 android:id="@+id/skillsList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -1,11 +1,10 @@
 /*
- *   ADD SUBTASK POPUP
- *   A dialog fragment which gets user input for creating new subtask
- *   CONTAINS    Cancel and add buttons
- *               EditText form
+ *   WORKER LIST POP UP
+ *   Popup listing all workers in a given project/task
+ *   CONTAINS    ListView list of all workers
  * */
 
-package com.example.tasqr;
+package com.example.tasqr.PopUps;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -25,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.tasqr.ProfileActivity;
+import com.example.tasqr.R;
 import com.example.tasqr.classes.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,22 +35,23 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class WorkerListPopUp extends DialogFragment {
 
     private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
     private final DatabaseReference itemReference;
 
-    private ArrayList<String> usersMail = new ArrayList<>();
+    private final ArrayList<String> usersMail = new ArrayList<>();
 
-    private Button dismiss;
+    private ListView workerList;
 
     public WorkerListPopUp(DatabaseReference itemReference){
         super();
         this.itemReference = itemReference;
     }
 
-    /* Main on create method */
+    /* MAIN ON CREATE METHOD */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -60,7 +62,36 @@ public class WorkerListPopUp extends DialogFragment {
         View view = inflater.inflate(R.layout.popup_worker_list, null);
 
         ListView workerList = view.findViewById(R.id.workerList);
-        dismiss = view.findViewById(R.id.dismiss);
+        Button dismiss = view.findViewById(R.id.dismiss);
+
+        fetchData();
+
+        workerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent profileIntent = new Intent(getContext(), ProfileActivity.class);
+
+                profileIntent.putExtra("clicked_mail", usersMail.get(position));
+                profileIntent.putExtra("logged_mail", "");
+
+                startActivity(profileIntent);
+            }
+        });
+
+        dismiss.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+
+        builder.setView(view);
+
+        return builder.create();
+    }
+
+    /* FETCH ITEMS FROM DATABASE */
+    private void fetchData(){
         /* Getting item list from reference */
         itemReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -88,7 +119,6 @@ public class WorkerListPopUp extends DialogFragment {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-
                     }
                 });
             }
@@ -97,28 +127,5 @@ public class WorkerListPopUp extends DialogFragment {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         });
-
-        workerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent profileIntent = new Intent(getContext(), ProfileActivity.class);
-
-                profileIntent.putExtra("clicked_mail", usersMail.get(position));
-                profileIntent.putExtra("logged_mail", "");
-
-                startActivity(profileIntent);
-            }
-        });
-
-        dismiss.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
-
-        builder.setView(view);
-
-        return builder.create();
     }
 }

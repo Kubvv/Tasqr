@@ -1,3 +1,10 @@
+/*
+ * UPDATE PROFILE ACTIVITY
+ * Contains     IMAGE profile picture
+ *              Button change profile picture, save
+ *              EditText forms to change password, name or surname
+ */
+
 package com.example.tasqr;
 
 import androidx.annotation.NonNull;
@@ -51,49 +58,33 @@ import io.grpc.Compressor;
 
 public class UpdateProfileActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final String TAG = "UpdateProfileActivity";
-
     private User user;
 
     ArrayList<String> skills = new ArrayList<>();
     boolean areSkillsChanged;
 
-    private Bundle bndl = new Bundle();
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+    private final DatabaseReference rootRef = database.getReference();
+    private final DatabaseReference usersRef = rootRef.child("Users");
 
-    private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-    private DatabaseReference rootRef = database.getReference();
-    private DatabaseReference usersRef = rootRef.child("Users");
+    private final StorageReference mStorageRef = FirebaseStorage.getInstance().getReference("Images");;
 
-    private StorageReference avatarRef;
-    private StorageReference mStorageRef = FirebaseStorage.getInstance().getReference("Images");;
-
-    private ImageView avatarImageView, addAvatarImageView;
+    private ImageView avatarImageView;
     private EditText nameEditText, surnameEditText, passwordEditText, passwordConfirmEditText;
-    private Button buttonSave, buttonSkills;
-    private Uri avatarUri, uri, cropped_uri;
+    private Uri avatarUri;
+    private Uri cropped_uri;
 
     private final int LAUNCH_SKILLS_ACTIVITY = 1;
 
+    /* MAIN ON CREATE METHOD */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_profile);
 
-        addAvatarImageView = findViewById(R.id.imageViewAddAvatar);
-        avatarImageView = findViewById(R.id.user_avatar);
-        nameEditText = findViewById(R.id.editTextName);
-        surnameEditText = findViewById(R.id.editTextSurname);
-        passwordEditText = findViewById(R.id.editTextPassword);
-        passwordConfirmEditText = findViewById(R.id.editTextPasswordConfirm);
-        buttonSave = findViewById(R.id.button_save);
-        buttonSkills = findViewById(R.id.skill_button);
+        setBehavior();
 
-        addAvatarImageView.setOnClickListener(this);
-        avatarImageView.setOnClickListener(this);
-        buttonSave.setOnClickListener(this);
-        buttonSkills.setOnClickListener(this);
-
-        bndl = getIntent().getExtras();
+        Bundle bndl = getIntent().getExtras();
         user = bndl.getParcelable("user");
 
         DatabaseReference userRef = database.getReference("Users/" + user.getId());
@@ -117,14 +108,29 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
         nameEditText.setText(user.getName());
         surnameEditText.setText(user.getSurname());
 
-        avatarRef = FirebaseStorage.getInstance().getReference("Images/" + user.getMail());
-
         if (avatarUri != null)
             Picasso.with(UpdateProfileActivity.this).load(avatarUri).into(avatarImageView);
         else
             avatarImageView.setImageResource(R.drawable.avatar);
     }
 
+    private void setBehavior(){
+        ImageView addAvatarImageView = findViewById(R.id.imageViewAddAvatar);
+        avatarImageView = findViewById(R.id.user_avatar);
+        nameEditText = findViewById(R.id.editTextName);
+        surnameEditText = findViewById(R.id.editTextSurname);
+        passwordEditText = findViewById(R.id.editTextPassword);
+        passwordConfirmEditText = findViewById(R.id.editTextPasswordConfirm);
+        Button buttonSave = findViewById(R.id.button_save);
+        Button buttonSkills = findViewById(R.id.skill_button);
+
+        addAvatarImageView.setOnClickListener(this);
+        avatarImageView.setOnClickListener(this);
+        buttonSave.setOnClickListener(this);
+        buttonSkills.setOnClickListener(this);
+    }
+
+    /* BEHAVIOR LIST */
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
@@ -143,9 +149,9 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                 break;
             case R.id.skill_button:
                 Intent updateSkillIntent = new Intent(this, SkillsActivity.class);
-                Bundle skillbundle = new Bundle();
-                skillbundle.putParcelable("user", user);
-                updateSkillIntent.putExtras(skillbundle);
+                Bundle skillBundle = new Bundle();
+                skillBundle.putParcelable("user", user);
+                updateSkillIntent.putExtras(skillBundle);
                 startActivityForResult(updateSkillIntent, LAUNCH_SKILLS_ACTIVITY);
                 break;
         }
@@ -189,13 +195,11 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
 
         /* request code for crop image addon is specified by constant */
         if (requestCode == CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            uri = data.getData();
-            if (CropImage.isReadExternalStoragePermissionsRequired(this, uri)) {
+            Uri uri = data.getData();
+            if (CropImage.isReadExternalStoragePermissionsRequired(this, uri))
                 requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
-            }
-            else {
+            else
                 startCrop(uri);
-            }
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
@@ -220,85 +224,18 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
                 .start(this);
     }
 
+    /* SAVE CHANGES */
     private Intent onButtonSave() {
         User newUserData = new User(user);
-        String name = nameEditText.getText().toString();
-        String surname = surnameEditText.getText().toString();
-        String password = passwordEditText.getText().toString();
-        String passwordConfirm = passwordConfirmEditText.getText().toString();
-
         Intent returnIntent = new Intent();
 
-        /* validate passwords */
-        if (!password.equals("") || !passwordConfirm.equals("")) {
-            if (password.length() > 40) {
-                Utilities.toastMessage("Password must be at most 40 characters long.", UpdateProfileActivity.this);
-                return null;
-            }
-
-            if (!password.equals(passwordConfirm)) {
-                Utilities.toastMessage("New password and confirmation password do not match.", UpdateProfileActivity.this);
-                return null;
-            }
-            else {
-                String hashedPassword = new String();
-
-                byte[] salt = new byte[20];
-                SecureRandom random = new SecureRandom();
-                random.nextBytes(salt);
-
-                try {
-                    hashedPassword = Utilities.generateHash(password, salt);
-                } catch (NoSuchAlgorithmException e) {
-                }
-
-                newUserData.setPassword(hashedPassword);
-                newUserData.setSalt(Utilities.bytesToHex(salt));
-            }
-        }
-
         Pattern p = Pattern.compile("[A-Za-zążźłóęćńśĄŻŹŁÓĘĆŃŚ]{1,40}");
-        Matcher m;
+        /* validate */
+        if(!passwordValidation(newUserData) ||
+                !nameValidation(p, newUserData, returnIntent) ||
+                !surnameValidation(p, newUserData, returnIntent))
+            return null;
 
-        /* validate name */
-        if (!name.equals(user.getName())) {
-            if (name.isEmpty()) {
-                Utilities.toastMessage("Name cannot be empty.", UpdateProfileActivity.this);
-                return null;
-            }
-            if (name.length() > 40) {
-                Utilities.toastMessage("Name must be at most 40 letters long.", UpdateProfileActivity.this);
-                return null;
-            }
-            m = p.matcher(name);
-            if (!m.matches()) {
-                Utilities.toastMessage("Name can only contain characters between A-Z and a-z.", UpdateProfileActivity.this);
-                return null;
-            }
-
-            newUserData.setName(name);
-            returnIntent.putExtra("new_name", name);
-        }
-
-        /* validate surname */
-        if (!surname.equals(user.getSurname())) {
-            if (surname.isEmpty()) {
-                Utilities.toastMessage("Surname cannot be empty.", UpdateProfileActivity.this);
-                return null;
-            }
-            if (surname.length() > 40) {
-                Utilities.toastMessage("Surname must be at most 40 letters long.", UpdateProfileActivity.this);
-                return null;
-            }
-            m = p.matcher(surname);
-            if (!m.matches()) {
-                Utilities.toastMessage("Surname can only contain characters between A-Z and a-z.", UpdateProfileActivity.this);
-                return null;
-            }
-
-            newUserData.setSurname(surname);
-            returnIntent.putExtra("new_surname", surname);
-        }
 
         if (areSkillsChanged) {
             returnIntent.putExtra("new_skills", skills);
@@ -315,6 +252,89 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
 
         return returnIntent;
     }
+
+    private boolean passwordValidation(User newUserData){
+        String password = passwordEditText.getText().toString();
+        String passwordConfirm = passwordConfirmEditText.getText().toString();
+
+        if (!password.equals("") || !passwordConfirm.equals("")) {
+            if (password.length() > 40) {
+                Utilities.toastMessage("Password must be at most 40 characters long.", UpdateProfileActivity.this);
+                return false;
+            }
+
+            if (!password.equals(passwordConfirm)) {
+                Utilities.toastMessage("New password and confirmation password do not match.", UpdateProfileActivity.this);
+                return false;
+            }
+
+            String hashedPassword = new String();
+
+            byte[] salt = new byte[20];
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(salt);
+
+            try {
+                hashedPassword = Utilities.generateHash(password, salt);
+            } catch (NoSuchAlgorithmException e) {
+            }
+
+            newUserData.setPassword(hashedPassword);
+            newUserData.setSalt(Utilities.bytesToHex(salt));
+
+        }
+        return true;
+    }
+
+    private boolean nameValidation(Pattern p, User newUserData, Intent returnIntent){
+        String name = nameEditText.getText().toString();
+
+        if (!name.equals(user.getName())) {
+            if (name.isEmpty()) {
+                Utilities.toastMessage("Name cannot be empty.", UpdateProfileActivity.this);
+                return false;
+            }
+
+            if (name.length() > 40) {
+                Utilities.toastMessage("Name must be at most 40 letters long.", UpdateProfileActivity.this);
+                return false;
+            }
+            Matcher m = p.matcher(name);
+            if (!m.matches()) {
+                Utilities.toastMessage("Name can only contain characters between A-Z and a-z.", UpdateProfileActivity.this);
+                return false;
+            }
+
+            newUserData.setName(name);
+            returnIntent.putExtra("new_name", name);
+        }
+        return true;
+    }
+
+    private boolean surnameValidation(Pattern p, User newUserData, Intent returnIntent){
+        String surname = surnameEditText.getText().toString();
+
+        if (!surname.equals(user.getSurname())) {
+            if (surname.isEmpty()) {
+                Utilities.toastMessage("Surname cannot be empty.", UpdateProfileActivity.this);
+                return false;
+            }
+            if (surname.length() > 40) {
+                Utilities.toastMessage("Surname must be at most 40 letters long.", UpdateProfileActivity.this);
+                return false;
+            }
+            Matcher m = p.matcher(surname);
+            if (!m.matches()) {
+                Utilities.toastMessage("Surname can only contain characters between A-Z and a-z.", UpdateProfileActivity.this);
+                return false;
+            }
+
+            newUserData.setSurname(surname);
+            returnIntent.putExtra("new_surname", surname);
+        }
+        return true;
+    }
+
 
     private Uri compressFile(Uri uri) {
         Bitmap bitmap, newBitmap;
@@ -337,7 +357,6 @@ public class UpdateProfileActivity extends AppCompatActivity implements View.OnC
             return Uri.fromFile(tempFile);
         }
         catch (Exception e) {
-            Log.d(TAG, "compressFile: exception -> " + e);
             return uri;
         }
     }

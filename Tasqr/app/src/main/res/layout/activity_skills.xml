@@ -21,7 +21,7 @@
         android:padding="50dp"
         />
 
-    <com.example.tasqr.AutoFitRecyclerView
+    <com.example.tasqr.Styling.AutoFitRecyclerView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/skillsList"
         android:layout_width="match_parent"

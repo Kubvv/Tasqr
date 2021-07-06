@@ -30,8 +30,6 @@ import io.grpc.okhttp.internal.Util;
  * Register activity. */
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = "LoginActivity";
-
     /* View elements */
     private Button goToRegisterButton;
     private Button loginUserButton;
@@ -91,9 +89,8 @@ public class LoginActivity extends AppCompatActivity {
     private void validateInput() {
         String mail = etMail.getText().toString();
         String pass = etPass.getText().toString();
-        if (mail.length() == 0 || pass.length() == 0) {
+        if (mail.length() == 0 || pass.length() == 0)
             return;
-        }
 
         /* Query the database for user with given mail */
         Query q = usersRef.orderByChild("mail").equalTo(mail);
@@ -108,24 +105,21 @@ public class LoginActivity extends AppCompatActivity {
                         String hashedPassword;
 
                         try {
-                            Log.e(TAG, "onDataChange: " + pass);
                             hashedPassword = Utilities.generateHash(pass, salt);
                         } catch (NoSuchAlgorithmException e) {
                             Utilities.toastMessage("Error " + e, LoginActivity.this);
                             return;
                         }
 
-                        if (u.getPassword().equals(hashedPassword)) {
+                        if (u.getPassword().equals(hashedPassword))
                             loginUser(u.getName(), u.getSurname(), u.getMail());
-                        }
-                        else {
+                        else
                             Utilities.toastMessage("Wrong password", LoginActivity.this);
-                        }
+
                     }
                 }
-                else {
+                else
                     Utilities.toastMessage("Wrong mail or password", LoginActivity.this);
-                }
             }
 
             @Override

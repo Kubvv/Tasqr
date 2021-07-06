@@ -14,14 +14,9 @@ package com.example.tasqr;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,7 +28,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.tasqr.classes.Task;
+import com.example.tasqr.Styling.RecyclerViewAdapter;
 import com.example.tasqr.classes.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -46,16 +41,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
-import com.theartofdev.edmodo.cropper.CropImage;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 /* Profile activity has two functionalities, depending if you are inspecting your own profile or someone else's */
 public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, RecyclerViewAdapter.OnSkillListener {
-
-    private static final String TAG = "ProfileActivity";
 
     private User user;
     /* Stores logged user mail */
@@ -63,14 +54,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     /* Stores clicked user mail, in order to fetch his data from db */
     private String clicked_mail;
 
-    private Bundle bndl = new Bundle();
-
     private RecyclerView recyclerView;
 
     /* Firebase database */
-    private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-    private DatabaseReference rootRef = database.getReference();
-    private DatabaseReference usersRef = rootRef.child("Users");
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+    private final DatabaseReference rootRef = database.getReference();
+    private final DatabaseReference usersRef = rootRef.child("Users");
 
     private StorageReference avatarRef;
 
@@ -83,11 +72,35 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     private final int LAUNCH_UPDATE_PROFILE_ACTIVITY = 1;
 
+    /* MAIN ON CREATE METHOD */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        setBehavior();
+
+        Bundle bndl = getIntent().getExtras();
+        logged_mail = bndl.getString("logged_mail");
+        clicked_mail = bndl.getString("clicked_mail");
+
+        if (clicked_mail == null)
+            clicked_mail = logged_mail;
+
+        fetchData();
+
+        /* hide buttons if clicked on profile was not equal to logged user */
+        if (!clicked_mail.equals(logged_mail)) {
+            hideButtons();
+            swipeRefreshLayout.setEnabled(false);
+        }
+        else
+            setRefresher();
+
+    }
+
+    /* FIND VIEWS AND SET LISTENERS */
+    private void setBehavior(){
         avatarImageView = findViewById(R.id.user_avatar);
         emailTextView = findViewById(R.id.user_email);
         nameTextView = findViewById(R.id.user_name);
@@ -104,16 +117,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         buttonSettings.setOnClickListener(this);
         buttonCreateCompany.setOnClickListener(this);
         buttonUpdateProfile.setOnClickListener(this);
+    }
 
-        bndl = getIntent().getExtras();
-
-        logged_mail = bndl.getString("logged_mail");
-        clicked_mail = bndl.getString("clicked_mail");
-
-        if (clicked_mail == null) {
-            clicked_mail = logged_mail;
-        }
-
+    /* FETCH DATA FROM DATABASE */
+    private void fetchData(){
         /* reference to user's avatar */
         avatarRef = FirebaseStorage.getInstance().getReference("Images/" + clicked_mail);
 
@@ -138,9 +145,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                for (DataSnapshot childSnapshot: snapshot.getChildren())
                     user = childSnapshot.getValue(User.class);
-                }
 
                 /* need to call this function here to overcome multithreading */
                 setTextViews(user);
@@ -149,18 +155,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "onCancelled: " + error);
             }
         });
-
-        /* hide buttons if clicked on profile was not equal to logged user */
-        if (!clicked_mail.equals(logged_mail)) {
-            hideButtons();
-            swipeRefreshLayout.setEnabled(false);
-        }
-        else {
-            setRefresher();
-        }
     }
 
     /* Basic method for determining clicked button */
@@ -236,7 +232,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         user = snapshot.getValue(User.class);
-                        setTextViews(user);
+                        if (user != null)
+                            setTextViews(user);
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
@@ -275,15 +272,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         ArrayList<String> userSkills = new ArrayList<>();
         int recyclerSize = !clicked_mail.equals(logged_mail) ? 16 : 8;
 
-
-        if (user.getSkills() == null || user.getSkills().size() == 0) {
+        if (user.getSkills() == null || user.getSkills().size() == 0)
             skillText.setText("No skills yet :(");
-        }
         else {
             skillText.setText("My skills:");
-            for (int i = 0; i < recyclerSize && i < user.getSkills().size(); i++) {
+            for (int i = 0; i < recyclerSize && i < user.getSkills().size(); i++)
                 userSkills.add(user.getSkills().get(i));
-            }
         }
 
         boolean[] selected = new boolean[recyclerSize];
@@ -304,9 +298,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         startActivity(logoutIntent);
     }
 
-    private void deleteAccout() {
-        //pass
-    }
 
     @Override
     public void onSkillClick(int position) {

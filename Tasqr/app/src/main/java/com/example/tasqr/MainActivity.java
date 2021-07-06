@@ -40,8 +40,6 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity";
-
     /* Logged user basic info */
     private String logged_name;
     private String logged_surname;
@@ -49,11 +47,9 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> owned_companies = new ArrayList<>();
     private User user;
 
-    /* Firebase database */
-    private FirebaseDatabase database;
     private DatabaseReference usersRef;
     private DatabaseReference projectsRef;
-    private DatabaseReference companyRef;
+
     /* Fetched projects counter */
     private AtomicInteger projectsFetched;
 
@@ -81,10 +77,13 @@ public class MainActivity extends AppCompatActivity {
         /* Creates one row of ListView, consisting of project name, company name and image */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            /* Set up */
             View row = convertView;
             LayoutInflater inflater = context.getLayoutInflater();
             if(convertView == null)
                 row = inflater.inflate(R.layout.project_list_item, null, true);
+
+            /* Find and set */
             TextView projectName = (TextView) row.findViewById(R.id.projectName);
             TextView ownerName = (TextView) row.findViewById(R.id.projectOwner);
             ImageView projectImage = (ImageView) row.findViewById(R.id.projectImage);
@@ -118,10 +117,10 @@ public class MainActivity extends AppCompatActivity {
         onResumeFirstTime = Boolean.TRUE;
 
         /* Database fetch */
-        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+        /* Firebase database */
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
         usersRef = database.getReference("Users");
         projectsRef = database.getReference("Projects");
-        companyRef = database.getReference("Companies");
 
         /* Intent bundle fetch */
         Bundle bundle = getIntent().getExtras();
@@ -166,9 +165,9 @@ public class MainActivity extends AppCompatActivity {
             q.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                    for (DataSnapshot childSnapshot: snapshot.getChildren())
                         user = childSnapshot.getValue(User.class);
-                    }
+
                     logged_name = user.getName();
                     logged_surname = user.getSurname();
 
@@ -177,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Log.e(TAG, "onCancelled: " + error);
                 }
             });
 
@@ -195,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
     /* Override back button so it doesn't logout user */
     @Override
     public void onBackPressed() {
-        Log.d("CDA", "onBackPressed Called");
         Intent setIntent = new Intent(Intent.ACTION_MAIN);
         setIntent.addCategory(Intent.CATEGORY_HOME);
         setIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -211,9 +208,10 @@ public class MainActivity extends AppCompatActivity {
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     user = ds.getValue(User.class);
                     ArrayList<String> managed = user.getManagedCompanies();
-                    if (managed.size() == 1) {
+
+                    if (managed.size() == 1)
                         addProjectButton.setVisibility(View.INVISIBLE);
-                    } else {
+                    else {
                         owned_companies = managed;
                         owned_companies.remove(0);
                         addProjectButton.setVisibility(View.VISIBLE);
@@ -260,14 +258,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User u = new User();
-                for (DataSnapshot childSnapshot: snapshot.getChildren()) {
+                for (DataSnapshot childSnapshot: snapshot.getChildren())
                     u = childSnapshot.getValue(User.class);
-                }
+
 
                 projectsFetched = new AtomicInteger(0);
                 ArrayList<String> tmp = u.getProjects();
                 for (int i = 1; i < tmp.size(); i++) {
-
                     /* Querying all user projects */
                     Query qp = projectsRef.orderByKey().equalTo(tmp.get(i));
                     qp.addListenerForSingleValueEvent(new ValueEventListener() {

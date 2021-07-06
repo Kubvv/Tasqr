@@ -13,13 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,7 +22,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.tasqr.classes.Project;
+import com.example.tasqr.PopUps.AddSubTaskPopUp;
+import com.example.tasqr.PopUps.ConfirmationPopUp;
+import com.example.tasqr.PopUps.WorkerListPopUp;
+import com.example.tasqr.Styling.CheckBoxTriState;
 import com.example.tasqr.classes.SubTask;
 import com.example.tasqr.classes.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -38,26 +36,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPopUp.AddSubTaskListener, ConfirmationPopUp.ConfirmationListener {
-
-    private static final String TAG = "SubTaskActivity";
 
     private FirebaseDatabase database;
 
     private ListView subTaskList;
-    private TextView projectName;
     private SubTaskList subTaskAdapter;
     private SwipeRefreshLayout refreshLayout;
     private FloatingActionButton addSubTaskButton;
-    private FloatingActionButton workerListButton ;
-    private FloatingActionButton workerSettingsButton;
     private FloatingActionButton deleteButton;
     private FloatingActionButton saveChangesButton;
 
     private boolean deleteMode;
-    private boolean isLeader;
 
     /* Custom SubTask array adapter */
     private class SubTaskList extends ArrayAdapter{
@@ -78,12 +69,13 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         /* Creates one row of ListView, consisting of subtask name and checkbox */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            /* Set up */
             View row = convertView;
             LayoutInflater inflater = context.getLayoutInflater();
-
             if(convertView == null)
                 row = inflater.inflate(R.layout.subtask_list_item, null, true);
 
+            /* Find and set */
             row.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -105,6 +97,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
             return row;
         }
 
+        /* GET ALL STATES INTO AN ARRAY */
         public ArrayList<Integer> getCheckBoxStates(){
             ArrayList<Integer> returnArray = new ArrayList<>(checkBoxes.size());
             for (CheckBoxTriState checkbox: checkBoxes)
@@ -112,6 +105,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
             return returnArray;
         }
 
+        /* SHOW SAVE BUTTON */
         private void setSaveVisible(){
             saveChangesButton.setOnClickListener(v -> saveStateChanges());
             saveChangesButton.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.save));
@@ -133,11 +127,11 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
         /* Find and set xml items */
         subTaskList = findViewById(R.id.subTaskList);
         addSubTaskButton = findViewById(R.id.addSubTaskButton);
-        workerListButton = findViewById(R.id.workerListButton);
-        workerSettingsButton = findViewById(R.id.workerSettingsButton);
+        FloatingActionButton workerListButton = findViewById(R.id.workerListButton);
+        FloatingActionButton workerSettingsButton = findViewById(R.id.workerSettingsButton);
         deleteButton = findViewById(R.id.trashButton);
         saveChangesButton = findViewById(R.id.saveSubTaskChangesButton);
-        projectName = findViewById(R.id.taskName);
+        TextView projectName = findViewById(R.id.taskName);
         refreshLayout = findViewById(R.id.swipe_refresh);
         setRefresher();
 
@@ -173,9 +167,7 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
 
     private void noDataChangeFetch(Task task)
     {
-        if (task.getLeader().contains(getIntent().getStringExtra("logged_mail")))
-            isLeader = true;
-        else
+        if (!task.getLeader().contains(getIntent().getStringExtra("logged_mail")))
             addSubTaskButton.setOnClickListener(null);
 
         if (task != null && task.getSubTasks() != null) {
@@ -192,7 +184,6 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
     private void fetchSubTaskData() {
         DatabaseReference taskRef = database.getReference("Tasks/" + getIntent().getStringExtra("taskId"));
 
-        Log.e(TAG, "fetchSubTaskData: " + getIntent().getStringExtra("taskId"));
         taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -216,7 +207,6 @@ public class SubTasksActivity extends AppCompatActivity implements AddSubTaskPop
     /* List refresher after adding new subtask */
     @Override
     public void sendSubTaskName(String subTaskName) {
-        Log.e(TAG, "sendSubTaskName: " + getIntent().getStringExtra("taskId"));
         DatabaseReference taskRef = database.getReference("Tasks/" + getIntent().getStringExtra("taskId"));
 
         taskRef.addListenerForSingleValueEvent(new ValueEventListener() {

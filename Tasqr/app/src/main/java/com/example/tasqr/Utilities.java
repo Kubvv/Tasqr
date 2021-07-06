@@ -1,3 +1,5 @@
+/* ALL HELPER FUNCTIONS */
+
 package com.example.tasqr;
 
 import android.app.Activity;

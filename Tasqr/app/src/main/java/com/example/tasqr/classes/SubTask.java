@@ -6,7 +6,7 @@ public class SubTask {
         pending(0), reviewing(1), done(2), abandoned(3);
 
         private final int value;
-        private SubTaskState(int value) {
+        SubTaskState(int value) {
             this.value = value;
         }
 

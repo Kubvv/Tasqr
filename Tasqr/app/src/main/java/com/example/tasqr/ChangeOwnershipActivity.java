@@ -1,8 +1,17 @@
+/*
+ *   CHANGE OWNERSHIP ACTIVITY
+ *   Activity to add task to project
+ *   CONTAINS        ListView list of possible ownership receivers
+ *                   SearchBar
+ * */
+
+
 package com.example.tasqr;
 
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.example.tasqr.PopUps.ConfirmationPopUp;
 import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.User;
@@ -29,26 +38,22 @@ import java.util.ArrayList;
 
 public class ChangeOwnershipActivity extends AppCompatActivity implements ConfirmationPopUp.ConfirmationListener {
 
-    private Bundle bndl;
-
-    private String previous_activity;
     private String logged_mail;
-
-    private TextView changeOwnerTitle;
-    private EditText searchUsers;
+    private String previous_activity;
 
     /* Arraylists used for creating user listView */
     private ListView listView;
-    private ArrayList<User> userArray = new ArrayList<>();
-    private ArrayList<String> displayArray = new ArrayList<>();
-    ArrayAdapter<String> adapter;
+    private final ArrayList<User> userArray = new ArrayList<>();
+    private final ArrayList<String> displayArray = new ArrayList<>();
+    private ArrayAdapter<String> adapter;
+    private EditText searchUsers;
 
     /* Firebase database */
-    private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-    private DatabaseReference rootRef = database.getReference();
-    private DatabaseReference usersRef = rootRef.child("Users");
-    private DatabaseReference projectsRef = rootRef.child("Projects");
-    private DatabaseReference companiesRef = rootRef.child("Companies");
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+    private final DatabaseReference rootRef = database.getReference();
+    private final DatabaseReference usersRef = rootRef.child("Users");
+    private final DatabaseReference projectsRef = rootRef.child("Projects");
+    private final DatabaseReference companiesRef = rootRef.child("Companies");
 
     /* Company info */
     private Company currCompany;
@@ -60,30 +65,40 @@ public class ChangeOwnershipActivity extends AppCompatActivity implements Confir
     private User clickedUser;
 
 
+    /* MAIN ON CREATE METHOD */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_ownership);
 
-        bndl = getIntent().getExtras();
-        previous_activity = bndl.getString("previous_activity");
-        logged_mail = bndl.getString("logged_mail");
-        currCompany = bndl.getParcelable("company");
-
-        changeOwnerTitle = findViewById(R.id.changeOwnershipTitle);
+        TextView changeOwnerTitle = findViewById(R.id.changeOwnershipTitle);
         searchUsers = findViewById(R.id.editTextOwnership);
 
+        fetchBundle();
+        setBehavior();
+
+        switch(previous_activity) {
+            case "manageCompany":
+                changeOwnerTitle.setText(String.format("Change %s's owner", currCompany.getName()));
+                fetchCompanyWorkers();
+                break;
+            case "manageProject":
+                changeOwnerTitle.setText(String.format("Change %s's manager", currProject.getName()));
+                break;
+        }
+    }
+
+    /* FINDING VIEWS AND SETTING LISTENERS */
+    private void setBehavior() {
         searchUsers.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (adapter != null) {
+                if (adapter != null)
                     (ChangeOwnershipActivity.this).adapter.getFilter().filter(s);
-                }
             }
 
             @Override
@@ -97,36 +112,34 @@ public class ChangeOwnershipActivity extends AppCompatActivity implements Confir
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 /* get user's mail from userArray by index since we know displayArray index that was clicked on
-                * and both arrays share indices */
+                 * and both arrays share indices */
                 showPopUp(position);
             }
         });
-
-        switch(previous_activity) {
-            case "manageCompany":
-                changeOwnerTitle.setText(String.format("Change %s's owner", currCompany.getName()));
-                fetchCompanyWorkers();
-                break;
-            case "manageProject":
-                changeOwnerTitle.setText(String.format("Change %s's manager", currProject.getName()));
-
-                break;
-        }
     }
 
+    /* BUNDLE DATA GET */
+    private void fetchBundle(){
+        Bundle bndl = getIntent().getExtras();
+        previous_activity = bndl.getString("previous_activity");
+        logged_mail = bndl.getString("logged_mail");
+        currCompany = bndl.getParcelable("company");
+    }
+
+    /* GETTING LIST OF WORKERS FROM DATABASE */
     private void fetchCompanyWorkers() {
-        /* fetching company users in order to show them in a listview */
+        /* Fetching company users in order to show them in a listview */
         ArrayList<String> alreadyWorking = currCompany.getWorkers();
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                /* iterate through users and add each that works in company to array */
+                /* Iterate through users and add each that works in company to array */
                 int i = 0;
                 for (DataSnapshot ds : snapshot.getChildren()) {
-                    if (i == alreadyWorking.size()) {
-                        break; /* end of company users array */
-                    }
+                    if (i == alreadyWorking.size())
+                        break; /* End of company users array */
+
                     User user = ds.getValue(User.class);
                     /* If user is not the owner show him on the list of users that can be added */
                     if (user.getMail().equals(alreadyWorking.get(i))) {
@@ -146,12 +159,13 @@ public class ChangeOwnershipActivity extends AppCompatActivity implements Confir
         });
     }
 
-    /* create adapter for list view */
+    /* Create adapter for list view */
     private void setUserListAdapter() {
         adapter = new ArrayAdapter(ChangeOwnershipActivity.this, R.layout.single_user_list_item, displayArray);
         listView.setAdapter(adapter);
     }
 
+    /* SHOW POPUP TO CONFIRM OWNER CHANGE */
     private void showPopUp(int position) {
         ConfirmationPopUp popUp = new ConfirmationPopUp("changeOwner", position);
         User clickedUser = userArray.get(position);
@@ -165,18 +179,22 @@ public class ChangeOwnershipActivity extends AppCompatActivity implements Confir
         popUp.show(getSupportFragmentManager(), "ConfirmationPopUp");
     }
 
+    /* Perform change of owner */
     public void changeOwner(User newOwner) {
-        /* company changes */
+        /* Company changes */
         String oldOwnerMail = currCompany.getOwner();
         currCompany.setOwner(newOwner.getMail());
+
         ArrayList<String> tmp = currCompany.getWorkers();
         tmp.remove(newOwner.getMail());
         currCompany.setWorkers(tmp);
         tmp = currCompany.getManagers();
+
         if (tmp != null) {
             tmp.remove(newOwner.getMail());
             currCompany.setManagers(tmp);
         }
+
         companiesRef.child(currCompany.getId()).setValue(currCompany);
 
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -190,14 +208,15 @@ public class ChangeOwnershipActivity extends AppCompatActivity implements Confir
                         workersTmp.add(oldOwnerMail);
                         break;
                     }
+
                     u = ds.getValue(User.class);
                     if (u.getMail().equals(oldOwnerMail)) {
                         workersTmp.add(i, oldOwnerMail);
                         break;
                     }
-                    if (u.getMail().equals(workersTmp.get(i))) {
+
+                    if (u.getMail().equals(workersTmp.get(i)))
                         i++;
-                    }
                 }
                 companiesRef.child(currCompany.getId()).child("workers").setValue(workersTmp);
             }
@@ -208,15 +227,15 @@ public class ChangeOwnershipActivity extends AppCompatActivity implements Confir
             }
         });
 
-        /* user changes */
+        /* User changes */
         Query q = usersRef.orderByChild("mail").equalTo(oldOwnerMail);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 ArrayList<String> ownerTmp;
-                for (DataSnapshot ds : snapshot.getChildren()) {
+                for (DataSnapshot ds : snapshot.getChildren())
                     oldOwner = ds.getValue(User.class);
-                }
+
                 ownerTmp = oldOwner.getManagedCompanies();
                 ownerTmp.remove(currCompany.getName());
                 usersRef.child(oldOwner.getId()).child("managedCompanies").setValue(ownerTmp);

@@ -41,7 +41,7 @@ public class CreateCompanyActivity extends AppCompatActivity {
     private DatabaseReference rootRef = database.getReference();
     private DatabaseReference usersRef = rootRef.child("Users");
 
-
+    /* MAIN ON CREATE METHOD */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,9 +54,8 @@ public class CreateCompanyActivity extends AppCompatActivity {
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot ds : snapshot.getChildren()) {
+                for (DataSnapshot ds : snapshot.getChildren())
                     projectOwner = ds.getValue(User.class);
-                }
             }
 
             @Override
@@ -65,6 +64,7 @@ public class CreateCompanyActivity extends AppCompatActivity {
             }
         });
 
+        /* VIEWS AND BEHAVIOR */
         companyName = findViewById(R.id.addedCompanyName);
         description = findViewById(R.id.desc);
 
@@ -77,20 +77,21 @@ public class CreateCompanyActivity extends AppCompatActivity {
         });
     }
 
-    /* Resume previous inputs in textfields */
+    /* RESUME TEXTFIELDS */
     protected void onResume() {
         companyName.setText(bundle.getString("companyName"));
         description.setText(bundle.getString("desc"));
         super.onResume();
     }
 
-    /* Saves inputs from textfields */
+    /* SAVE TEXTFIELDS */
     protected void onPause() {
         bundle.putString("companyName", companyName.getText().toString());
         bundle.putString("desc", description.getText().toString());
         super.onPause();
     }
 
+    /* ADD USERS INTENT STARTER */
     public void openAddUsersActivity() {
         String name = companyName.getText().toString();
         String desc = description.getText().toString();

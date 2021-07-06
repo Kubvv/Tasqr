@@ -55,6 +55,7 @@ import java.util.HashSet;
 * taken from previous activities. This list contains all users that can be checked. After the button
 *  click, checked users are then added to appropriate objects in database, thus adding them to
 * projects, companies etc..  */
+
 public class AddUsersActivity extends AppCompatActivity {
 
     private class UserListItem{

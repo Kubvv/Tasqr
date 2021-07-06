@@ -1,3 +1,8 @@
+/*
+ * MANAGE COMPANY ACTIVITY
+ * Contains     ListView list of all companies user is currently in
+ */
+
 package com.example.tasqr;
 
 import android.app.Activity;
@@ -16,6 +21,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.example.tasqr.PopUps.ManageCompanyPopUp;
 import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.User;
 import com.google.firebase.database.DataSnapshot;
@@ -30,25 +36,19 @@ import java.util.HashMap;
 
 public class ManageCompanyActivity extends AppCompatActivity {
 
-    private static final String TAG = "ManageCompanyActivity";
-
     private String logged_mail;
     private User user;
-    private Bundle bndl;
 
-    private Button createCompanyButton;
     private ListView listView;
     private ArrayAdapter<String> adapter;
 
-    /* Firebase database */
-    private FirebaseDatabase database;
-    private DatabaseReference usersRef;
     private DatabaseReference companyRef;
 
-    private ArrayList<Company> companyArray = new ArrayList<>();
-    private ArrayList<String> nameArray = new ArrayList<>();
-    private ArrayList<String> positionArray = new ArrayList<>();
+    private final ArrayList<Company> companyArray = new ArrayList<>();
+    private final ArrayList<String> nameArray = new ArrayList<>();
+    private final ArrayList<String> positionArray = new ArrayList<>();
 
+    /* HELPER INNER ARRAY ADAPTER */
     private static class CompanyList extends ArrayAdapter {
 
         private final ArrayList<String> nameArray;
@@ -68,13 +68,16 @@ public class ManageCompanyActivity extends AppCompatActivity {
             }};
         }
 
-        /* Creates one row of ListView, consisting of comapny name and position */
+        /* Creates one row of ListView, consisting of company name and position */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            /* Set up */
             View row = convertView;
             LayoutInflater inflater = context.getLayoutInflater();
             if (convertView == null)
                 row = inflater.inflate(R.layout.company_list_item, null, true);
+
+            /* Find and set */
             TextView companyName = (TextView) row.findViewById(R.id.nameTextView);
             TextView companyPosition = (TextView) row.findViewById(R.id.companyPositionTextView);
 
@@ -88,18 +91,20 @@ public class ManageCompanyActivity extends AppCompatActivity {
     }
 
 
+    /* MAIN ON CREATE METHOD */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_managecompanies);
 
-        bndl = getIntent().getExtras();
+        Bundle bndl = getIntent().getExtras();
         logged_mail = bndl.getString("logged_mail");
 
         /* Database fetch */
-        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-        usersRef = database.getReference("Users");
+        /* Firebase database */
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+        DatabaseReference usersRef = database.getReference("Users");
         companyRef = database.getReference("Companies");
 
         listView = (ListView) findViewById(R.id.companylist);
@@ -110,7 +115,7 @@ public class ManageCompanyActivity extends AppCompatActivity {
             }
         });
 
-        createCompanyButton = (Button) findViewById(R.id.createCompanyButton);
+        Button createCompanyButton = (Button) findViewById(R.id.createCompanyButton);
         createCompanyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,14 +127,13 @@ public class ManageCompanyActivity extends AppCompatActivity {
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot ds : snapshot.getChildren()) {
+                for (DataSnapshot ds : snapshot.getChildren())
                     user = ds.getValue(User.class);
-                }
+
                 createListView();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
     }
@@ -148,12 +152,10 @@ public class ManageCompanyActivity extends AppCompatActivity {
                     else if (user.getCompanies().contains(c.getId())) {
                         companyArray.add(c);
                         nameArray.add(c.getName());
-                        if (c.getManagers() != null && c.getManagers().contains(user.getMail())) {
+                        if (c.getManagers() != null && c.getManagers().contains(user.getMail()))
                             positionArray.add("manager");
-                        }
-                        else {
+                        else
                             positionArray.add("employee");
-                        }
                     }
                 }
                 /* create list view */
@@ -174,9 +176,9 @@ public class ManageCompanyActivity extends AppCompatActivity {
         bundle.putString("company_name", name);
         bundle.putString("position", position);
         bundle.putParcelable("company", c);
-        if (position.equals("owner")) {
+
+        if (position.equals("owner"))
             bundle.putBoolean("isOwner", true);
-        }
         else if (position.equals("manager")) {
             bundle.putBoolean("isOwner", false);
             bundle.putBoolean("isManager", true);

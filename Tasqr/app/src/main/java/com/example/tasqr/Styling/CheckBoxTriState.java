@@ -1,13 +1,12 @@
-/*
-*   CURRENTLY NOT USED
-*
-* */
-package com.example.tasqr;
+/* Multiple state checkbox (was tri state before) */
+package com.example.tasqr.Styling;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+
+import com.example.tasqr.R;
 
 public class CheckBoxTriState extends androidx.appcompat.widget.AppCompatCheckBox {
     static private final int PENDING = 0;
@@ -37,7 +36,7 @@ public class CheckBoxTriState extends androidx.appcompat.widget.AppCompatCheckBo
 
         setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
-            // checkbox status is changed from uncheck to checked.
+            /* Checkbox status is changed from uncheck to checked */
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 switch (state) {
                     default:

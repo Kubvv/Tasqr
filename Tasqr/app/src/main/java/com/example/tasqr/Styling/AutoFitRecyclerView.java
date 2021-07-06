@@ -1,14 +1,12 @@
-package com.example.tasqr;
+/* RecyclerView for different screen sizes */
+package com.example.tasqr.Styling;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import org.jetbrains.annotations.NotNull;
 
 public class AutoFitRecyclerView extends RecyclerView {
     private GridLayoutManager manager;
@@ -31,9 +29,7 @@ public class AutoFitRecyclerView extends RecyclerView {
 
     private void init(Context context, AttributeSet attrs) {
         if (attrs != null) {
-            int[] attrsArray = {
-                    android.R.attr.columnWidth
-            };
+            int[] attrsArray = {android.R.attr.columnWidth};
             TypedArray array = context.obtainStyledAttributes(attrs, attrsArray);
             columnWidth = array.getDimensionPixelSize(0, -1);
             array.recycle();
@@ -73,9 +69,7 @@ public class AutoFitRecyclerView extends RecyclerView {
 
         private void init(Context context, AttributeSet attrs) {
             if (attrs != null) {
-                int[] attrsArray = {
-                        android.R.attr.columnWidth
-                };
+                int[] attrsArray = {android.R.attr.columnWidth};
                 TypedArray array = context.obtainStyledAttributes(attrs, attrsArray);
                 columnWidth = array.getDimensionPixelSize(0, -1);
                 array.recycle();
@@ -112,11 +106,10 @@ public class AutoFitRecyclerView extends RecyclerView {
         @Override
         public int getPaddingLeft() {
             final int totalItemWidth = columnWidth * getSpanCount();
-            if (totalItemWidth >= AutoFitRecyclerView.this.getMeasuredWidth()) {
+            if (totalItemWidth >= AutoFitRecyclerView.this.getMeasuredWidth())
                 return super.getPaddingLeft(); // do nothing
-            } else {
+            else
                 return Math.round((AutoFitRecyclerView.this.getMeasuredWidth() / (1f + getSpanCount())) - (totalItemWidth / (1f + getSpanCount())));
-            }
         }
 
         @Override

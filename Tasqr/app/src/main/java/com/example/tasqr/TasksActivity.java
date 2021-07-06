@@ -11,8 +11,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,31 +24,26 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.tasqr.PopUps.ConfirmationPopUp;
+import com.example.tasqr.PopUps.ManageProjectPopUp;
+import com.example.tasqr.PopUps.WorkerListPopUp;
 import com.example.tasqr.classes.Deadline;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
-import com.example.tasqr.classes.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.Query;
-import com.google.firebase.firestore.core.QueryListener;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Objects;
 
 public class TasksActivity extends AppCompatActivity implements ConfirmationPopUp.ConfirmationListener{
-
-    private static final String TAG = "TasksActivity";
 
     private boolean isLeader = false;
     private Project currProject;
@@ -118,9 +111,11 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
         /* Creates one row of ListView, consisting of task name */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+            /* Set up */
             View row = convertView;
             LayoutInflater inflater = context.getLayoutInflater();
 
+            /* Find and set */
             TextView deadline;
             if(convertView == null && displayArray.get(position).isVisible()) {
                 row = inflater.inflate(R.layout.task_list_item_visible, null, true);
@@ -131,12 +126,11 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
                 row = inflater.inflate(R.layout.task_list_item_invisible, null, true);
 
             TextView taskName = row.findViewById(R.id.taskNameList);
-
             ProgressBar progressBar = row.findViewById(R.id.taskProg);
 
             taskName.setText(displayArray.get(position).getName());
-
             progressBar.setProgress(displayArray.get(position).getProgress());
+
             return row;
         }
     }
@@ -147,7 +141,7 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
     private SwipeRefreshLayout refreshLayout;
     private TextView projectName;
     private ListView taskList;
-    private FloatingActionButton deleteButton, workerListButton, workerSettingsButton;
+    private FloatingActionButton deleteButton;
     private final ArrayList<DisplayArrayElement> displayArray = new ArrayList<>();
     private boolean deleteMode = false;
 
@@ -160,8 +154,8 @@ public class TasksActivity extends AppCompatActivity implements ConfirmationPopU
         projectName = findViewById(R.id.projectNametsk);
         taskList = findViewById(R.id.taskList);
         addTaskButton = findViewById(R.id.addTaskButton);
-        workerListButton = findViewById(R.id.workerListButton);
-        workerSettingsButton = findViewById(R.id.workerSettingsButton);
+        FloatingActionButton workerListButton = findViewById(R.id.workerListButton);
+        FloatingActionButton workerSettingsButton = findViewById(R.id.workerSettingsButton);
         deleteButton = findViewById(R.id.trashButton);
         refreshLayout = findViewById(R.id.swipe_refresh);
         setRefresher();

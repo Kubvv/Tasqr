@@ -1,5 +1,14 @@
+/*
+ *   ADD PROJECT ACTIVITY
+ *   Activity for starting creation of new project
+ *   CONTAINS       EditText project name
+ *                  EditText description
+ *                  Spinner company picker
+ *                  Button next step button
+ * */
+
 package com.example.tasqr;
-//
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -22,30 +31,33 @@ public class AddProjectActivity extends AppCompatActivity {
     private EditText desc;
     private Spinner companySpinner;
 
+    /* MAIN ON CREATE METHOD */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addproject);
 
+        /* Getting bundle data */
         bundle = getIntent().getExtras();
         logged_name = bundle.getString("logged_name");
         logged_surname = bundle.getString("logged_surname");
         logged_mail = bundle.getString("logged_mail");
 
+        /* Finding views */
         addPeopleButton = findViewById(R.id.addPeopleButton);
         projectName = findViewById(R.id.addedCompanyName);
         companySpinner = findViewById(R.id.chooseCompanySpinner);
         desc = findViewById(R.id.desc);
 
+        /* Setting behaviour and style */
         ArrayAdapter<String> adapter = new ArrayAdapter(this, R.layout.spinner_item, bundle.getStringArrayList("owned_companies"));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         companySpinner.setAdapter(adapter);
 
-        addPeopleButton.setOnClickListener(v -> {
-            startAddUsersActivity();
-        });
+        addPeopleButton.setOnClickListener(v -> startAddUsersActivity());
     }
 
+    /* ADDUSERS INTENT STARTER */
     private void startAddUsersActivity() {
 
         String project_name = projectName.getText().toString();
@@ -69,7 +81,7 @@ public class AddProjectActivity extends AppCompatActivity {
         startActivity(addPeopleIntent);
     }
 
-    /* Resume previous inputs in textfields */
+    /* RESUME TEXTFIELDS */
     protected void onResume() {
         projectName.setText(bundle.getString("projectName"));
         desc.setText(bundle.getString("desc"));
@@ -77,7 +89,7 @@ public class AddProjectActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    /* Saves inputs from textfields */
+    /* SAVE TEXTFIELDS */
     protected void onPause() {
         bundle.putString("projectName", projectName.getText().toString());
         bundle.putString("desc", desc.getText().toString());

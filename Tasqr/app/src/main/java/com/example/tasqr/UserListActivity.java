@@ -33,11 +33,8 @@ public class UserListActivity extends AppCompatActivity {
 
     private Bundle bndl = new Bundle();
     private ListView listView;
-    private FirebaseDatabase database;
-    private DatabaseReference rootRef;
-    private DatabaseReference usersRef;
-    private ArrayList<User> userArray = new ArrayList<>();
-    private ArrayList<String> displayArray = new ArrayList<>();
+    private final ArrayList<User> userArray = new ArrayList<>();
+    private final ArrayList<String> displayArray = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +48,9 @@ public class UserListActivity extends AppCompatActivity {
 
         /* establish connection to database and some references */
 
-        database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-        rootRef = database.getReference();
-        usersRef = rootRef.child("Users");
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+        DatabaseReference rootRef = database.getReference();
+        DatabaseReference usersRef = rootRef.child("Users");
 
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

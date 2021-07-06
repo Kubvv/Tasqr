@@ -30,8 +30,6 @@ import com.google.firebase.database.ValueEventListener;
 * name and surname consists of max 40 letters, and their mail is a correct one. */
 public class RegisterActivity extends AppCompatActivity {
 
-    private static final String TAG = "RegisterActivity";
-
     /* View elements */
     private Button goToLoginButton;
     private Button registerUserButton;
@@ -163,13 +161,11 @@ public class RegisterActivity extends AppCompatActivity {
         q.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.getChildrenCount() > 0) {
+                if (snapshot.getChildrenCount() > 0)
                     Utilities.toastMessage("User already exists", RegisterActivity.this);
-                }
-                else {
+                else
                     /* need to call this function here to overcome multithreading */
                     addUser(data);
-                }
             }
 
             @Override
@@ -197,7 +193,6 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
         String strSalt = Utilities.bytesToHex(salt);
-        Log.e(TAG, "addUser: " + hashedPassword + " " + strSalt);
 
         User user = new User(id, data[0], data[1], data[2], hashedPassword, strSalt);
         usersRef.child(id).setValue(user).addOnSuccessListener(new OnSuccessListener<Void>() {

@@ -1,4 +1,11 @@
-package com.example.tasqr;
+/*
+ *   MANAGE PROJECT POPUP
+ *   Dialog for managing projects
+ *   CONTAINS    Buttons add leaders, add users, leave
+ * */
+
+
+package com.example.tasqr.PopUps;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,6 +22,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.tasqr.AddUsersActivity;
+import com.example.tasqr.MainActivity;
+import com.example.tasqr.R;
+import com.example.tasqr.Utilities;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.Task;
 import com.example.tasqr.classes.User;
@@ -29,24 +40,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ManageProjectPopUp extends DialogFragment {
 
-    private static final String TAG = "ManageProjectPopUp";
-
     private Bundle bundle;
 
     private String logged_mail;
     private String logged_name;
     private String logged_surname;
+    private boolean isLeader;
 
-    private FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
-    private DatabaseReference rootRef = database.getReference();
+    private final FirebaseDatabase database = FirebaseDatabase.getInstance("https://tasqr-android-default-rtdb.europe-west1.firebasedatabase.app/");
+    private final DatabaseReference rootRef = database.getReference();
 
     private User user;
     private Project project;
 
-    private Button dismiss;
-    private TextView title;
+    private View view;
+    private Button addUsersButton;
+    private Button addLeadersButton;
 
-    /* Main on create method */
+    /* MAIN ON CREATE METHOD */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -56,23 +67,40 @@ public class ManageProjectPopUp extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.popup_manageproject, null);
 
+        fetchBundle();
+        setBehaviour();
+
+        if(isLeader) {
+            addUsersButton.setVisibility(View.VISIBLE);
+            addLeadersButton.setVisibility(View.VISIBLE);
+        }
+
+        builder.setView(view);
+
+        return builder.create();
+    }
+
+    /* GETTING BUNDLE DATA */
+    private void fetchBundle(){
         bundle = getArguments();
         logged_mail = bundle.getString("logged_mail");
         logged_name = bundle.getString("logged_name");
         logged_surname = bundle.getString("logged_surname");
         project = bundle.getParcelable("project");
-        boolean isLeader = bundle.getBoolean("isLeader");
+        isLeader = bundle.getBoolean("isLeader");
+    }
 
-        Log.e(TAG, "onCreateDialog: " + project.getName());
-
-        dismiss = view.findViewById(R.id.dismiss);
+    /* SETTING UP VIEWS AND LISTENERS */
+    private void setBehaviour(){
+        Button dismiss = view.findViewById(R.id.dismiss);
         dismiss.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismiss();
             }
         });
-        title = view.findViewById(R.id.title);
+
+        TextView title = view.findViewById(R.id.title);
         title.setText(project.getName());
 
         Button addUsersButton = view.findViewById(R.id.addUsersButton);
@@ -82,23 +110,18 @@ public class ManageProjectPopUp extends DialogFragment {
                 startAddUsersActivity("manageProjectUsers");
             }
         });
+
         Button addLeadersButton = view.findViewById(R.id.addLeadersButton);
         addLeadersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (project.getWorkers().size() == 1) {
+                if (project.getWorkers().size() == 1)
                     Utilities.toastMessage("No users to choose from", getActivity());
-                } else {
+                else
                     startAddUsersActivity("manageProjectLeaders");
-                }
             }
         });
 
-        if(isLeader){
-            addUsersButton.setVisibility(View.VISIBLE);
-            addLeadersButton.setVisibility(View.VISIBLE);
-        }
-        
         Button leaveButton = view.findViewById(R.id.changeOwnerButton);
         leaveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,12 +149,9 @@ public class ManageProjectPopUp extends DialogFragment {
 
             }
         });
-
-        builder.setView(view);
-
-        return builder.create();
     }
 
+    /* ADD USERS INTENT STARTER */
     private void startAddUsersActivity(String previous_activity) {
         Intent intent = new Intent(getContext(), AddUsersActivity.class);
         intent.putExtra("logged_mail", logged_mail);
@@ -146,10 +166,10 @@ public class ManageProjectPopUp extends DialogFragment {
         startActivity(intent);
     }
 
+    /* MAIN ACTIVITY INTENT STARTER */
     private void startMainActivity() {
         Intent intent = new Intent(getActivity(), MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        Log.e(TAG, "startMainActivity: " + logged_name + " " + logged_surname);
         intent.putExtra("logged_name", logged_name);
         intent.putExtra("logged_surname", logged_surname);
         intent.putExtra("logged_mail", logged_mail);
@@ -157,6 +177,7 @@ public class ManageProjectPopUp extends DialogFragment {
         startActivity(intent);
     }
 
+    //--------------------------------------------LISTENER HANDLERS-----------------------------------------//
     private boolean leaveProject() {
         if (project.getLeaders().size() == 1 && project.getLeaders().get(0).equals(logged_mail) && project.getWorkers().size() != 1) {
             Utilities.toastMessage("Choose a new leader before leaving", getActivity());
@@ -165,10 +186,9 @@ public class ManageProjectPopUp extends DialogFragment {
 
         deleteProjectFromUser();
 
-        Log.e(TAG, "leaveProject: " + project.getWorkers().size());
-        if (project.getWorkers() == null || project.getWorkers().size() == 0) {
+        if (project.getWorkers() == null || project.getWorkers().size() == 0)
             deleteProject();
-        } else {
+        else {
             deleteUserFromLeadersAndWorkers();
             deleteUserFromProjectTasks();
         }
@@ -188,12 +208,13 @@ public class ManageProjectPopUp extends DialogFragment {
     }
 
     private void deleteProject() {
-        for (int i = 0; i < project.getTasks().size(); i++) {
+        for (int i = 0; i < project.getTasks().size(); i++)
             rootRef.child("Tasks").child(project.getTasks().get(i)).removeValue();
-        }
+
         rootRef.child("Projects").child(project.getId()).removeValue();
     }
 
+    //-------------------------------------------FIREBASE DEPENDENCIES SECTION----------------------------//
     public interface FirebaseTaskCallback {
         void onTaskCallback(Task task);
     }
@@ -282,12 +303,10 @@ public class ManageProjectPopUp extends DialogFragment {
                 project.getTasks().remove(task.getId());
                 rootRef.child("Tasks").child(task.getId()).removeValue();
             }
-            else {
+            else
                 rootRef.child("Tasks").child(task.getId()).setValue(task);
-            }
         }
 
         rootRef.child("Projects").child(project.getId()).setValue(project);
     }
-
 }

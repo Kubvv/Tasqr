@@ -1,4 +1,11 @@
-package com.example.tasqr;
+/*
+ *   CONFIRMATION POPUP
+ *   Popup for any type of confirmation
+ *   CONTAINS        Button Accept and deny
+ *                   TextView message to display
+ * */
+
+package com.example.tasqr.PopUps;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -17,33 +24,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.example.tasqr.R;
 import com.example.tasqr.classes.Company;
 import com.example.tasqr.classes.Project;
 import com.example.tasqr.classes.User;
 
 public class ConfirmationPopUp extends DialogFragment {
 
-    private static final String TAG = "ConfirmationPopUp";
     private final String name;
     private final int position;
-    private TextView text;
-    private Bundle bundle;
     private ConfirmationListener listener;
-
-    private Button dismiss;
-    private Button ok;
 
     public ConfirmationPopUp(String name, int position){
         this.name = name;
         this.position = position;
     }
 
-    public ConfirmationPopUp(String name) {
-        this.name = name;
-        this.position = -1;
-    }
-
-    /* Main on create method */
+    /* MAIN ON CREATE METHOD */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -53,12 +50,13 @@ public class ConfirmationPopUp extends DialogFragment {
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.popup_confirmation, null);
-        bundle = getArguments();
+        Bundle bundle = getArguments();
 
-        text = view.findViewById(R.id.conftext);
-        dismiss = view.findViewById(R.id.dismiss);
-        ok = view.findViewById(R.id.ok);
+        TextView text = view.findViewById(R.id.conftext);
+        Button dismiss = view.findViewById(R.id.dismiss);
+        Button ok = view.findViewById(R.id.ok);
 
+        /* Setting up behaviour */
         text.setText(bundle.getString("text"));
         dismiss.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,11 +77,10 @@ public class ConfirmationPopUp extends DialogFragment {
         return builder.create();
     }
 
-    /* Method to get context for listener */
+    /* GETTING CONTEXT FOR LISTENER */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-
         try {
             listener = (ConfirmationListener) context;
         } catch (ClassCastException e) {
